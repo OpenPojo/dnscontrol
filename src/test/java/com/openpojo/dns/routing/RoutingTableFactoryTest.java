@@ -20,15 +20,20 @@ package com.openpojo.dns.routing;
 
 import java.net.UnknownHostException;
 
+import com.openpojo.dns.exception.RoutingTableException;
 import com.openpojo.dns.routing.impl.DefaultRoutingTableEntry;
 import com.openpojo.dns.routing.impl.DomainRoutingTableEntry;
 import com.openpojo.dns.routing.impl.HostRoutingTableEntry;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 
+import static com.openpojo.dns.routing.RoutingTableFactory.createRoutingTableEntry;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,9 +46,35 @@ public class RoutingTableFactoryTest {
 
   private ResolverSpy resolverSpy;
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+
   @Before
   public void setUp() throws Exception {
     resolverSpy = ResolverSpyFactory.create(new SimpleResolver());
+  }
+
+  @Test
+  public void shouldThrowExceptionIfResolversNull() {
+    final String destination = "domain.com.";
+
+    thrown.expect(RoutingTableException.class);
+    thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
+
+    createRoutingTableEntry(destination, (Resolver[])null);
+  }
+
+
+  @Test
+  @SuppressWarnings("RedundantArrayCreation")
+  public void shouldThrowExceptionIfResolversEmpty() {
+    final String destination = "domain.com.";
+
+    thrown.expect(RoutingTableException.class);
+    thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
+
+    createRoutingTableEntry(destination, new Resolver[0]);
   }
 
   @Test
@@ -67,7 +98,7 @@ public class RoutingTableFactoryTest {
   }
 
   private void verifyReturnedType(String destination, Class<? extends RoutingTableEntry> expectedType) {
-    final RoutingTableEntry routingTableEntry = RoutingTableFactory.createRoutingTableEntry(destination, resolverSpy);
+    final RoutingTableEntry routingTableEntry = createRoutingTableEntry(destination, resolverSpy);
 
     assertThat(routingTableEntry, notNullValue());
     assertThat(resolverSpy.getCalls().size(), is(0));

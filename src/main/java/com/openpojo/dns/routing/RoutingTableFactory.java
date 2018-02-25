@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.routing;
 
+import com.openpojo.dns.exception.RoutingTableException;
 import com.openpojo.dns.routing.impl.DefaultRoutingTableEntry;
 import com.openpojo.dns.routing.impl.DomainRoutingTableEntry;
 import com.openpojo.dns.routing.impl.HostRoutingTableEntry;
@@ -28,6 +29,8 @@ import org.xbill.DNS.Resolver;
  */
 public class RoutingTableFactory {
   public static RoutingTableEntry createRoutingTableEntry(String destination, Resolver... resolvers) {
+    if (resolvers == null || resolvers.length == 0)
+      throw RoutingTableException.getInstance("Invalid call, can't create routing without resolvers for [" + destination + "]");
 
     if (destination == null || destination.length() == 0) {
       return new DefaultRoutingTableEntry(null, resolvers);
