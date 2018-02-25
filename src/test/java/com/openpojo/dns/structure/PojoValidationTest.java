@@ -34,7 +34,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author oshoukry
  */
-public class PojoTests {
+public class PojoValidationTest {
 
   @Test
   public void testAllGetters() {
