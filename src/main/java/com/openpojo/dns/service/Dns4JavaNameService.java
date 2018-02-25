@@ -43,8 +43,7 @@ public class Dns4JavaNameService implements NameService {
 
   @Override
   public InetAddress[] lookupAllHostAddr(String s) {
-//    return new InetAddress[0];
-    throw new UnsupportedOperationException("Not Implemented!");
+    return new InetAddress[0];
   }
 
   @Override
