@@ -18,29 +18,29 @@
 
 package com.openpojo.dns.routing;
 
-import com.openpojo.dns.exception.RoutingTableException;
-import com.openpojo.dns.routing.impl.DefaultRoutingTableEntry;
-import com.openpojo.dns.routing.impl.DomainRoutingTableEntry;
-import com.openpojo.dns.routing.impl.HostRoutingTableEntry;
+import com.openpojo.dns.exception.RouteException;
+import com.openpojo.dns.routing.impl.DefaultRoute;
+import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
+import com.openpojo.dns.routing.impl.HostRoute;
 import org.xbill.DNS.Resolver;
 
 /**
  * @author oshoukry
  */
-public class RoutingTableFactory {
-  public static RoutingTableEntry createRoutingTableEntry(String destination, Resolver... resolvers) {
+public class RouteFactory {
+  public static Route createRoute(String destination, Resolver... resolvers) {
     if (resolvers == null || resolvers.length == 0)
-      throw RoutingTableException.getInstance("Invalid call, can't create routing without resolvers for [" + destination + "]");
+      throw RouteException.getInstance("Invalid call, can't create routing without resolvers for [" + destination + "]");
 
     if (destination == null || destination.length() == 0) {
-      return new DefaultRoutingTableEntry(null, resolvers);
+      return new DefaultRoute(null, resolvers);
     }
 
     if (topLevelDomain(destination)) {
-      return new DomainRoutingTableEntry(destination, resolvers);
+      return new TopLevelDomainRoute(destination, resolvers);
     }
 
-    return new HostRoutingTableEntry(destination, resolvers);
+    return new HostRoute(destination, resolvers);
   }
 
   private static boolean topLevelDomain(String destination) {

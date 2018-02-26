@@ -26,6 +26,7 @@ import com.openpojo.reflection.filters.FilterNonConcrete;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
+import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -36,12 +37,23 @@ import static org.junit.Assert.assertThat;
  */
 public class PojoValidationTest {
 
+  private static final String TOP_LEVEL_PACKAGE = "com.openpojo.dns";
+
   @Test
   public void testAllGetters() {
     Validator validator = ValidatorBuilder.create()
         .with(new GetterTester())
         .build();
-    final List<PojoClass> validated = validator.validateRecursively("com.openpojo.dns", new FilterNonConcrete(), new FilterEnum());
+    final List<PojoClass> validated = validator.validateRecursively(TOP_LEVEL_PACKAGE, new FilterNonConcrete(), new FilterEnum());
+    assertThat(validated.size(), greaterThan(1));
+  }
+
+  @Test
+  public void testAllSetters() {
+    Validator validator = ValidatorBuilder.create()
+        .with(new SetterTester())
+        .build();
+    final List<PojoClass> validated = validator.validateRecursively(TOP_LEVEL_PACKAGE, new FilterNonConcrete(), new FilterEnum());
     assertThat(validated.size(), greaterThan(1));
   }
 }

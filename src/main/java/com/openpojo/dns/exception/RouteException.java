@@ -16,28 +16,17 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.routing.impl;
-
-import com.openpojo.dns.routing.RoutingTableEntry;
-import org.xbill.DNS.Resolver;
+package com.openpojo.dns.exception;
 
 /**
  * @author oshoukry
  */
-public class DefaultRoutingTableEntry implements RoutingTableEntry {
-  private final Resolver[] resolvers;
-
-  public DefaultRoutingTableEntry(String key, Resolver... resolvers) {
-    this.resolvers = resolvers;
+public class RouteException extends RuntimeException {
+  private RouteException(String message) {
+    super(message);
   }
 
-  @Override
-  public String getKey() {
-    return null;
-  }
-
-  @Override
-  public Resolver[] getResolvers() {
-    return resolvers;
+  public static RouteException getInstance(String message) {
+    return new RouteException(message);
   }
 }

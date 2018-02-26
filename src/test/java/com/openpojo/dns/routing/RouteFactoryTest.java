@@ -20,10 +20,10 @@ package com.openpojo.dns.routing;
 
 import java.net.UnknownHostException;
 
-import com.openpojo.dns.exception.RoutingTableException;
-import com.openpojo.dns.routing.impl.DefaultRoutingTableEntry;
-import com.openpojo.dns.routing.impl.DomainRoutingTableEntry;
-import com.openpojo.dns.routing.impl.HostRoutingTableEntry;
+import com.openpojo.dns.exception.RouteException;
+import com.openpojo.dns.routing.impl.DefaultRoute;
+import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
+import com.openpojo.dns.routing.impl.HostRoute;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
 import org.junit.Before;
@@ -33,7 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 
-import static com.openpojo.dns.routing.RoutingTableFactory.createRoutingTableEntry;
+import static com.openpojo.dns.routing.RouteFactory.createRoute;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -42,8 +42,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author oshoukry
  */
-public class RoutingTableFactoryTest {
-
+public class RouteFactoryTest {
   private ResolverSpy resolverSpy;
 
   @Rule
@@ -59,50 +58,49 @@ public class RoutingTableFactoryTest {
   public void shouldThrowExceptionIfResolversNull() {
     final String destination = "domain.com.";
 
-    thrown.expect(RoutingTableException.class);
+    thrown.expect(RouteException.class);
     thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
 
-    createRoutingTableEntry(destination, (Resolver[])null);
+    createRoute(destination, (Resolver[])null);
   }
-
 
   @Test
   @SuppressWarnings("RedundantArrayCreation")
   public void shouldThrowExceptionIfResolversEmpty() {
     final String destination = "domain.com.";
 
-    thrown.expect(RoutingTableException.class);
+    thrown.expect(RouteException.class);
     thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
 
-    createRoutingTableEntry(destination, new Resolver[0]);
+    createRoute(destination, new Resolver[0]);
   }
 
   @Test
   public void shouldGetHostResolver() throws UnknownHostException {
-    verifyReturnedType("domain.com.", HostRoutingTableEntry.class);
+    verifyReturnedType("domain.com.", HostRoute.class);
   }
 
   @Test
-  public void whenNullDestionationCreateDefaultRoutingTableEntry() {
-    verifyReturnedType(null, DefaultRoutingTableEntry.class);
+  public void whenNullDestinationCreateDefaultRoutingTableEntry() {
+    verifyReturnedType(null, DefaultRoute.class);
   }
 
   @Test
   public void whenEmptyDestinationCreateDefaultRoutingTableEntry() throws UnknownHostException {
-    verifyReturnedType("", DefaultRoutingTableEntry.class);
+    verifyReturnedType("", DefaultRoute.class);
   }
 
   @Test
   public void whenStartsWithDotReturnDomainRoutingTableEntry() {
-    verifyReturnedType(".domain.com", DomainRoutingTableEntry.class);
+    verifyReturnedType(".domain.com", TopLevelDomainRoute.class);
   }
 
-  private void verifyReturnedType(String destination, Class<? extends RoutingTableEntry> expectedType) {
-    final RoutingTableEntry routingTableEntry = createRoutingTableEntry(destination, resolverSpy);
+  private void verifyReturnedType(String destination, Class<? extends Route> expectedType) {
+    final Route route = createRoute(destination, resolverSpy);
 
-    assertThat(routingTableEntry, notNullValue());
+    assertThat(route, notNullValue());
     assertThat(resolverSpy.getCalls().size(), is(0));
-    assertThat(routingTableEntry, instanceOf(expectedType));
+    assertThat(route, instanceOf(expectedType));
   }
 
 }

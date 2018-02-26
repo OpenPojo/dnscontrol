@@ -22,7 +22,10 @@ import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 
@@ -32,18 +35,45 @@ import static org.hamcrest.CoreMatchers.is;
 public class Dns4JavaNameServiceTest {
 
   private Dns4JavaNameService nameService;
+  private DefaultDomainSpy defaultDomain;
+  private DefaultIPv6PreferenceSpy ipV6Preference;
+  private DefaultResolverSpy resolver;
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Before
+  public void setup() {
+    defaultDomain = new DefaultDomainSpy();
+    ipV6Preference = new DefaultIPv6PreferenceSpy();
+    resolver = new DefaultResolverSpy();
+  }
 
   @Test
   public void shouldInitInitializers() {
-    final DefaultDomainSpy defaultDomain = new DefaultDomainSpy();
-    final DefaultIPv6PreferenceSpy ipV6Preference = new DefaultIPv6PreferenceSpy();
-    final DefaultResolverSpy resolver = new DefaultResolverSpy();
-
     nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
-
     Assert.assertThat(defaultDomain.initCalled, is(true));
     Assert.assertThat(ipV6Preference.initCalled, is(true));
     Assert.assertThat(resolver.initCalled, is(true));
+  }
+
+  @Test
+  public void lookupAllHostAddrShouldThrowUnsupportedOperationException() {
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("Not Implemented!");
+
+    nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
+    nameService.lookupAllHostAddr(null);
+  }
+
+  @Test
+  public void getHostByAddrShouldThrowUnsupportedOperationException() {
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("Not Implemented!");
+
+    nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
+
+    nameService.getHostByAddr(null);
   }
 
   private static class DefaultDomainSpy extends DefaultDomain {

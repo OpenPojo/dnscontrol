@@ -18,29 +18,19 @@
 
 package com.openpojo.dns.routing.impl;
 
-import com.openpojo.dns.routing.RoutingTableEntry;
-import org.xbill.DNS.Resolver;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry
  */
-public class DomainRoutingTableEntry implements RoutingTableEntry {
-  private final String key;
-  private final Resolver[] resolvers;
-
-  public DomainRoutingTableEntry(String key, Resolver... resolvers) {
-    this.key = key;
-    this.resolvers = resolvers;
-  }
-
-  @Override
-  public String getKey() {
-    return key;
-  }
-
-  @Override
-  public Resolver[] getResolvers() {
-    return resolvers;
+public class DefaultRouteTest {
+  @Test
+  public void shouldReturnNullKey() {
+    DefaultRoute entry = new DefaultRoute("NonNullString", null);
+    assertThat(entry.getKey(), nullValue());
   }
 
 }

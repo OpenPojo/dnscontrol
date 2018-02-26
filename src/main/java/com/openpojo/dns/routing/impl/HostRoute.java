@@ -16,14 +16,31 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.routing;
+package com.openpojo.dns.routing.impl;
 
+import com.openpojo.dns.routing.Route;
 import org.xbill.DNS.Resolver;
 
 /**
  * @author oshoukry
  */
-public interface RoutingTableEntry {
-  String getKey();
-  Resolver[] getResolvers();
+public class HostRoute implements Route {
+  private final String key;
+  private final Resolver[] resolvers;
+
+  public HostRoute(String key, Resolver... resolvers) {
+    this.key = key;
+    this.resolvers = resolvers;
+  }
+
+  @Override
+  public String getKey() {
+    return key;
+  }
+
+  @Override
+  public Resolver[] getResolvers() {
+    return resolvers;
+  }
+
 }
