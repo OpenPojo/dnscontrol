@@ -37,6 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
  */
 public class RoutingResolverTest {
 
+
   @Test
   public void shouldThrowUnImplementedOnAllMethods() {
     PojoClass pojoClass = getPojoClass(RoutingResolver.class);
@@ -55,8 +56,13 @@ public class RoutingResolverTest {
   private Object[] getRandomParameters(PojoMethod method) {
     final List<PojoParameter> pojoParameters = method.getPojoParameters();
     Object [] parameters = new Object[pojoParameters.size()];
-    for (int i = 0; i < parameters.length; i++)
-      parameters[i] = getRandomValue(pojoParameters.get(i));
+    for (int i = 0; i < parameters.length; i++) {
+      if (pojoParameters.get(i).getType().isPrimitive()) {
+        parameters[i] = getRandomValue(pojoParameters.get(i));
+      } else {
+        parameters[i] = null;
+      }
+    }
     return parameters;
   }
 }
