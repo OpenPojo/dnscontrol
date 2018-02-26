@@ -52,7 +52,6 @@ public class PublicDNSProviders {
   }
 
   private InputStream getConfigAsStream() throws IOException {
-    ClassLoader.getSystemClassLoader();
     final InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream(configFile);
     if (systemResourceAsStream == null)
       throw new IOException("Couldn't find config file [" + configFile + "]");
