@@ -86,7 +86,6 @@ public class ConfiguratorTest {
     final Name rootServer = new Name("a.root-servers.net.");
     final String expectedIP = "198.41.0.4";
 
-
     Record [] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
     assertThat(beforeConfigRecords.length, is(1));
     assertThat(((ARecord)beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
