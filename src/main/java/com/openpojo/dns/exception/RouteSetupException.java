@@ -21,12 +21,20 @@ package com.openpojo.dns.exception;
 /**
  * @author oshoukry
  */
-public class ResolverException extends RuntimeException {
-  public ResolverException(String message, Throwable cause) {
+public class RouteSetupException extends RuntimeException {
+  private RouteSetupException(String message) {
+    super(message);
+  }
+
+  public static RouteSetupException getInstance(String message) {
+    return new RouteSetupException(message);
+  }
+
+  private RouteSetupException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public static ResolverException getInstance(String message, Throwable cause) {
-    return new ResolverException(message, cause);
+  public static RouteSetupException getInstance(String message, Throwable cause) {
+    return new RouteSetupException(message, cause);
   }
 }

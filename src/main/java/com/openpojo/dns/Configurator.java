@@ -19,6 +19,7 @@
 package com.openpojo.dns;
 
 import com.openpojo.dns.routing.RoutingResolver;
+import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
@@ -27,10 +28,14 @@ import org.xbill.DNS.Resolver;
  */
 public class Configurator {
   private final RoutingResolver routingResolver;
-  private Resolver initialResolver = Lookup.getDefaultResolver();
+  private final Resolver originalResolver;
 
   public static Configurator getInstance() {
     return Instance.INSTANCE;
+  }
+
+  public void setRoutingTable(RoutingTable routingTable) {
+    routingResolver.setRoutingTable(routingTable);
   }
 
   public synchronized void registerRoutingResolver() {
@@ -39,12 +44,12 @@ public class Configurator {
   }
 
   public synchronized void unRegisterRoutingResolver() {
-    Lookup.setDefaultResolver(initialResolver);
+    Lookup.setDefaultResolver(originalResolver);
   }
 
   private Configurator() {
-    //TODO: Setup default routing table
-    routingResolver = new RoutingResolver();
+    originalResolver = Lookup.getDefaultResolver();
+    routingResolver = new RoutingResolver(originalResolver);
   }
 
   private static class Instance {

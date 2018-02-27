@@ -18,11 +18,17 @@
 
 package com.openpojo.dns.routing;
 
-import com.openpojo.dns.exception.RouteException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.routing.impl.DefaultRoute;
-import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
 import com.openpojo.dns.routing.impl.HostRoute;
+import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
 import org.xbill.DNS.Resolver;
+import org.xbill.DNS.SimpleResolver;
 
 /**
  * @author oshoukry
@@ -30,7 +36,7 @@ import org.xbill.DNS.Resolver;
 public class RouteFactory {
   public static Route createRoute(String destination, Resolver... resolvers) {
     if (resolvers == null || resolvers.length == 0)
-      throw RouteException.getInstance("Invalid call, can't create routing without resolvers for [" + destination + "]");
+      throw RouteSetupException.getInstance("Null or empty resolver list passed for destination [" + destination + "]");
 
     if (destination == null || destination.length() == 0) {
       return new DefaultRoute(null, resolvers);
@@ -41,6 +47,31 @@ public class RouteFactory {
     }
 
     return new HostRoute(destination, resolvers);
+  }
+
+  public static Route createRoute(String destination, String... dnsServers) {
+    if (dnsServers == null)
+      throw RouteSetupException.getInstance("Null server list passed for destination [" + destination + "]");
+
+    List<Resolver> resolvers = new ArrayList<>();
+    for (String server : dnsServers) {
+      if (server != null && server.length() > 0)
+        try {
+          resolvers.add(new SimpleResolver(server));
+        } catch (UnknownHostException e) {
+          throw RouteSetupException.getInstance(
+              "Failed to create route for destination ["
+                  + destination
+                  + "], while processing DNS Server ["
+                  + server + "] [" + e.getClass().getName() + "]", e);
+        }
+    }
+    if (resolvers.size() == 0) {
+      throw RouteSetupException.getInstance(
+          "Empty DNS server list " + Arrays.toString(dnsServers) + " passed for destination [" + destination + "]");
+    }
+
+    return createRoute(destination, resolvers.toArray(new Resolver[0]));
   }
 
   private static boolean topLevelDomain(String destination) {

@@ -16,17 +16,12 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.exception;
+package com.openpojo.dns.routing.impl;
 
 /**
  * @author oshoukry
  */
-public class RouteException extends RuntimeException {
-  private RouteException(String message) {
-    super(message);
-  }
+//TODO: RoutingTable compilation and optimized lookup
+public class SimpleRoutingTableTest {
 
-  public static RouteException getInstance(String message) {
-    return new RouteException(message);
-  }
 }

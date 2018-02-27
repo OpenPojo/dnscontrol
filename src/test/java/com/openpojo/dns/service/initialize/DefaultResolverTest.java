@@ -18,27 +18,19 @@
 
 package com.openpojo.dns.service.initialize;
 
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
-import com.openpojo.dns.exception.ResolverException;
-import com.openpojo.reflection.PojoClass;
-import com.openpojo.reflection.PojoField;
+import com.openpojo.dns.exception.RouteSetupException;
+import com.openpojo.dns.routing.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
-import org.xbill.DNS.SimpleResolver;
 
-import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClass;
-import static java.net.InetAddress.getByName;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -78,42 +70,28 @@ public class DefaultResolverTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void shouldSetupExtendedResolver() throws UnknownHostException {
+  public void shouldSetupRoutingResolver() throws UnknownHostException {
     final String dnsAddress = "8.8.8.8";
     System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_NAMESERVERS, dnsAddress);
     defaultResolver.init();
 
     final Resolver defaultResolver = Lookup.getDefaultResolver();
 
-    assertThat(defaultResolver, instanceOf(ExtendedResolver.class));
-    PojoField resolversField = getField("resolvers", ExtendedResolver.class);
-    List<Resolver> resolvers = (List<Resolver>) resolversField.get(defaultResolver);
-    assertThat(resolvers.size(), is(1));
-
-    Resolver configured = resolvers.get(0);
-    assertThat(configured, instanceOf(SimpleResolver.class));
-
-    PojoField addressField = getField("address", SimpleResolver.class);
-    InetSocketAddress expected = new InetSocketAddress(getByName(dnsAddress), 53);
-    assertThat((InetSocketAddress) addressField.get(configured), is(expected));
-  }
-
-  private PojoField getField(String name, Class<?> clazz) {
-    PojoClass pojoClass = getPojoClass(clazz);
-    for (PojoField field : pojoClass.getPojoFields())
-      if (field.getName().equals(name)) return field;
-    throw new RuntimeException("Field [" + name + "] not found in class [" + clazz.getName() + "]");
+    assertThat(defaultResolver, instanceOf(RoutingResolver.class));
   }
 
   @Test
   public void shouldThrowResolverException() {
-    final String unknownHost = "unknown.host.openpojo.com.";
+    final String unkownDNSServer = "unknown.host.openpojo.com.";
 
-    thrown.expect(ResolverException.class);
-    thrown.expectMessage("Failed to setup default DNS Resolver using name servers [" + unknownHost + "]");
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage("Failed to create route for destination [null], while processing DNS Server ["
+        + unkownDNSServer
+        + "] [java.net.UnknownHostException]");
+
     thrown.expectCause(isA(UnknownHostException.class));
 
-    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_NAMESERVERS, unknownHost);
+    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_NAMESERVERS, unkownDNSServer);
     defaultResolver.init();
   }
 }

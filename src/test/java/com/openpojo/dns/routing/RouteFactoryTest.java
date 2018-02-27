@@ -20,10 +20,10 @@ package com.openpojo.dns.routing;
 
 import java.net.UnknownHostException;
 
-import com.openpojo.dns.exception.RouteException;
+import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.routing.impl.DefaultRoute;
-import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
 import com.openpojo.dns.routing.impl.HostRoute;
+import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
 import org.junit.Before;
@@ -34,6 +34,7 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 
 import static com.openpojo.dns.routing.RouteFactory.createRoute;
+import static com.openpojo.random.RandomFactory.getRandomValue;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -58,8 +59,8 @@ public class RouteFactoryTest {
   public void shouldThrowExceptionIfResolversNull() {
     final String destination = "domain.com.";
 
-    thrown.expect(RouteException.class);
-    thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage("Null or empty resolver list passed for destination [" + destination + "]");
 
     createRoute(destination, (Resolver[])null);
   }
@@ -69,8 +70,8 @@ public class RouteFactoryTest {
   public void shouldThrowExceptionIfResolversEmpty() {
     final String destination = "domain.com.";
 
-    thrown.expect(RouteException.class);
-    thrown.expectMessage("Invalid call, can't create routing without resolvers for [" + destination + "]");
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage("Null or empty resolver list passed for destination [" + destination + "]");
 
     createRoute(destination, new Resolver[0]);
   }
@@ -103,4 +104,22 @@ public class RouteFactoryTest {
     assertThat(route, instanceOf(expectedType));
   }
 
+  @Test
+  public void shouldThrowExceptionWhenNameServersArrayIsEmpty() {
+    final String destination = getRandomValue(String.class);
+
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage("Empty DNS server list [] passed for destination [" + destination + "]");
+    createRoute(destination, new String[0]);
+  }
+
+  @Test
+  public void shouldThrowExceptionWhenNameServersArrayIsNull() {
+    final String destination = getRandomValue(String.class);
+
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage("Null server list passed for destination [" + destination + "]");
+    createRoute(destination, (String[])null);
+
+  }
 }

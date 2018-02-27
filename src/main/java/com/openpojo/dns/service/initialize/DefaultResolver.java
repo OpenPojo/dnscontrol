@@ -18,37 +18,39 @@
 
 package com.openpojo.dns.service.initialize;
 
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
-import com.openpojo.dns.exception.ResolverException;
+import com.openpojo.dns.Configurator;
+import com.openpojo.dns.routing.Route;
+import com.openpojo.dns.routing.RouteFactory;
+import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.routing.RoutingTableBuilder;
 import com.openpojo.log.Logger;
 import com.openpojo.log.LoggerFactory;
-import org.xbill.DNS.ExtendedResolver;
-import org.xbill.DNS.Lookup;
 
 /**
  * @author oshoukry
  */
 public class DefaultResolver implements Initializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultResolver.class);
+  private static final Configurator configurator = Configurator.getInstance();
 
-  public DefaultResolver() {}
+  public DefaultResolver() {
+  }
 
   public void init() {
-    String[] nameServers = parseNameServers();
-    try {
-      ExtendedResolver resolver;
-      if (nameServers != null) {
-        resolver = new ExtendedResolver(nameServers);
-        Lookup.setDefaultResolver(resolver);
-        LOGGER.debug("Default DNS Servers override set to [{0}]", (Object) nameServers);
-      }
-    } catch (UnknownHostException e) {
-      throw ResolverException.
-          getInstance("Failed to setup default DNS Resolver using name servers " + Arrays.toString(nameServers), e);
-    }
+    initializeAndRegisterRoutingResolver();
   }
+
+  private void initializeAndRegisterRoutingResolver() {
+    String[] nameServers = parseNameServers();
+    if (nameServers != null) {
+      Route defaultRoute = RouteFactory.createRoute(null, nameServers);
+      RoutingTable routingTable = RoutingTableBuilder.create().with(defaultRoute).build();
+      configurator.setRoutingTable(routingTable);
+      configurator.registerRoutingResolver();
+    }
+    LOGGER.debug("Default DNS Servers override set to [{0}]", (Object) nameServers);
+  }
+
 
   private String[] parseNameServers() {
     String nameServersConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_NAMESERVERS);

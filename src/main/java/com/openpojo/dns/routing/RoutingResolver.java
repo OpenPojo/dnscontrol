@@ -20,6 +20,7 @@ package com.openpojo.dns.routing;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.exception.RoutingResolverException;
 import org.xbill.DNS.Message;
@@ -30,8 +31,31 @@ import org.xbill.DNS.TSIG;
 /**
  * @author oshoukry
  */
-//TODO: Implement
 public class RoutingResolver implements Resolver {
+  private final AtomicReference<RoutingTable> safeAccessRoutingTable = new AtomicReference<>();
+  private final Resolver defaultSystemResolver;
+
+  public RoutingResolver(Resolver defaultSystemResolver) {
+    this.defaultSystemResolver = defaultSystemResolver;
+  }
+
+  public void setRoutingTable(RoutingTable routingTable) {
+    safeAccessRoutingTable.set(routingTable);
+  }
+
+  public RoutingTable getRoutingTable() {
+    return safeAccessRoutingTable.get();
+  }
+
+  @Override
+  public Message send(Message query) throws IOException {
+    return defaultSystemResolver.send(query);
+  }
+
+  @Override
+  public Object sendAsync(Message query, ResolverListener listener) {
+    throw RoutingResolverException.getInstance("Operation not supported");
+  }
 
   @Override
   public void setPort(int port) {
@@ -70,16 +94,6 @@ public class RoutingResolver implements Resolver {
 
   @Override
   public void setTimeout(int secs) {
-    throw RoutingResolverException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public Message send(Message query) throws IOException {
-    throw RoutingResolverException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public Object sendAsync(Message query, ResolverListener listener) {
     throw RoutingResolverException.getInstance("Operation not supported");
   }
 }

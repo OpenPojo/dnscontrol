@@ -18,13 +18,22 @@
 
 package com.openpojo.dns;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
+
 import com.openpojo.dns.routing.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
+import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.Type;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
@@ -35,7 +44,7 @@ import static org.junit.Assert.assertThat;
  */
 public class ConfiguratorTest {
 
-  private final Configurator instance = Configurator.getInstance();
+  private final Configurator configurator = Configurator.getInstance();
   private Resolver defaultResolver;
 
   @Before
@@ -50,24 +59,41 @@ public class ConfiguratorTest {
 
   @Test
   public void canGetInstance() {
-    assertThat(instance, notNullValue());
+    assertThat(configurator, notNullValue());
   }
 
   @Test
   public void canRegister() {
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
 
-    instance.registerRoutingResolver();
+    configurator.registerRoutingResolver();
 
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
   }
 
   @Test
   public void canUnRegister() {
-    instance.registerRoutingResolver();
+    configurator.registerRoutingResolver();
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
 
-    instance.unRegisterRoutingResolver();
+    configurator.unRegisterRoutingResolver();
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
+  }
+
+  @Test
+  public void canResolveSomeEntry() throws TextParseException, UnknownHostException {
+    configurator.registerRoutingResolver();
+    final Name rootServer = new Name("a.root-servers.net.");
+    final String expectedIP = "198.41.0.4";
+
+
+    Record [] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
+    assertThat(beforeConfigRecords.length, is(1));
+    assertThat(((ARecord)beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+
+    configurator.registerRoutingResolver();
+    Record [] afterConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
+    assertThat(beforeConfigRecords.length, is(1));
+    assertThat(((ARecord)afterConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
   }
 }
