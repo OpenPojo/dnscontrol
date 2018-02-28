@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
+import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -82,16 +83,15 @@ public class DefaultResolverTest {
 
   @Test
   public void shouldThrowResolverException() {
-    final String unkownDNSServer = "unknown.host.openpojo.com.";
 
     thrown.expect(RouteSetupException.class);
     thrown.expectMessage("Failed to create route for destination [null], while processing DNS Server ["
-        + unkownDNSServer
+        + UNKNOWN_SERVER
         + "] [java.net.UnknownHostException]");
 
     thrown.expectCause(isA(UnknownHostException.class));
 
-    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_NAMESERVERS, unkownDNSServer);
+    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_NAMESERVERS, UNKNOWN_SERVER);
     defaultResolver.init();
   }
 }

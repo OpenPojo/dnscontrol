@@ -20,6 +20,7 @@ package com.openpojo.dns.service;
 
 import java.net.InetAddress;
 
+import com.openpojo.dns.resolve.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
@@ -32,22 +33,22 @@ import sun.net.spi.nameservice.NameService;
  */
 public class Dns4JavaNameService implements NameService {
   private static final Logger LOGGER = LoggerFactory.getLogger(Dns4JavaNameService.class);
-  private boolean ipV6;
+  private final SimpleNameServiceLookup nameServiceLookup;
 
   public Dns4JavaNameService(DefaultDomain defaultDomain, DefaultIPv6Preference ipV6Preference, DefaultResolver resolver) {
     defaultDomain.init();
     ipV6Preference.init();
-    ipV6 = ipV6Preference.get();
     resolver.init();
+    nameServiceLookup = new SimpleNameServiceLookup(ipV6Preference.get());
   }
 
   @Override
-  public InetAddress[] lookupAllHostAddr(String s) {
-    throw new UnsupportedOperationException("Not Implemented!");
+  public InetAddress[] lookupAllHostAddr(String name) {
+    return nameServiceLookup.lookupAllHostAddr(name);
   }
 
   @Override
-  public String getHostByAddr(byte[] bytes) {
-    throw new UnsupportedOperationException("Not Implemented!");
+  public String getHostByAddr(byte[] addr) {
+    return nameServiceLookup.getHostByAddr(addr);
   }
 }

@@ -33,6 +33,8 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.instanceOf;
@@ -83,8 +85,8 @@ public class ConfiguratorTest {
   @Test
   public void canResolveSomeEntry() throws TextParseException, UnknownHostException {
     configurator.registerRoutingResolver();
-    final Name rootServer = new Name("a.root-servers.net.");
-    final String expectedIP = "198.41.0.4";
+    final Name rootServer = new Name(SERVER_1_NAME);
+    final String expectedIP = SERVER_1_IPv4_STRING;
 
     Record [] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
     assertThat(beforeConfigRecords.length, is(1));
