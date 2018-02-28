@@ -28,8 +28,13 @@ import java.util.List;
 /**
  * @author oshoukry
  */
-class SpyInvocationHandler implements Spy, InvocationHandler {
+class SpyInvocationHandler<T> implements Spy, InvocationHandler {
   private List<String> calls = new ArrayList<>();
+  private T instance;
+
+  public SpyInvocationHandler(T instance) {
+    this.instance = instance;
+  }
 
   @Override
   public List<String> getCalls() {
@@ -42,6 +47,6 @@ class SpyInvocationHandler implements Spy, InvocationHandler {
       return getCalls();
 
     calls.add(method.getName() + "(" + Arrays.deepToString(args) + ")");
-    return method.invoke(proxy, args);
+    return method.invoke(instance, args);
   }
 }

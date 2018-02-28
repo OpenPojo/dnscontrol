@@ -18,9 +18,11 @@
 
 package com.openpojo.dns.routing;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.openpojo.dns.constants.TestConstants;
 import com.openpojo.dns.exception.RoutingResolverException;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
@@ -31,13 +33,13 @@ import com.openpojo.reflection.exception.ReflectionException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.xbill.DNS.ExtendedResolver;
+import org.xbill.DNS.*;
 
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
 import static com.openpojo.random.RandomFactory.getRandomValue;
 import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClass;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static java.net.InetAddress.getByAddress;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -62,6 +64,21 @@ public class RoutingResolverTest {
     routingResolver.setRoutingTable(routingTable);
 
     assertThat(routingResolver.getRoutingTable(), sameInstance(routingTable));
+  }
+
+  @Test
+  public void shouldResolveQeury() throws IOException {
+    RoutingResolver routingResolver = new RoutingResolver(spyResolver);
+    Record record = Record.newRecord(new Name(TestConstants.SERVER_1_NAME), Type.A, DClass.IN);
+    Message query = Message.newQuery(record);
+    final Message response = routingResolver.send(query);
+    assertThat(response, notNullValue());
+    final Record[] answerSection = response.getSectionArray(Section.ANSWER);
+    assertThat(answerSection, notNullValue());
+    assertThat(answerSection.length, is(1));
+    final Record singleRecord = answerSection[0];
+    assertThat(singleRecord, instanceOf(ARecord.class));
+    assertThat(((ARecord)singleRecord).getAddress(), is(getByAddress(SERVER_1_IPv4_BYTES)));
   }
 
   @Test
