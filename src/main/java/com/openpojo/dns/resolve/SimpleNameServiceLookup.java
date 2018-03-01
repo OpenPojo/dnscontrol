@@ -52,8 +52,7 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
     if (records == null)
       throw ResolveException.getInstance("Unknown host [" + hostName + "]");
 
-    InetAddress[] array = extractInetAddresses(records);
-    return array;
+    return extractInetAddresses(records);
   }
 
   private Name getName(String hostName) {
