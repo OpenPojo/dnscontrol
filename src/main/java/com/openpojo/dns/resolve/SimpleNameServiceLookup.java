@@ -19,11 +19,11 @@
 package com.openpojo.dns.resolve;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import com.openpojo.dns.exception.ResolveException;
-import org.xbill.DNS.*;
+
+import static com.openpojo.dns.resolve.ForwardLookupWithFallBack.getIPAddresses;
 
 /**
  * @author oshoukry
@@ -45,81 +45,18 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
 
   @Override
   public InetAddress[] lookupAllHostAddr(String hostName) {
-    Name name = getName(hostName);
-
-    Record[] records = getRecords(name);
-
-    if (records == null)
+    final InetAddress[] ipAddresses = getIPAddresses(hostName, IPv6Preference);
+    if (ipAddresses == null)
       throw ResolveException.getInstance("Unknown host [" + hostName + "]");
 
-    return extractInetAddresses(records);
-  }
-
-  private Name getName(String hostName) {
-    Name name;
-    try {
-      name = new Name(hostName);
-    } catch (NullPointerException | TextParseException e) {
-      throw ResolveException.getInstance("Failed to parse name [" + hostName + "]", e);
-    }
-
-    return name;
-  }
-
-  private InetAddress[] extractInetAddresses(Record[] records) {
-    InetAddress[] inetAddresses = new InetAddress[records.length];
-
-    for (int i = 0; i < records.length; i++) {
-      inetAddresses[i] = extractInetAddress(records[i]);
-    }
-    return inetAddresses;
-  }
-
-  private InetAddress extractInetAddress(Record record) {
-    if (record instanceof ARecord) {
-      return ((ARecord) record).getAddress();
-    }
-    return ((AAAARecord) record).getAddress();
-  }
-
-  private Record[] getRecords(Name name) {
-    Record[] records;
-    if (IPv6Preference)
-      records = getIPv6_FallbackToIPv4(name);
-    else
-      records = getIPv4_FallbackToIPv6(name);
-
-    return records;
-  }
-
-  private Record[] getIPv4_FallbackToIPv6(Name name) {
-    Record[] records = new Lookup(name, Type.A).run();
-    if (records == null)
-      //TODO: untestable at this time need a host that is strictly IPv6 (or setup a DNS Server)
-      records = new Lookup(name, Type.AAAA).run();
-
-    return records;
-  }
-
-  private Record[] getIPv6_FallbackToIPv4(Name name) {
-    Record[] records = new Lookup(name, Type.AAAA).run();
-    if (records == null)
-      records = new Lookup(name, Type.A).run();
-
-    return records;
+    return ipAddresses;
   }
 
   @Override
-  public String getHostByAddr(byte[] addr) {
-    Name name;
-    try {
-      name = ReverseMap.fromAddress(InetAddress.getByAddress(addr));
-    } catch (UnknownHostException e) {
-      throw ResolveException.getInstance("Unknown host " + Arrays.toString(addr), e);
-    }
-    Record[] records = new Lookup(name, Type.PTR).run();
-    if (records == null)
-      throw ResolveException.getInstance("Unknown host " + Arrays.toString(addr));
-    return ((PTRRecord) records[0]).getTarget().toString();
+  public String getHostByAddr(byte[] ipAddress) {
+    String name = ReverseLookup.getHostName(ipAddress);
+    if (name == null)
+      throw ResolveException.getInstance("Unknown IPAddress " + Arrays.toString(ipAddress));
+    return name;
   }
 }

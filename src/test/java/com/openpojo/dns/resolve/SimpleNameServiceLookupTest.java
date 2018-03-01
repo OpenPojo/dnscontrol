@@ -105,7 +105,7 @@ public class SimpleNameServiceLookupTest {
   @Test
   public void shouldThrowExceptionForNullReverseLookup() {
     thrown.expect(ResolveException.class);
-    thrown.expectMessage("Unknown host null");
+    thrown.expectMessage("Unknown IPAddress null");
 
     createNameServiceLookup(false).getHostByAddr(null);
   }
@@ -114,7 +114,7 @@ public class SimpleNameServiceLookupTest {
   public void shouldThrowExceptionForInvalidReverseLookup() {
     final byte[] addr = { 0 };
     thrown.expect(ResolveException.class);
-    thrown.expectMessage("Unknown host " + Arrays.toString(addr));
+    thrown.expectMessage("Unknown IPAddress " + Arrays.toString(addr));
 
     createNameServiceLookup(false).getHostByAddr(addr);
   }
@@ -123,7 +123,7 @@ public class SimpleNameServiceLookupTest {
   public void shouldThrowExceptionForUnknownIPAddressBytes() {
     final byte[] addr = { 0, 1, 2, 3 };
     thrown.expect(ResolveException.class);
-    thrown.expectMessage("Unknown host " + Arrays.toString(addr));
+    thrown.expectMessage("Unknown IPAddress " + Arrays.toString(addr));
 
     createNameServiceLookup(false).getHostByAddr(addr);
   }
