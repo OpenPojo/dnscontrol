@@ -19,10 +19,8 @@
 package com.openpojo.dns.service.initialize;
 
 import com.openpojo.dns.Configurator;
-import com.openpojo.dns.routing.Route;
-import com.openpojo.dns.routing.RouteFactory;
 import com.openpojo.dns.routing.RoutingTable;
-import com.openpojo.dns.routing.RoutingTableBuilder;
+import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import com.openpojo.log.Logger;
 import com.openpojo.log.LoggerFactory;
 
@@ -43,14 +41,12 @@ public class DefaultResolver implements Initializer {
   private void initializeAndRegisterRoutingResolver() {
     String[] nameServers = parseNameServers();
     if (nameServers != null) {
-      Route defaultRoute = RouteFactory.createRoute(null, nameServers);
-      RoutingTable routingTable = RoutingTableBuilder.create().with(defaultRoute).build();
+      RoutingTable routingTable = RoutingTableBuilder.create().with(null, nameServers).build();
       configurator.setRoutingTable(routingTable);
       configurator.registerRoutingResolver();
     }
     LOGGER.debug("Default DNS Servers override set to [{0}]", (Object) nameServers);
   }
-
 
   private String[] parseNameServers() {
     String nameServersConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_NAMESERVERS);

@@ -18,17 +18,12 @@
 
 package com.openpojo.dns.routing;
 
-import java.util.List;
-
-import com.openpojo.dns.routing.impl.DefaultRoute;
-import com.openpojo.dns.routing.impl.HostRoute;
-import com.openpojo.dns.routing.impl.TopLevelDomainRoute;
+import org.xbill.DNS.Resolver;
 
 /**
  * @author oshoukry
  */
 public interface RoutingTable {
-  List<HostRoute> getHostRoutes();
-  List<TopLevelDomainRoute> getTopLevelDomainRoutes();
-  List<DefaultRoute> getDefaultRoutes();
+  String DOT = ".";
+  Resolver getResolverFor(String name);
 }

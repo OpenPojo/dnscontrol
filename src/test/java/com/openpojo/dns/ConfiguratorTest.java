@@ -35,8 +35,8 @@ import org.xbill.DNS.Type;
 
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;

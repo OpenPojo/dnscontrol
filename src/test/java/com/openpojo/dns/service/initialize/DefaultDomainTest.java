@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**

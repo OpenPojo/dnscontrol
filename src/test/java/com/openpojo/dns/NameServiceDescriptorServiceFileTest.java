@@ -28,7 +28,7 @@ import java.util.Enumeration;
 import com.openpojo.dns.service.Dns4JavaNameServiceDescriptor;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**

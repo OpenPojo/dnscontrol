@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.exception.RoutingResolverException;
 import org.xbill.DNS.Message;
+import org.xbill.DNS.Name;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.ResolverListener;
 import org.xbill.DNS.TSIG;
@@ -49,7 +50,18 @@ public class RoutingResolver implements Resolver {
 
   @Override
   public Message send(Message query) throws IOException {
-    return defaultSystemResolver.send(query);
+    Resolver resolverToUse = null;
+
+    final RoutingTable routingTable = safeAccessRoutingTable.get();
+    if (routingTable != null) {
+      Name name = query.getQuestion().getName();
+      resolverToUse = routingTable.getResolverFor(name.toString());
+    }
+
+    if (resolverToUse == null)
+      resolverToUse = defaultSystemResolver;
+
+    return resolverToUse.send(query);
   }
 
   @Override

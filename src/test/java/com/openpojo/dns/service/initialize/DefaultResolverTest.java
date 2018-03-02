@@ -31,9 +31,9 @@ import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -85,9 +85,7 @@ public class DefaultResolverTest {
   public void shouldThrowResolverException() {
 
     thrown.expect(RouteSetupException.class);
-    thrown.expectMessage("Failed to create route for destination [null], while processing DNS Server ["
-        + UNKNOWN_SERVER
-        + "] [java.net.UnknownHostException]");
+    thrown.expectMessage("Failed to create dns routing map");
 
     thrown.expectCause(isA(UnknownHostException.class));
 

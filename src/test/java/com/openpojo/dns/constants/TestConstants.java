@@ -30,8 +30,8 @@ import java.net.UnknownHostException;
 public class TestConstants {
   public static final String UNKNOWN_SERVER = "unknown.host.openpojo.com.";
 
-
-  public static final String SERVER_1_NAME = "a.root-servers.net.";
+  public static final String SERVER_1_DOMAIN = "root-servers.net.";
+  public static final String SERVER_1_NAME = "a." + SERVER_1_DOMAIN;
 
   public static final String SERVER_1_IPv4_STRING = "198.41.0.4";
   public static final byte[] SERVER_1_IPv4_BYTES = getAddressBytes(SERVER_1_IPv4_STRING);
@@ -43,6 +43,8 @@ public class TestConstants {
   public static final String SERVER_2_IPv4_STRING = "163.121.19.186";
   public static final byte[] SERVER_2_IPv4_BYTES = getAddressBytes(SERVER_2_IPv4_STRING);
 
+  public static final String LOCALHOST_IPv4 = "127.0.0.1";
+
   private static byte[] getAddressBytes(String ip_asString) {
     try {
       return InetAddress.getByName(ip_asString).getAddress();
@@ -50,5 +52,4 @@ public class TestConstants {
       throw new RuntimeException(e);
     }
   }
-
 }
