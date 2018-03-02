@@ -115,18 +115,19 @@ public class RoutingResolverTest {
     final List<String> calls = spyResolver.getCalls();
     assertThat(calls.size(), is(1));
     assertThat(calls.get(0), startsWith("send([;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: "));
-    assertThat(calls.get(0), endsWith("\n" +
-        ";; flags: rd ; qd: 1 an: 0 au: 0 ad: 0 \n" +
-        ";; QUESTIONS:\n" +
-        ";;\ta.root-servers.net., type = A, class = IN\n" +
-        "\n" +
-        ";; ANSWERS:\n" +
-        "\n" +
-        ";; AUTHORITY RECORDS:\n" +
-        "\n" +
-        ";; ADDITIONAL RECORDS:\n" +
-        "\n" +
-        ";; Message size: 0 bytes])"));
+    assertThat(calls.get(0), endsWith(
+        "\n"
+        + ";; flags: rd ; qd: 1 an: 0 au: 0 ad: 0 \n"
+        + ";; QUESTIONS:\n"
+        + ";;\t" + SERVER_1_NAME + ", type = A, class = IN\n"
+        + "\n"
+        + ";; ANSWERS:\n"
+        + "\n"
+        + ";; AUTHORITY RECORDS:\n"
+        + "\n"
+        + ";; ADDITIONAL RECORDS:\n"
+        + "\n"
+        + ";; Message size: 0 bytes])"));
   }
 
   @Test
