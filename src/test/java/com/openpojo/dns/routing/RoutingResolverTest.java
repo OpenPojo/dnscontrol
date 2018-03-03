@@ -24,16 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.openpojo.dns.constants.TestConstants;
-import com.openpojo.dns.exception.RoutingResolverException;
 import com.openpojo.dns.routing.impl.OptimizedRoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
+import com.openpojo.dns.routing.utils.NotSupportedMethodsValidator;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
-import com.openpojo.reflection.PojoClass;
-import com.openpojo.reflection.PojoMethod;
-import com.openpojo.reflection.PojoParameter;
-import com.openpojo.reflection.exception.ReflectionException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.*;
@@ -43,8 +38,6 @@ import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
-import static com.openpojo.random.RandomFactory.getRandomValue;
-import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClass;
 import static java.net.InetAddress.getByAddress;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -132,30 +125,6 @@ public class RoutingResolverTest {
 
   @Test
   public void shouldThrowUnImplementedOnAllMethods() {
-    PojoClass pojoClass = getPojoClass(RoutingResolver.class);
-    RoutingResolver routingResolver = new RoutingResolver(spyResolver);
-    for (PojoMethod method : pojoClass.getPojoMethods()) {
-      if (!method.isSynthetic() && !method.isConstructor() && !implementedMethods.contains(method.getName()))
-        try {
-          method.invoke(routingResolver, getRandomParameters(method));
-          Assert.fail("Failed to throw expected exception on method [" + method.getName() + "]");
-        } catch (ReflectionException re) {
-          RoutingResolverException rre = (RoutingResolverException) re.getCause().getCause();
-          assertThat(rre.getMessage(), is("Operation not supported"));
-        }
-    }
-  }
-
-  private Object[] getRandomParameters(PojoMethod method) {
-    final List<PojoParameter> pojoParameters = method.getPojoParameters();
-    Object[] parameters = new Object[pojoParameters.size()];
-    for (int i = 0; i < parameters.length; i++) {
-      if (pojoParameters.get(i).getType().isPrimitive()) {
-        parameters[i] = getRandomValue(pojoParameters.get(i));
-      } else {
-        parameters[i] = null;
-      }
-    }
-    return parameters;
+    NotSupportedMethodsValidator.validateMethodsNotImplemented(RoutingResolver.class, implementedMethods);
   }
 }

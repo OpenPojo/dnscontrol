@@ -20,11 +20,10 @@ package com.openpojo.dns.routing;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.exception.RoutingException;
+import org.xbill.DNS.Flags;
 import org.xbill.DNS.Message;
-import org.xbill.DNS.Name;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.ResolverListener;
 import org.xbill.DNS.TSIG;
@@ -32,36 +31,14 @@ import org.xbill.DNS.TSIG;
 /**
  * @author oshoukry
  */
-public class RoutingResolver implements Resolver {
-  private final AtomicReference<RoutingTable> safeAccessRoutingTable = new AtomicReference<>();
-  private final Resolver defaultSystemResolver;
-
-  public RoutingResolver(Resolver defaultSystemResolver) {
-    this.defaultSystemResolver = defaultSystemResolver;
-  }
-
-  public void setRoutingTable(RoutingTable routingTable) {
-    safeAccessRoutingTable.set(routingTable);
-  }
-
-  public RoutingTable getRoutingTable() {
-    return safeAccessRoutingTable.get();
-  }
+public class NoOpResolver implements Resolver {
 
   @Override
   public Message send(Message query) throws IOException {
-    Resolver resolverToUse = null;
-
-    final RoutingTable routingTable = safeAccessRoutingTable.get();
-    if (routingTable != null) {
-      Name name = query.getQuestion().getName();
-      resolverToUse = routingTable.getResolverFor(name.toString());
-    }
-
-    if (resolverToUse == null)
-      resolverToUse = defaultSystemResolver;
-
-    return resolverToUse.send(query);
+    final Message answer = (Message) query.clone();
+    answer.getHeader().setFlag(Flags.RA);
+    answer.getHeader().setFlag(Flags.QR);
+    return answer;
   }
 
   @Override

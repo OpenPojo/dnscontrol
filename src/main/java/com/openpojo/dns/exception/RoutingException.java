@@ -21,12 +21,12 @@ package com.openpojo.dns.exception;
 /**
  * @author oshoukry
  */
-public class RoutingResolverException extends RuntimeException {
-  private RoutingResolverException(String message) {
+public class RoutingException extends RuntimeException {
+  private RoutingException(String message) {
     super(message);
   }
 
-  public static RoutingResolverException getInstance(String message) {
-    return new RoutingResolverException(message);
+  public static RoutingException getInstance(String message) {
+    return new RoutingException(message);
   }
 }
