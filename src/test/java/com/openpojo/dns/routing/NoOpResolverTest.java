@@ -22,16 +22,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.openpojo.dns.exception.ResolveException;
+import com.openpojo.dns.routing.utils.NotSupportedMethodsValidator;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Section;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
-import static com.openpojo.dns.routing.utils.NotSupportedMethodsValidator.validateMethodsNotImplemented;
 import static com.openpojo.random.RandomFactory.getRandomValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -39,7 +43,10 @@ import static org.junit.Assert.assertThat;
  * @author oshoukry
  */
 public class NoOpResolverTest {
-  private List<String> implementedMethods = Arrays.asList();
+  private List<String> implementedMethods = Arrays.asList("send");
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void whenSendCalledReturnEmptyMessage() throws IOException {
@@ -58,6 +65,16 @@ public class NoOpResolverTest {
     verifyEmptySection(response, Section.AUTHORITY);
     verifyEmptySection(response, Section.UPDATE);
     verifyEmptySection(response, Section.PREREQ);
+  }
+
+  @Test
+  public void shouldThrowProperExceptionForAnyFailures() throws IOException {
+    thrown.expect(ResolveException.class);
+    thrown.expectMessage("Failed to resolve for query [null]");
+    thrown.expectCause(isA(NullPointerException.class));
+
+    NoOpResolver noOpResolver = new NoOpResolver();
+    noOpResolver.send(null);
   }
 
   private void verifyEmptySection(Message answer, int section) {
@@ -84,6 +101,6 @@ public class NoOpResolverTest {
 
   @Test
   public void shouldThrowUnImplementedOnAllMethods() {
-    validateMethodsNotImplemented(NoOpResolver.class, implementedMethods);
+    NotSupportedMethodsValidator.validateMethodsNotImplemented(NoOpResolver.class, implementedMethods);
   }
 }

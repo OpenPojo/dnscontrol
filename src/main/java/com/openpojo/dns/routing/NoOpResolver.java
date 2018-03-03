@@ -21,8 +21,10 @@ package com.openpojo.dns.routing;
 import java.io.IOException;
 import java.util.List;
 
+import com.openpojo.dns.exception.ResolveException;
 import com.openpojo.dns.exception.RoutingException;
 import org.xbill.DNS.Flags;
+import org.xbill.DNS.Header;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.ResolverListener;
@@ -35,10 +37,15 @@ public class NoOpResolver implements Resolver {
 
   @Override
   public Message send(Message query) throws IOException {
-    final Message answer = (Message) query.clone();
-    answer.getHeader().setFlag(Flags.RA);
-    answer.getHeader().setFlag(Flags.QR);
-    return answer;
+    try {
+      final Message answer = (Message) query.clone();
+      final Header header = answer.getHeader();
+      header.setFlag(Flags.RA);
+      header.setFlag(Flags.QR);
+      return answer;
+    } catch (Exception e) {
+      throw ResolveException.getInstance("Failed to resolve for query [" + query + "]", e);
+    }
   }
 
   @Override

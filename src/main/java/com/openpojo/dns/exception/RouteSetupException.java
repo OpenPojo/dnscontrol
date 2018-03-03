@@ -22,14 +22,6 @@ package com.openpojo.dns.exception;
  * @author oshoukry
  */
 public class RouteSetupException extends RuntimeException {
-  private RouteSetupException(String message) {
-    super(message);
-  }
-
-  public static RouteSetupException getInstance(String message) {
-    return new RouteSetupException(message);
-  }
-
   private RouteSetupException(String message, Throwable cause) {
     super(message, cause);
   }

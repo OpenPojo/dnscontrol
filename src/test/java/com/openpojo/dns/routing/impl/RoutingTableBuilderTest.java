@@ -21,13 +21,15 @@ package com.openpojo.dns.routing.impl;
 import java.util.List;
 import java.util.Map;
 
-import com.openpojo.dns.exception.RouteSetupException;
+import com.openpojo.dns.routing.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -54,13 +56,12 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void whenCalledWithNullDnsServersThrowsException() {
+  public void whenCalledWithNullServerSetsResolverToNoOpResolver() {
     final String destination = "host.com";
 
-    thrown.expect(RouteSetupException.class);
-    thrown.expectMessage("Null server list passed for destination [" + destination + "]");
-
-    RoutingTableBuilder.create().with(destination, (String[])null);
+    final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, (String[]) null).build();
+    Resolver noOpResolver = routingTable.getResolverFor(destination);
+    assertThat(noOpResolver, instanceOf(NoOpResolver.class));
   }
 
   @Test
