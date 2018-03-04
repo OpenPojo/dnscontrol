@@ -31,6 +31,7 @@ import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import com.openpojo.dns.routing.utils.NotSupportedMethodsValidator;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.*;
@@ -56,7 +57,12 @@ public class RoutingResolverTest {
   @Before
   public void setUp() throws Exception {
     spyResolver = ResolverSpyFactory.create(new ExtendedResolver());
-    CacheControl.resetCache();
+    Lookup.refreshDefault();
+  }
+
+  @After
+  public void teardown() {
+    Lookup.refreshDefault();
   }
 
   @Test

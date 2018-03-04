@@ -24,6 +24,9 @@ import com.openpojo.dns.service.initialize.DefaultResolver;
 import sun.net.spi.nameservice.NameService;
 import sun.net.spi.nameservice.NameServiceDescriptor;
 
+import static com.openpojo.dns.DnsControl.SERVICE_PROVIDER;
+import static com.openpojo.dns.DnsControl.SERVICE_TYPE;
+
 public class Dns4JavaNameServiceDescriptor implements NameServiceDescriptor {
   private final Dns4JavaNameService dns4JavaNameService;
 
@@ -36,11 +39,11 @@ public class Dns4JavaNameServiceDescriptor implements NameServiceDescriptor {
   }
 
   public String getType() {
-    return "dns";
+    return SERVICE_TYPE;
   }
 
   public String getProviderName() {
-    return "dns4java";
+    return SERVICE_PROVIDER;
   }
 
 }

@@ -49,7 +49,7 @@ public class Dns4JavaNameServiceDescriptorTest {
 
   @Test
   public void getProviderNameShouldBedns4java() {
-    assertThat(dns4JavaNameServiceDescriptor.getProviderName(), is("dns4java"));
+    assertThat(dns4JavaNameServiceDescriptor.getProviderName(), is("dnscontrol"));
   }
 
   @Test

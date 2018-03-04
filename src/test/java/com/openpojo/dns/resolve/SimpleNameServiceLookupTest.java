@@ -22,9 +22,12 @@ import java.net.InetAddress;
 import java.util.Arrays;
 
 import com.openpojo.dns.exception.ResolveException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.xbill.DNS.Lookup;
 
 import static com.openpojo.dns.constants.TestConstants.*;
 import static org.hamcrest.Matchers.is;
@@ -35,6 +38,16 @@ import static org.junit.Assert.assertThat;
  * @author oshoukry
  */
 public class SimpleNameServiceLookupTest {
+
+  @Before
+  public void setup() {
+    Lookup.refreshDefault();
+  }
+
+  @After
+  public void teardown() {
+    Lookup.refreshDefault();
+  }
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

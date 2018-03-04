@@ -19,6 +19,7 @@
 package com.openpojo.dns.cache;
 
 import com.openpojo.dns.cache.utils.VerificationHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
@@ -35,6 +36,11 @@ import static org.hamcrest.Matchers.is;
  * @author oshoukry
  */
 public class CacheControlTest {
+
+  @Before
+  public void setup() {
+    Lookup.refreshDefault();
+  }
 
   @Test
   public void shouldClearCachePostPopulation() throws TextParseException {

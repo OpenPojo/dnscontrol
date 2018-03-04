@@ -29,6 +29,8 @@ import static com.openpojo.dns.cache.CacheControl.resetCache;
  * @author oshoukry
  */
 public class DnsControl {
+  public static String SERVICE_TYPE = "dns";
+  public static String SERVICE_PROVIDER = "dnscontrol";
   private final RoutingResolver routingResolver;
   private final Resolver originalResolver;
 
