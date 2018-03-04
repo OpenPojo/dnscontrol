@@ -21,7 +21,6 @@ package com.openpojo.dns;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
-import com.openpojo.dns.cache.CacheControl;
 import com.openpojo.dns.cache.utils.VerificationHelper;
 import com.openpojo.dns.routing.RoutingResolver;
 import org.junit.After;
@@ -47,14 +46,13 @@ public class DnsControlTest {
 
   @Before
   public void setup() {
+    Lookup.refreshDefault();
     defaultResolver = Lookup.getDefaultResolver();
-    CacheControl.resetCache();
   }
 
   @After
   public void teardown() {
-    Lookup.setDefaultResolver(defaultResolver);
-    CacheControl.resetCache();
+    Lookup.refreshDefault();
   }
 
   @Test
