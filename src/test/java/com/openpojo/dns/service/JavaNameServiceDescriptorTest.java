@@ -30,30 +30,30 @@ import static org.junit.Assert.assertThat;
 /**
  * @author oshoukry
  */
-public class Dns4JavaNameServiceDescriptorTest {
+public class JavaNameServiceDescriptorTest {
 
-  private Dns4JavaNameServiceDescriptor dns4JavaNameServiceDescriptor;
+  private JavaNameServiceDescriptor javaNameServiceDescriptor;
 
   @Before
   public void setup() {
-    dns4JavaNameServiceDescriptor = new Dns4JavaNameServiceDescriptor();
+    javaNameServiceDescriptor = new JavaNameServiceDescriptor();
   }
 
   @Test
   public void createNameServiceShouldNotCreateNewEveryTime() {
-    NameService nameService = dns4JavaNameServiceDescriptor.createNameService();
+    NameService nameService = javaNameServiceDescriptor.createNameService();
 
     assertThat(nameService, notNullValue());
-    assertThat(dns4JavaNameServiceDescriptor.createNameService(), sameInstance(nameService));
+    assertThat(javaNameServiceDescriptor.createNameService(), sameInstance(nameService));
   }
 
   @Test
-  public void getProviderNameShouldBedns4java() {
-    assertThat(dns4JavaNameServiceDescriptor.getProviderName(), is("dnscontrol"));
+  public void validateJavaNameServiceProviderName() {
+    assertThat(javaNameServiceDescriptor.getProviderName(), is("dnscontrol"));
   }
 
   @Test
-  public void getTypeShouldReturndns() {
-    assertThat(dns4JavaNameServiceDescriptor.getType(), is("dns"));
+  public void validateJavaNameServiceType() {
+    assertThat(javaNameServiceDescriptor.getType(), is("dns"));
   }
 }

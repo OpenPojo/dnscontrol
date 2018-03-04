@@ -27,12 +27,12 @@
   </parent>
 
   <groupId>com.openpojo</groupId>
-  <artifactId>dns4java</artifactId>
+  <artifactId>dnscontrol</artifactId>
   <version>0.0.2-SNAPSHOT</version>
   <name>${project.artifactId}</name>
 
   <description>This project was born out of a need to have more finer grain control over Java's DNS subsystem.</description>
-  <url>https://github.com/oshoukry/dns4java</url>
+  <url>https://github.com/openpojo/dnscontrol</url>
 
   <inceptionYear>2018</inceptionYear>
 
@@ -57,9 +57,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/oshoukry/dns4java.git</connection>
-    <developerConnection>scm:git:git@github.com:oshoukry/dns4java.git</developerConnection>
-    <url>https://github.com/oshoukry/dns4java</url>
+    <connection>scm:git:git://github.com/openpojo/dnscontrol.git</connection>
+    <developerConnection>scm:git:git@github.com:openpojo/dnscontrol.git</developerConnection>
+    <url>https://github.com/openpojo/dnscontrol</url>
   </scm>
 
   <properties>
@@ -76,7 +76,6 @@
     <maven-release-plugin.version>2.1</maven-release-plugin.version>
     <openpojo.version>0.8.9</openpojo.version>
     <surefire.version>2.19.1</surefire.version>
-
   </properties>
 
   <repositories>
@@ -98,24 +97,28 @@
           <target>${java.version}</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <version>${maven-release-plugin.version}</version>
         <configuration>
-          <arguments>-Psonatype-oss-release,dns4java-release</arguments>
+          <arguments>-Psonatype-oss-release,dnscontrol-release</arguments>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
       </plugin>
+
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
         <version>${coveralls-maven-plugin.version}</version>
       </plugin>
+
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -129,7 +132,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
@@ -139,6 +141,7 @@
       <artifactId>openpojo</artifactId>
       <version>${openpojo.version}</version>
     </dependency>
+
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
@@ -158,12 +161,11 @@
       <version>${hamcrest-all.version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <profiles>
     <profile>
-      <id>dns4java-release</id>
+      <id>dnscontrol-release</id>
       <build>
         <plugins>
           <plugin>
@@ -174,6 +176,7 @@
               <updateReleaseInfo>true</updateReleaseInfo>
             </configuration>
           </plugin>
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
@@ -187,6 +190,7 @@
               </execution>
             </executions>
           </plugin>
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>

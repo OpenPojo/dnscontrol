@@ -38,9 +38,9 @@ import static org.junit.Assert.assertThat;
 /**
  * @author oshoukry
  */
-public class Dns4JavaNameServiceTest {
+public class JavaNameServiceTest {
 
-  private Dns4JavaNameService nameService;
+  private JavaNameService nameService;
   private DefaultDomainSpy defaultDomain;
   private DefaultIPv6PreferenceSpy ipV6Preference;
   private DefaultResolverSpy resolver;
@@ -68,7 +68,7 @@ public class Dns4JavaNameServiceTest {
 
   @Test
   public void shouldInitInitializers() {
-    nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
+    nameService = new JavaNameService(defaultDomain, ipV6Preference, resolver);
     assertThat(defaultDomain.initCalled, is(true));
     assertThat(ipV6Preference.initCalled, is(true));
     assertThat(resolver.initCalled, is(true));
@@ -76,7 +76,7 @@ public class Dns4JavaNameServiceTest {
 
   @Test
   public void shouldSuccessfullyDoIP4ForwardLookup() {
-    nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
+    nameService = new JavaNameService(defaultDomain, ipV6Preference, resolver);
     final InetAddress[] inetAddresses = nameService.lookupAllHostAddr(hostname);
     assertThat(inetAddresses, notNullValue());
     assertThat(inetAddresses.length, is(1));
@@ -88,7 +88,7 @@ public class Dns4JavaNameServiceTest {
   @Test
   public void shouldSuccessfullyDoIP6ForwardLookup() {
     setPreferIPV6("" + true);
-    nameService = new Dns4JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
+    nameService = new JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
     final InetAddress[] inetAddresses = nameService.lookupAllHostAddr(hostname);
     assertThat(inetAddresses, notNullValue());
     assertThat(inetAddresses.length, is(1));
@@ -98,14 +98,14 @@ public class Dns4JavaNameServiceTest {
 
   @Test
   public void shouldSuccessfullyDoIP4ReverseLookup() {
-    nameService = new Dns4JavaNameService(defaultDomain, ipV6Preference, resolver);
+    nameService = new JavaNameService(defaultDomain, ipV6Preference, resolver);
     assertThat(nameService.getHostByAddr(hostIP4AsBytes), is(hostname));
   }
 
   @Test
   public void shouldSuccessfullyDoIP6ReverseLookup() {
     setPreferIPV6("" + true);
-    nameService = new Dns4JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
+    nameService = new JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
     assertThat(nameService.getHostByAddr(hostIP6AsBytes), is(hostname));
   }
 

@@ -44,7 +44,7 @@ public class NameServiceDescriptorServiceFileTest {
     while (resources.hasMoreElements()) {
       URL entry = resources.nextElement();
       String serviceDescriptorLine = getServiceDescriptorLine(entry.openStream());
-      if (serviceDescriptorLine.equals(Dns4JavaNameServiceDescriptor.class.getName())) {
+      if (serviceDescriptorLine.equals(JavaNameServiceDescriptor.class.getName())) {
         found = true;
         break;
       }

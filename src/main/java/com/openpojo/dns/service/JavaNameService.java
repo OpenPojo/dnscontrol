@@ -18,32 +18,37 @@
 
 package com.openpojo.dns.service;
 
+import java.net.InetAddress;
+
+import com.openpojo.dns.resolve.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
+import com.openpojo.log.Logger;
+import com.openpojo.log.LoggerFactory;
 import sun.net.spi.nameservice.NameService;
-import sun.net.spi.nameservice.NameServiceDescriptor;
 
-import static com.openpojo.dns.DnsControl.SERVICE_PROVIDER;
-import static com.openpojo.dns.DnsControl.SERVICE_TYPE;
+/**
+ * @author oshoukry
+ */
+public class JavaNameService implements NameService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(JavaNameService.class);
+  private final SimpleNameServiceLookup nameServiceLookup;
 
-public class Dns4JavaNameServiceDescriptor implements NameServiceDescriptor {
-  private final Dns4JavaNameService dns4JavaNameService;
-
-  public Dns4JavaNameServiceDescriptor() {
-    dns4JavaNameService = new Dns4JavaNameService(new DefaultDomain(), new DefaultIPv6Preference(), new DefaultResolver());
+  public JavaNameService(DefaultDomain defaultDomain, DefaultIPv6Preference ipV6Preference, DefaultResolver resolver) {
+    defaultDomain.init();
+    ipV6Preference.init();
+    resolver.init();
+    nameServiceLookup = new SimpleNameServiceLookup(ipV6Preference.get());
   }
 
-  public synchronized NameService createNameService() {
-    return dns4JavaNameService;
+  @Override
+  public InetAddress[] lookupAllHostAddr(String name) {
+    return nameServiceLookup.lookupAllHostAddr(name);
   }
 
-  public String getType() {
-    return SERVICE_TYPE;
+  @Override
+  public String getHostByAddr(byte[] addr) {
+    return nameServiceLookup.getHostByAddr(addr);
   }
-
-  public String getProviderName() {
-    return SERVICE_PROVIDER;
-  }
-
 }
