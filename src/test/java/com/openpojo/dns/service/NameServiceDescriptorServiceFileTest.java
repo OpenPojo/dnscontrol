@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns;
+package com.openpojo.dns.service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 
-import com.openpojo.dns.service.Dns4JavaNameServiceDescriptor;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

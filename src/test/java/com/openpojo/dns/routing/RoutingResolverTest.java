@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.openpojo.dns.DnsControl;
+import com.openpojo.dns.cache.CacheControl;
 import com.openpojo.dns.constants.TestConstants;
 import com.openpojo.dns.routing.impl.OptimizedRoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
@@ -33,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.*;
 
+import static com.openpojo.dns.cache.utils.VerificationHelper.verifyCacheIsEmpty;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_DOMAIN;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
@@ -53,6 +56,7 @@ public class RoutingResolverTest {
   @Before
   public void setUp() throws Exception {
     spyResolver = ResolverSpyFactory.create(new ExtendedResolver());
+    CacheControl.resetCache();
   }
 
   @Test
@@ -122,6 +126,30 @@ public class RoutingResolverTest {
         + "\n"
         + ";; Message size: 0 bytes])"));
   }
+
+  @Test
+  public void whenCacheIsClearCallsFlowToResolver() throws TextParseException {
+    HashMap<String, Resolver> compiledMap = new HashMap<>();
+
+    compiledMap.put(toDnsDomain(DOT + SERVER_1_DOMAIN), spyResolver);
+
+    OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
+    DnsControl.getInstance().setRoutingTable(table);
+    DnsControl.getInstance().registerRoutingResolver();
+
+    verifyCacheIsEmpty();
+
+    new Lookup(SERVER_1_NAME, Type.A).run(); // 1st call
+    new Lookup(SERVER_1_NAME, Type.A).run(); // from cache
+    assertThat(spyResolver.getCalls().size(), is(1));
+
+    CacheControl.resetCache();
+    verifyCacheIsEmpty();
+
+    new Lookup(SERVER_1_NAME, Type.A).run(); // 2nd call
+    assertThat(spyResolver.getCalls().size(), is(2));
+  }
+
 
   @Test
   public void shouldThrowUnImplementedOnAllMethods() {

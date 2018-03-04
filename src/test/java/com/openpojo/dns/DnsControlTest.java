@@ -21,70 +21,68 @@ package com.openpojo.dns;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
+import com.openpojo.dns.cache.CacheControl;
+import com.openpojo.dns.cache.utils.VerificationHelper;
 import com.openpojo.dns.routing.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.xbill.DNS.ARecord;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Name;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.Resolver;
-import org.xbill.DNS.TextParseException;
-import org.xbill.DNS.Type;
+import org.xbill.DNS.*;
 
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry
  */
-public class ConfiguratorTest {
+public class DnsControlTest {
 
-  private final Configurator configurator = Configurator.getInstance();
+  private final DnsControl dnsControl = DnsControl.getInstance();
   private Resolver defaultResolver;
 
   @Before
   public void setup() {
     defaultResolver = Lookup.getDefaultResolver();
+    CacheControl.resetCache();
   }
 
   @After
   public void teardown() {
     Lookup.setDefaultResolver(defaultResolver);
+    CacheControl.resetCache();
   }
 
   @Test
   public void canGetInstance() {
-    assertThat(configurator, notNullValue());
+    assertThat(dnsControl, notNullValue());
   }
 
   @Test
   public void canRegister() {
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
 
-    configurator.registerRoutingResolver();
+    dnsControl.registerRoutingResolver();
 
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
   }
 
   @Test
   public void canUnRegister() {
-    configurator.registerRoutingResolver();
+    dnsControl.registerRoutingResolver();
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
 
-    configurator.unRegisterRoutingResolver();
+    dnsControl.unRegisterRoutingResolver();
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
   }
 
   @Test
   public void canResolveSomeEntry() throws TextParseException, UnknownHostException {
-    configurator.registerRoutingResolver();
+    dnsControl.registerRoutingResolver();
     final Name rootServer = new Name(SERVER_1_NAME);
     final String expectedIP = SERVER_1_IPv4_STRING;
 
@@ -92,9 +90,20 @@ public class ConfiguratorTest {
     assertThat(beforeConfigRecords.length, is(1));
     assertThat(((ARecord)beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
 
-    configurator.registerRoutingResolver();
+    dnsControl.registerRoutingResolver();
     Record [] afterConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
     assertThat(beforeConfigRecords.length, is(1));
     assertThat(((ARecord)afterConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+  }
+
+  @Test
+  public void shouldClearCacheWhenverRoutingTableChanges() throws TextParseException {
+    dnsControl.registerRoutingResolver();
+    VerificationHelper.verifyCacheIsEmpty();
+
+    new Lookup(SERVER_1_NAME, DClass.IN).run();
+    assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1));
+    dnsControl.setRoutingTable(null);
+    VerificationHelper.verifyCacheIsEmpty();
   }
 }

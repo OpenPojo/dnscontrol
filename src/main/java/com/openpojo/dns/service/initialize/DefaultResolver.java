@@ -18,7 +18,7 @@
 
 package com.openpojo.dns.service.initialize;
 
-import com.openpojo.dns.Configurator;
+import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import com.openpojo.log.Logger;
@@ -29,7 +29,7 @@ import com.openpojo.log.LoggerFactory;
  */
 public class DefaultResolver implements Initializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultResolver.class);
-  private static final Configurator configurator = Configurator.getInstance();
+  private static final DnsControl DNS_CONTROL = DnsControl.getInstance();
 
   public DefaultResolver() {
   }
@@ -42,8 +42,8 @@ public class DefaultResolver implements Initializer {
     String[] nameServers = parseNameServers();
     if (nameServers != null) {
       RoutingTable routingTable = RoutingTableBuilder.create().with(null, nameServers).build();
-      configurator.setRoutingTable(routingTable);
-      configurator.registerRoutingResolver();
+      DNS_CONTROL.setRoutingTable(routingTable);
+      DNS_CONTROL.registerRoutingResolver();
     }
     LOGGER.debug("Default DNS Servers override set to [{0}]", (Object) nameServers);
   }

@@ -23,19 +23,22 @@ import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
+import static com.openpojo.dns.cache.CacheControl.resetCache;
+
 /**
  * @author oshoukry
  */
-public class Configurator {
+public class DnsControl {
   private final RoutingResolver routingResolver;
   private final Resolver originalResolver;
 
-  public static Configurator getInstance() {
+  public static DnsControl getInstance() {
     return Instance.INSTANCE;
   }
 
   public void setRoutingTable(RoutingTable routingTable) {
     routingResolver.setRoutingTable(routingTable);
+    resetCache();
   }
 
   public synchronized void registerRoutingResolver() {
@@ -47,12 +50,12 @@ public class Configurator {
     Lookup.setDefaultResolver(originalResolver);
   }
 
-  private Configurator() {
+  private DnsControl() {
     originalResolver = Lookup.getDefaultResolver();
     routingResolver = new RoutingResolver(originalResolver);
   }
 
   private static class Instance {
-    private static final Configurator INSTANCE = new Configurator();
+    private static final DnsControl INSTANCE = new DnsControl();
   }
 }
