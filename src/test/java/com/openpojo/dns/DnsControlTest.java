@@ -63,8 +63,10 @@ public class DnsControlTest {
   @Test
   public void canRegister() {
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(false));
 
     dnsControl.registerRoutingResolver();
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(true));
 
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
   }
@@ -72,10 +74,12 @@ public class DnsControlTest {
   @Test
   public void canUnRegister() {
     dnsControl.registerRoutingResolver();
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(true));
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
 
     dnsControl.unRegisterRoutingResolver();
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(false));
   }
 
   @Test
@@ -95,7 +99,16 @@ public class DnsControlTest {
   }
 
   @Test
-  public void shouldClearCacheWhenverRoutingTableChanges() throws TextParseException {
+  public void whenChangingRoutingTableAutoRegisterRoutingResolver() {
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(false));
+    assertThat(Lookup.getDefaultResolver(), not(instanceOf(RoutingResolver.class)));
+    dnsControl.setRoutingTable(null);
+    assertThat(dnsControl.isRoutingResolverRegistered(), is(true));
+    assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
+  }
+
+  @Test
+  public void shouldClearCacheWheneverRoutingTableChanges() throws TextParseException {
     dnsControl.registerRoutingResolver();
     VerificationHelper.verifyCacheIsEmpty();
 

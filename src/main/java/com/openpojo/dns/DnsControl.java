@@ -42,11 +42,16 @@ public class DnsControl {
   public void setRoutingTable(RoutingTable routingTable) {
     routingResolver.setRoutingTable(routingTable);
     resetCache();
+    registerRoutingResolver();
   }
 
   public synchronized void registerRoutingResolver() {
-    if (!(Lookup.getDefaultResolver() instanceof RoutingResolver))
+    if (!isRoutingResolverRegistered())
       Lookup.setDefaultResolver(routingResolver);
+  }
+
+  public synchronized boolean isRoutingResolverRegistered() {
+    return Lookup.getDefaultResolver() instanceof RoutingResolver;
   }
 
   public synchronized void unRegisterRoutingResolver() {
