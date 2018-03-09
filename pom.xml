@@ -74,7 +74,7 @@
     <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
     <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
     <maven-release-plugin.version>2.1</maven-release-plugin.version>
-    <openpojo.version>0.8.9</openpojo.version>
+    <openpojo.version>0.8.10</openpojo.version>
     <surefire.version>2.19.1</surefire.version>
   </properties>
 

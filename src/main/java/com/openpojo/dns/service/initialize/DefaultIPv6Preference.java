@@ -18,21 +18,16 @@
 
 package com.openpojo.dns.service.initialize;
 
-import com.openpojo.log.Logger;
-import com.openpojo.log.LoggerFactory;
-
 /**
  * @author oshoukry
  */
 public class DefaultIPv6Preference implements Initializer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultIPv6Preference.class);
   private boolean preferIPv6Addresses;
 
   public DefaultIPv6Preference() {}
 
   public void init() {
     preferIPv6Addresses= Boolean.valueOf(System.getProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES));
-    LOGGER.debug("PreferIPv6Addresses [{0}]", preferIPv6Addresses);
   }
 
   public boolean get() {

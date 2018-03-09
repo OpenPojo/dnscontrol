@@ -24,15 +24,12 @@ import com.openpojo.dns.resolve.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
-import com.openpojo.log.Logger;
-import com.openpojo.log.LoggerFactory;
 import sun.net.spi.nameservice.NameService;
 
 /**
  * @author oshoukry
  */
 public class JavaNameService implements NameService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JavaNameService.class);
   private final SimpleNameServiceLookup nameServiceLookup;
 
   public JavaNameService(DefaultDomain defaultDomain, DefaultIPv6Preference ipV6Preference, DefaultResolver resolver) {

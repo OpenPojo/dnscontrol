@@ -19,8 +19,6 @@
 package com.openpojo.dns.service.initialize;
 
 import com.openpojo.dns.exception.DomainException;
-import com.openpojo.log.Logger;
-import com.openpojo.log.LoggerFactory;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.TextParseException;
 
@@ -28,8 +26,6 @@ import org.xbill.DNS.TextParseException;
  * @author oshoukry
  */
 public class DefaultDomain implements Initializer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDomain.class);
-
   public DefaultDomain() {}
 
   public void init() {
@@ -39,7 +35,5 @@ public class DefaultDomain implements Initializer {
     } catch (TextParseException e) {
       throw DomainException.getInstance("Failed to setup Default Domain using domain [" + domainConfig + "]", e);
     }
-
-    LOGGER.debug("DefaultSearchPath [{0}]", domainConfig);
   }
 }

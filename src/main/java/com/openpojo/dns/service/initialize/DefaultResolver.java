@@ -21,14 +21,11 @@ package com.openpojo.dns.service.initialize;
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
-import com.openpojo.log.Logger;
-import com.openpojo.log.LoggerFactory;
 
 /**
  * @author oshoukry
  */
 public class DefaultResolver implements Initializer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultResolver.class);
   private static final DnsControl DNS_CONTROL = DnsControl.getInstance();
 
   public DefaultResolver() {
@@ -45,7 +42,6 @@ public class DefaultResolver implements Initializer {
       DNS_CONTROL.setRoutingTable(routingTable);
       DNS_CONTROL.registerRoutingResolver();
     }
-    LOGGER.debug("Default DNS Servers override set to [{0}]", (Object) nameServers);
   }
 
   private String[] parseNameServers() {

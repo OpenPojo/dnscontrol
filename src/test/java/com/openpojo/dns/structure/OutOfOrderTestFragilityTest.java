@@ -45,6 +45,7 @@ public class OutOfOrderTestFragilityTest {
   private List<PojoClass> testClasses;
   private FilterClassName testClassFilter;
   private PojoClassFilter selfFilter;
+  private List<String> orderOfTests;
 
   @Before
   public void setup() {
@@ -52,6 +53,7 @@ public class OutOfOrderTestFragilityTest {
     selfFilter = new OutOfOrderTestFragilityFilter();
 
     testClasses = getPojoClassesRecursively("com.openpojo.dns", new FilterChain(testClassFilter, selfFilter));
+    orderOfTests = new ArrayList<>();
   }
 
   @Test
@@ -72,7 +74,6 @@ public class OutOfOrderTestFragilityTest {
     }
 
     boolean passed = true;
-    List<String> orderOfTests = new ArrayList<>();
     for (Map.Entry<String, Result> entry : testsAndResults.entrySet()) {
       final boolean wasSuccessful = entry.getValue().wasSuccessful();
       passed &= wasSuccessful;
