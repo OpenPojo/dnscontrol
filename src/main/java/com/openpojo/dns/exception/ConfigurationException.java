@@ -21,12 +21,12 @@ package com.openpojo.dns.exception;
 /**
  * @author oshoukry
  */
-public class ConfigException extends RuntimeException {
-  private ConfigException(String message, Throwable cause) {
-    super(message, cause);
+public class ConfigurationException extends RuntimeException {
+  private ConfigurationException(String message) {
+    super(message);
   }
 
-  public static ConfigException getInstance(String message, Throwable cause) {
-    return new ConfigException(message, cause);
+  public static ConfigurationException getInstance(String message) {
+    return new ConfigurationException(message);
   }
 }

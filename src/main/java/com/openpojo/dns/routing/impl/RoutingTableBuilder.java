@@ -20,10 +20,12 @@ package com.openpojo.dns.routing.impl;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.routing.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
@@ -43,9 +45,16 @@ public class RoutingTableBuilder {
     return new RoutingTableBuilder();
   }
 
-  public RoutingTableBuilder with(String destination, String... dnsServers) {
+  public RoutingTableBuilder with(DnsConfigReader reader) {
+    for (Map.Entry<String, List<String>> entry : reader.getConfiguration().entrySet()) {
+      with(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
+  public RoutingTableBuilder with(String destination, List<String> dnsServers) {
     if (dnsServers == null)
-      dnsServers = new String[0];
+      dnsServers = Collections.emptyList();
 
     destination = cleanupDestination(destination);
 

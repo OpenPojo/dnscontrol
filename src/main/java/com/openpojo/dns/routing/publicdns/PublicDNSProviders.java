@@ -18,11 +18,8 @@
 
 package com.openpojo.dns.routing.publicdns;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
-import com.openpojo.dns.exception.ConfigException;
+import com.openpojo.dns.config.props.PropertiesLoader;
+import com.openpojo.dns.exception.ConfigurationException;
 
 /**
  * @author oshoukry
@@ -30,35 +27,20 @@ import com.openpojo.dns.exception.ConfigException;
 public class PublicDNSProviders {
   public static final String META_INF_PUBLIC_DNS_SERVERS_PROPERTIES = "META-INF/public.dns.servers.properties";
 
-  private String configFile;
-  private Properties providers;
+  private PropertiesLoader providers;
 
   public PublicDNSProviders() {
     this(META_INF_PUBLIC_DNS_SERVERS_PROPERTIES);
   }
 
   public PublicDNSProviders(String configFile) {
-    this.configFile = configFile;
-    initProviders();
-  }
-
-  private void initProviders() {
-    try {
-      providers = new Properties();
-      providers.load(getConfigAsStream());
-    } catch (IOException e) {
-      throw ConfigException.getInstance("Failed to load configuration file [" + configFile + "]", e);
-    }
-  }
-
-  private InputStream getConfigAsStream() throws IOException {
-    final InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream(configFile);
-    if (systemResourceAsStream == null)
-      throw new IOException("Couldn't find config file [" + configFile + "]");
-    return systemResourceAsStream;
+    providers = new PropertiesLoader(configFile);
+    if (!providers.exists())
+      throw ConfigurationException.getInstance("Failed to load configuration file [" + configFile + "]");
+    providers.load();
   }
 
   public String get(String key) {
-    return providers.getProperty(key);
+    return providers.get(key);
   }
 }

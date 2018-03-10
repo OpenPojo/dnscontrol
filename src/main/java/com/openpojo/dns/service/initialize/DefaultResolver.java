@@ -18,9 +18,16 @@
 
 package com.openpojo.dns.service.initialize;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.openpojo.dns.DnsControl;
-import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.config.DnsConfigReader;
+import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
+
+import static com.openpojo.dns.config.DnsConfigReader.CONFIG_VALUES_SEPARATOR;
 
 /**
  * @author oshoukry
@@ -36,17 +43,24 @@ public class DefaultResolver implements Initializer {
   }
 
   private void initializeAndRegisterRoutingResolver() {
-    String[] nameServers = parseNameServers();
-    if (nameServers != null) {
-      RoutingTable routingTable = RoutingTableBuilder.create().with(null, nameServers).build();
-      DNS_CONTROL.setRoutingTable(routingTable);
+    final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
+    final List<String> nameServers = parseNameServers();
+    if (nameServers.size() > 0) {
+      routingTableBuilder.with(null, nameServers);
+    }
+
+    DnsConfigReader reader = DnsConfigReaderFactory.getConfigReader();
+    routingTableBuilder.with(reader);
+
+    if (routingTableBuilder.getDestinationMap().size() > 0) {
+      DNS_CONTROL.setRoutingTable(routingTableBuilder.build());
       DNS_CONTROL.registerRoutingResolver();
     }
   }
 
-  private String[] parseNameServers() {
+  private List<String> parseNameServers() {
     String nameServersConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_NAMESERVERS);
-    if (nameServersConfig != null) return nameServersConfig.split(",");
-    return null;
+    if (nameServersConfig != null) return Arrays.asList(nameServersConfig.split(CONFIG_VALUES_SEPARATOR));
+    return Collections.emptyList();
   }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.openpojo.reflection.PojoClass;
 import com.openpojo.reflection.PojoClassFilter;
+import com.openpojo.reflection.PojoField;
 import com.openpojo.reflection.filters.FilterEnum;
 import com.openpojo.reflection.filters.FilterNonConcrete;
 import com.openpojo.validation.Validator;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -40,11 +42,9 @@ import static org.junit.Assert.assertThat;
 public class PojoValidationTest {
 
   private static final String TOP_LEVEL_PACKAGE = "com.openpojo.dns";
-  private PojoClassFilter[] pojoClassFilters;
 
   @Before
   public void setUp() throws Exception {
-    pojoClassFilters = new PojoClassFilter[] { new FilterNonConcrete(), new FilterEnum(), new FilterTestClasses() };
   }
 
   @Test
@@ -52,6 +52,14 @@ public class PojoValidationTest {
     Validator validator = ValidatorBuilder.create()
         .with(new GetterTester())
         .build();
+
+    PojoClassFilter[] pojoClassFilters = new PojoClassFilter[] {
+        new FilterNonConcrete(),
+        new FilterEnum(),
+        new FilterTestClasses(),
+        new FilterHasGetter()
+    };
+
     final List<PojoClass> validated = validator.validateRecursively(TOP_LEVEL_PACKAGE, pojoClassFilters);
     assertThat(validated.size(), greaterThan(1));
   }
@@ -61,14 +69,45 @@ public class PojoValidationTest {
     Validator validator = ValidatorBuilder.create()
         .with(new SetterTester())
         .build();
+
+    PojoClassFilter[] pojoClassFilters = new PojoClassFilter[] {
+        new FilterNonConcrete(),
+        new FilterEnum(),
+        new FilterTestClasses(),
+        new FilterHasSetter() };
     final List<PojoClass> validated = validator.validateRecursively(TOP_LEVEL_PACKAGE, pojoClassFilters);
-    assertThat(validated.size(), greaterThan(1));
+
+    assertThat(validated.size(), is(0));
   }
 
   private static class FilterTestClasses implements PojoClassFilter {
     @Override
     public boolean include(PojoClass pojoClass) {
       return !pojoClass.getSourcePath().contains("target/test-classes/");
+    }
+  }
+
+  private static class FilterHasSetter implements PojoClassFilter {
+    @Override
+    public boolean include(PojoClass pojoClass) {
+      for (PojoField field : pojoClass.getPojoFields()) {
+        if (field.hasSetter()) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  private static class FilterHasGetter implements PojoClassFilter {
+    @Override
+    public boolean include(PojoClass pojoClass) {
+      for (PojoField field : pojoClass.getPojoFields()) {
+        if (field.hasGetter()) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 }

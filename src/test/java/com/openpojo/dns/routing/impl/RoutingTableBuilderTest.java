@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -59,7 +60,7 @@ public class RoutingTableBuilderTest {
   public void whenCalledWithNullServerSetsResolverToNoOpResolver() {
     final String destination = "host.com";
 
-    final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, (String[]) null).build();
+    final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, null).build();
     Resolver noOpResolver = routingTable.getResolverFor(destination);
     assertThat(noOpResolver, instanceOf(NoOpResolver.class));
   }
@@ -67,8 +68,8 @@ public class RoutingTableBuilderTest {
   @Test
   public void whenHostPassedInMapHasOneEntryOptimized() {
     String destination = "host.com";
-    String dnsServer = "127.0.0.1";
-    final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create().with(destination, dnsServer);
+    List<String> dnsServers = singletonList("127.0.0.1");
+    final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create().with(destination, dnsServers);
 
     final Map<String, List<String>> destinationMap = routingTableBuilder.getDestinationMap();
     assertThat(destinationMap, notNullValue());
@@ -79,14 +80,14 @@ public class RoutingTableBuilderTest {
     final List<String> actualDnsServers = destinationMap.get(hierarchicalDestination);
     assertThat(actualDnsServers, notNullValue());
     assertThat(actualDnsServers.size(), is(1));
-    assertThat(actualDnsServers.get(0), is(dnsServer));
+    assertThat(actualDnsServers.get(0), is(dnsServers.get(0)));
   }
 
   @Test
   public void shouldBuildProperRoutingTable() {
     String destination = "www.openpojo.com";
-    String dnsServer = "127.0.0.1";
-    final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, dnsServer).build();
+    List<String> dnsServers = singletonList("127.0.0.1");
+    final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, dnsServers).build();
     assertThat(routingTable, notNullValue());
     assertThat(routingTable.getResolverFor(destination), notNullValue());
   }

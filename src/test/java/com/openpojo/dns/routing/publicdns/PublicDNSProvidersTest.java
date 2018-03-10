@@ -18,18 +18,15 @@
 
 package com.openpojo.dns.routing.publicdns;
 
-import java.io.IOException;
-
-import com.openpojo.dns.exception.ConfigException;
+import com.openpojo.dns.exception.ConfigurationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -69,8 +66,7 @@ public class PublicDNSProvidersTest {
   public void shouldThrowConfigExceptionIfConfigFileLoadThrowsError() {
     final String invalidConfigFile = "InvalidConfigFile";
     thrown.expectMessage("Failed to load configuration file [" + invalidConfigFile + "]");
-    thrown.expect(ConfigException.class);
-    thrown.expectCause(isA(IOException.class));
+    thrown.expect(ConfigurationException.class);
 
     new PublicDNSProviders(invalidConfigFile);
   }

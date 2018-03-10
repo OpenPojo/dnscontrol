@@ -20,6 +20,7 @@ package com.openpojo.dns.routing.utils;
 
 import org.junit.Test;
 
+import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -30,12 +31,12 @@ import static org.junit.Assert.assertThat;
 public class DomainUtilsTest {
   @Test
   public void whenNullReturnNull() {
-    assertThat(toDnsDomain(null), is("."));
+    assertThat(toDnsDomain(null), is(DOT));
   }
 
   @Test
   public void whenEmptyReturnEmpty() {
-    assertThat(toDnsDomain(""), is("."));
+    assertThat(toDnsDomain(""), is(DOT));
   }
 
   @Test
@@ -63,5 +64,4 @@ public class DomainUtilsTest {
   public void whenWwwDotOpenPojoDotComDotReturnDotComDotOpenPojoDotWww() {
     assertThat(toDnsDomain("www.openpojo.com."), is(".com.openpojo.www"));
   }
-
 }
