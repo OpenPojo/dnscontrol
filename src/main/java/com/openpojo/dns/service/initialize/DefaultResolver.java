@@ -44,7 +44,7 @@ public class DefaultResolver implements Initializer {
 
   private void initializeAndRegisterRoutingResolver() {
     final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
-    final List<String> nameServers = parseNameServers();
+    final List<String> nameServers = getEnvironmentVariableNameServers();
     if (nameServers.size() > 0) {
       routingTableBuilder.with(null, nameServers);
     }
@@ -58,7 +58,7 @@ public class DefaultResolver implements Initializer {
     }
   }
 
-  private List<String> parseNameServers() {
+  private List<String> getEnvironmentVariableNameServers() {
     String nameServersConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_NAMESERVERS);
     if (nameServersConfig != null) return Arrays.asList(nameServersConfig.split(CONFIG_VALUES_SEPARATOR));
     return Collections.emptyList();

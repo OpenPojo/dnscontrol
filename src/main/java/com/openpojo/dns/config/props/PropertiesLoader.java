@@ -1,6 +1,5 @@
 package com.openpojo.dns.config.props;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +21,11 @@ public class PropertiesLoader {
   public synchronized void load() {
     if (!loaded.get()) {
       properties = new Properties();
-      final InputStream is = getAsStream();
-      if (is != null) {
-        try {
-          properties.load(is);
-        } catch (IOException ignored) {
-        }
-      }
-      loaded.set(true);
+      try {
+        properties.load(getAsStream());
+      } catch (Exception ignored) {}
     }
+    loaded.set(true);
   }
 
   public boolean exists() {

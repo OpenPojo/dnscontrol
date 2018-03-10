@@ -18,11 +18,15 @@
 
 package com.openpojo.dns.routing.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.openpojo.dns.routing.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.testdouble.spy.DnsConfigReaderSpy;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -90,5 +94,22 @@ public class RoutingTableBuilderTest {
     final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, dnsServers).build();
     assertThat(routingTable, notNullValue());
     assertThat(routingTable.getResolverFor(destination), notNullValue());
+  }
+
+  @Test
+  public void shouldBuildWithDnsConfigReader() {
+    Map<String, List<String>> configuration = new HashMap<>();
+    final String destination = "www.openpojo.com";
+    configuration.put(destination, new ArrayList<String>());
+
+    DnsConfigReaderSpy dnsConfigReaderSpy = new DnsConfigReaderSpy();
+    RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
+
+    dnsConfigReaderSpy.configuration = configuration;
+    Assert.assertThat(dnsConfigReaderSpy.getConfigurationCalled, is(false));
+
+    routingTableBuilder.with(dnsConfigReaderSpy);
+    assertThat(dnsConfigReaderSpy.getConfigurationCalled, is(true));
+    assertThat(routingTableBuilder.getDestinationMap().get(toDnsDomain(destination)), notNullValue());
   }
 }
