@@ -6,10 +6,10 @@ When you need more control on which DNS servers to use in Java for certain hosts
 Create a DNS Control configuration file as such:
 ```properties
 # Selection order is more specific wins
-# For example, if you have a host override, domain override, and default override, they will be processed in that order.
+# For example, if you have a host, domain, and default override, they will be processed in that order.
 # The left hand side is the over ride destination, the right hand is the list of dns servers to use.
 # Left hand entries should be unique, one entry per destination override.
-# Setup default DNS servers, this is optional, if its not set, the system will fall back on the current OS's DNS servers.
+# Setup default DNS servers, this is optional.  The current system DNS servers will be used if unset.
 .=10.0.0.1,10.0.0.2
 # Override DNS lookups for specific hosts
 www.openpojo.com=10.1.1.1
@@ -17,6 +17,7 @@ www.openpojo.com=10.1.1.1
 .openpojo.com=10.0.2.2
 # Suppress any queries that you'd like to never resolve
 hiddenhost.openpojo.com=
+
 ```
 startup your JVM passing NameService provider as well as DNS routing file
 ```sh
