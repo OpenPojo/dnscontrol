@@ -21,5 +21,3 @@ java -Dsun.net.spi.nameservice.provider.1=dns,dnscontrol -Ddnscontrol.conf.file=
 ```
 
 Builds on the functionality provided by [dnsjava](http://dnsjava.org/).
-
-_Coming soon!_
