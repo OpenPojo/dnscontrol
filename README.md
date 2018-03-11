@@ -7,8 +7,9 @@ Create a DNS Control configuration file as such:
 ```properties
 # Selection order is more specific wins
 # For example, if you have a host, domain, and default override, they will be processed in that order.
-# The left hand side is the over ride destination, the right hand is the list of dns servers to use.
-# Left hand entries should be unique, one entry per destination override.
+# The left hand side is the destination to override, the right hand is the list of dns servers to use.
+# Left hand entries should be unique, one entry per destination.
+
 # Setup default DNS servers, this is optional.  The current system DNS servers will be used if unset.
 .=10.0.0.1,10.0.0.2
 # Override DNS lookups for specific hosts
