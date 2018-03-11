@@ -32,4 +32,7 @@ java -Dsun.net.spi.nameservice.provider.1=dns,dnscontrol -Ddnscontrol.conf.file=
 ```
 The default value for dnscontrol.conf.file is /dnscontrol.conf on root of the classpath.
 
+##### Environment
+Currently DNSControl runs on Java 1.7 & 1.8.
+
 Builds on the functionality provided by [dnsjava](http://dnsjava.org/).
