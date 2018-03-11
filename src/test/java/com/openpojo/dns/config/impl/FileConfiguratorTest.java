@@ -60,4 +60,14 @@ public class FileConfiguratorTest {
     final List<String> nonDefinedEntry = dnsConfiguration.get("notDefinedInFile");
     assertThat(nonDefinedEntry, nullValue());
   }
+
+  @Test
+  public void canLoadFromSystemFile() {
+    FileDnsConfigReader fileDnsConfigReader = new FileDnsConfigReader("./src/test/files/dnscontrol.another.conf");
+    final Map<String, List<String>> configuration = fileDnsConfigReader.getConfiguration();
+    assertThat(configuration.size(), is(1));
+    assertThat(configuration.get(DOT), notNullValue());
+    assertThat(configuration.get(DOT).size(), is(1));
+    assertThat(configuration.get(DOT).get(0), is("10.1.1.1:53"));
+  }
 }
