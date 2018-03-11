@@ -30,6 +30,7 @@ import static com.openpojo.dns.constants.TestConstants.SERVER_1_DOMAIN;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -81,5 +82,13 @@ public class OptimizedRoutingTableTest {
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
     assertThat(table.getResolverFor(DOT), notNullValue());
     assertThat(table.getResolverFor(SERVER_1_NAME), sameInstance(resolver));
+  }
+
+  @Test
+  public void shouldBeCaseInsensitive() {
+    compiledMap.put(toDnsDomain(SERVER_1_NAME.toLowerCase()), resolver);
+    OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
+
+    assertThat(table.getResolverFor(SERVER_1_NAME.toUpperCase()), is(resolver));
   }
 }

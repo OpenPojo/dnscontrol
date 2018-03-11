@@ -33,7 +33,7 @@ public class DomainUtils {
       domain += DOT;
 
     StringBuilder result = new StringBuilder();
-    String remaining = domain;
+    String remaining = domain.toLowerCase();
 
     int idx = remaining.lastIndexOf(DOT);
 

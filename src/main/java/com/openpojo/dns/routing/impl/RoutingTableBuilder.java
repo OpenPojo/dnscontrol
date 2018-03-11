@@ -29,11 +29,10 @@ import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.routing.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
-import com.openpojo.dns.routing.utils.DomainUtils;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Resolver;
 
-import static com.openpojo.dns.routing.RoutingTable.DOT;
+import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 
 /**
  * @author oshoukry
@@ -56,9 +55,7 @@ public class RoutingTableBuilder {
     if (dnsServers == null)
       dnsServers = Collections.emptyList();
 
-    destination = cleanupDestination(destination);
-
-    String hierarchicalDomain = DomainUtils.toDnsDomain(destination);
+    String hierarchicalDomain = toDnsDomain(destination);
     List<String> dnsServersList = destinationMap.get(hierarchicalDomain);
     if (dnsServersList == null)
       dnsServersList = new ArrayList<>();
@@ -74,16 +71,6 @@ public class RoutingTableBuilder {
 
   public Map<String, List<String>> getDestinationMap() {
     return destinationMap;
-  }
-
-  private String cleanupDestination(String destination) {
-    if (destination == null || destination.length() == 0) {
-      destination = DOT;
-    }
-
-    if (!destination.endsWith(DOT))
-      destination += DOT;
-    return destination.toLowerCase();
   }
 
   public RoutingTable build() {
