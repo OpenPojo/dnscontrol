@@ -28,7 +28,7 @@
 
   <groupId>com.openpojo</groupId>
   <artifactId>dnscontrol</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4</version>
   <name>${project.artifactId}</name>
 
   <description>This project was born out of a need to have more finer grain control over Java's DNS subsystem.</description>
