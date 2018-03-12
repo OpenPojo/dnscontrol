@@ -34,14 +34,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.*;
 
+import static com.openpojo.dns.DnsControl.recreateInstance;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -142,6 +139,15 @@ public class DnsControlTest {
     thrown.expectCause(isA(java.net.UnknownHostException.class));
 
     System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, UNKNOWN_SERVER);
-    DnsControl.recreateInstance();
+    recreateInstance();
+  }
+
+  @Test
+  public void whenRecreateGetInstanceShouldBeDifferent() {
+    DnsControl instance = DnsControl.getInstance();
+    assertThat(instance, sameInstance(DnsControl.getInstance()));
+    DnsControl differentInsance = DnsControl.recreateInstance();
+    assertThat(differentInsance, not(sameInstance(instance)));
+    assertThat(differentInsance, sameInstance(DnsControl.getInstance()));
   }
 }
