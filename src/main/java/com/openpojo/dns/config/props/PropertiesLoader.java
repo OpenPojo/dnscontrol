@@ -1,5 +1,6 @@
 package com.openpojo.dns.config.props;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,15 +32,7 @@ public class PropertiesLoader {
   }
 
   public boolean exists() {
-    InputStream is = null;
-    try {
-      is = getAsStream();
-    } catch (Exception ignored) {}
-    return is != null;
-  }
-
-  public String getFileName() {
-    return fileName;
+    return getClassLoader().getResource(fileName) != null || new File(fileName).exists();
   }
 
   public Map<String, String> getAllProperties() {
@@ -50,10 +43,14 @@ public class PropertiesLoader {
   }
 
   private InputStream getAsStream() throws IOException {
-    final InputStream resourceAsStream = ClassLoader.getSystemResourceAsStream(fileName);
+    final InputStream resourceAsStream = getClassLoader().getResourceAsStream(fileName);
     if (resourceAsStream == null)
       return new FileInputStream(fileName);
     return resourceAsStream;
+  }
+
+  private ClassLoader getClassLoader() {
+    return Thread.currentThread().getContextClassLoader();
   }
 
   public String get(String key) {

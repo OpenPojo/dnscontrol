@@ -14,4 +14,9 @@ public class NoOpDnsConfigReader implements DnsConfigReader {
   public Map<String, List<String>> getConfiguration() {
     return new HashMap<>();
   }
+
+  @Override
+  public boolean hasConfiguration() {
+    return false;
+  }
 }

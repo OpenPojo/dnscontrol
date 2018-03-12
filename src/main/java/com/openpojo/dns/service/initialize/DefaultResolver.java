@@ -18,49 +18,28 @@
 
 package com.openpojo.dns.service.initialize;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.openpojo.dns.DnsControl;
-import com.openpojo.dns.config.DnsConfigReader;
-import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 
-import static com.openpojo.dns.config.DnsConfigReader.CONFIG_VALUES_SEPARATOR;
+import static com.openpojo.dns.config.DnsConfigReaderFactory.getDnsConfigFileReader;
 
 /**
  * @author oshoukry
  */
 public class DefaultResolver implements Initializer {
-  private static final DnsControl DNS_CONTROL = DnsControl.getInstance();
-
   public DefaultResolver() {
   }
 
   public void init() {
-    initializeAndRegisterRoutingResolver();
-  }
-
-  private void initializeAndRegisterRoutingResolver() {
     final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
-    final List<String> nameServers = getEnvironmentVariableNameServers();
-    if (nameServers.size() > 0) {
-      routingTableBuilder.with(null, nameServers);
-    }
 
-    DnsConfigReader reader = DnsConfigReaderFactory.getConfigReader();
-    routingTableBuilder.with(reader);
+    routingTableBuilder.with(getDnsConfigFileReader());
 
     if (routingTableBuilder.getDestinationMap().size() > 0) {
-      DNS_CONTROL.setRoutingTable(routingTableBuilder.build());
-      DNS_CONTROL.registerRoutingResolver();
+      final DnsControl dnsControl = DnsControl.getInstance();
+      dnsControl.setRoutingTable(routingTableBuilder.build());
+      dnsControl.registerRoutingResolver();
     }
   }
 
-  private List<String> getEnvironmentVariableNameServers() {
-    String nameServersConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_NAMESERVERS);
-    if (nameServersConfig != null) return Arrays.asList(nameServersConfig.split(CONFIG_VALUES_SEPARATOR));
-    return Collections.emptyList();
-  }
 }

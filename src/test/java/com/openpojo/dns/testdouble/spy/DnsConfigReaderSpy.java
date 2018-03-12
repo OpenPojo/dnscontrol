@@ -17,4 +17,9 @@ public class DnsConfigReaderSpy implements DnsConfigReader {
     getConfigurationCalled = true;
     return configuration;
   }
+
+  @Override
+  public boolean hasConfiguration() {
+    return false;
+  }
 }

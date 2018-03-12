@@ -23,7 +23,6 @@ package com.openpojo.dns.service.initialize;
  */
 public interface Initializer {
   String SUN_NET_SPI_NAMESERVICE_DOMAIN = "sun.net.spi.nameservice.domain";
-  String SUN_NET_SPI_NAMESERVICE_NAMESERVERS = "sun.net.spi.nameservice.nameservers";
   String JAVA_NET_PREFER_IPV6_ADDRESSES = "java.net.preferIPv6Addresses";
 
   void init();

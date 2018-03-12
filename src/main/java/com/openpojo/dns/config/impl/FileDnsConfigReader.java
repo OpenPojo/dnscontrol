@@ -1,6 +1,5 @@
 package com.openpojo.dns.config.impl;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +8,7 @@ import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.props.PropertiesLoader;
 import com.openpojo.dns.exception.ConfigurationFileNotFoundException;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static com.openpojo.dns.config.utils.ServerParser.splitServers;
 
 /**
  * This is the file based configuration, and should follow the format of properties.
@@ -33,16 +31,17 @@ import static java.util.Collections.singletonList;
  * @author oshoukry
  */
 public class FileDnsConfigReader implements DnsConfigReader {
-  private final PropertiesLoader propertiesLoader;
+  private final String fileName;
 
   public FileDnsConfigReader(String fileName) {
-    this.propertiesLoader = new PropertiesLoader(fileName);
-    if (!propertiesLoader.exists())
-      throw ConfigurationFileNotFoundException.getInstance("Configuration file [" + propertiesLoader.getFileName() + "] not found");
+    this.fileName = fileName;
+    if (!hasConfiguration())
+      throw ConfigurationFileNotFoundException.getInstance("Configuration file [" + fileName + "] not found");
   }
 
   @Override
   public Map<String, List<String>> getConfiguration() {
+    PropertiesLoader propertiesLoader = getPropertiesLoader();
     propertiesLoader.load();
     final Map<String, String> allProperties = propertiesLoader.getAllProperties();
     final Map<String, List<String>> routingEntries = new HashMap<>();
@@ -51,13 +50,13 @@ public class FileDnsConfigReader implements DnsConfigReader {
     return routingEntries;
   }
 
-  private List<String> splitServers(String value) {
-    if (value == null || value.length() == 0)
-      return Collections.emptyList();
+  private PropertiesLoader getPropertiesLoader() {
+    final PropertiesLoader propertiesLoader = new PropertiesLoader(this.fileName);
+    return propertiesLoader;
+  }
 
-    if (value.indexOf(CONFIG_VALUES_SEPARATOR) > 0)
-      return asList(value.split(CONFIG_VALUES_SEPARATOR));
-
-    return singletonList(value);
+  @Override
+  public boolean hasConfiguration() {
+    return getPropertiesLoader().exists();
   }
 }

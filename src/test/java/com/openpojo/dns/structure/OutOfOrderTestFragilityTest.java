@@ -78,7 +78,9 @@ public class OutOfOrderTestFragilityTest {
       final boolean wasSuccessful = entry.getValue().wasSuccessful();
       passed &= wasSuccessful;
       final String resultValue = getResultValue(wasSuccessful);
-      final String testOutcome = "Test: " + entry.getKey() + "..." + resultValue;
+      String testOutcome = "Test: " + entry.getKey() + "..." + resultValue;
+      if (!wasSuccessful)
+        testOutcome += entry.getValue().getFailures();
       orderOfTests.add(testOutcome);
     }
     if (!passed) {

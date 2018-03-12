@@ -21,17 +21,25 @@ package com.openpojo.dns;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
+import com.openpojo.dns.cache.CacheControl;
 import com.openpojo.dns.cache.utils.VerificationHelper;
+import com.openpojo.dns.config.DnsConfigReader;
+import com.openpojo.dns.config.impl.EnvironmentDnsConfigReader;
+import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.routing.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.xbill.DNS.*;
 
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
+import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -44,15 +52,22 @@ public class DnsControlTest {
   private final DnsControl dnsControl = DnsControl.getInstance();
   private Resolver defaultResolver;
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Before
   public void setup() {
+    System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     Lookup.refreshDefault();
+    CacheControl.resetCache();
     defaultResolver = Lookup.getDefaultResolver();
   }
 
   @After
   public void teardown() {
+    System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     Lookup.refreshDefault();
+    CacheControl.resetCache();
   }
 
   @Test
@@ -88,14 +103,14 @@ public class DnsControlTest {
     final Name rootServer = new Name(SERVER_1_NAME);
     final String expectedIP = SERVER_1_IPv4_STRING;
 
-    Record [] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
+    Record[] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
     assertThat(beforeConfigRecords.length, is(1));
-    assertThat(((ARecord)beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+    assertThat(((ARecord) beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
 
     dnsControl.registerRoutingResolver();
-    Record [] afterConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
+    Record[] afterConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
     assertThat(beforeConfigRecords.length, is(1));
-    assertThat(((ARecord)afterConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+    assertThat(((ARecord) afterConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
   }
 
   @Test
@@ -116,5 +131,17 @@ public class DnsControlTest {
     assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1));
     dnsControl.setRoutingTable(null);
     VerificationHelper.verifyCacheIsEmpty();
+  }
+
+  @Test
+  public void shouldThrowResolverException() {
+    thrown.expect(RouteSetupException.class);
+    thrown.expectMessage(
+        "Unknown host defined in configuration reader [" + EnvironmentDnsConfigReader.class.getName() + "] " + UNKNOWN_SERVER);
+
+    thrown.expectCause(isA(java.net.UnknownHostException.class));
+
+    System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, UNKNOWN_SERVER);
+    DnsControl.recreateInstance();
   }
 }

@@ -11,8 +11,12 @@ public interface DnsConfigReader {
   String CONFIG_FILE_ENV_VARIABLE= "dnscontrol.conf.file";
   String CONFIG_VALUES_SEPARATOR = ",";
 
+  String ENV_NAME_SERVERS_KEY = "sun.net.spi.nameservice.nameservers";
+
   /**
    * The configuration returned is in the form of key value pairs.
    */
   Map<String, List<String>> getConfiguration();
+
+  boolean hasConfiguration();
 }
