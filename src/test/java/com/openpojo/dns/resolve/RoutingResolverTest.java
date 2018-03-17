@@ -29,7 +29,6 @@ import com.openpojo.dns.constants.TestConstants;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.OptimizedRoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
-import com.openpojo.dns.routing.utils.NotSupportedMethodsValidator;
 import com.openpojo.dns.testdouble.spy.ResolverSpy;
 import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
 import org.junit.After;

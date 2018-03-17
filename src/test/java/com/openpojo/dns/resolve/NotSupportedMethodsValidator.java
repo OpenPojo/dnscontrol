@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.routing.utils;
+package com.openpojo.dns.resolve;
 
 import java.util.List;
 
