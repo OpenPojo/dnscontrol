@@ -19,7 +19,7 @@
 package com.openpojo.dns.service.initialize;
 
 import com.openpojo.dns.config.DnsConfigReader;
-import com.openpojo.dns.routing.RoutingResolver;
+import com.openpojo.dns.resolve.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

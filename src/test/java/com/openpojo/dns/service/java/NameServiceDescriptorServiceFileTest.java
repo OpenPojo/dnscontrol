@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.service;
+package com.openpojo.dns.service.java;
 
 import java.io.BufferedReader;
 import java.io.IOException;

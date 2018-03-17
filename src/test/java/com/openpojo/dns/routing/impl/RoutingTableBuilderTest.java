@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.openpojo.dns.exception.RouteSetupException;
-import com.openpojo.dns.routing.NoOpResolver;
+import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.testdouble.spy.DnsConfigReaderSpy;
 import org.junit.Assert;

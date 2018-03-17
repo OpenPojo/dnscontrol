@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.resolve;
+package com.openpojo.dns.service.lookup;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

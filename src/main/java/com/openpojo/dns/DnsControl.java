@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.exception.RouteSetupException;
-import com.openpojo.dns.routing.RoutingResolver;
+import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;

@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
-import com.openpojo.dns.routing.NoOpResolver;
+import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Resolver;

@@ -20,7 +20,7 @@ package com.openpojo.dns.issues.issue8;
 
 import java.net.UnknownHostException;
 
-import com.openpojo.dns.service.JavaNameService;
+import com.openpojo.dns.service.java.JavaNameService;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
@@ -40,7 +40,7 @@ public class IssueTest {
     thrown.expect(UnknownHostException.class);
     final String localhost = "localhost";
     thrown.expectMessage("Unknown host [" + localhost + "]");
-    JavaNameService javaNameService = new JavaNameService(new DefaultDomain(), new DefaultIPv6Preference(), new DefaultResolver());
+    final JavaNameService javaNameService = new JavaNameService(new DefaultDomain(), new DefaultIPv6Preference(), new DefaultResolver());
     javaNameService.lookupAllHostAddr(localhost);
   }
 }

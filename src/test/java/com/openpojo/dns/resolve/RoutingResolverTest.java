@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.routing;
+package com.openpojo.dns.resolve;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,6 +26,7 @@ import java.util.List;
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.cache.CacheControl;
 import com.openpojo.dns.constants.TestConstants;
+import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.OptimizedRoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import com.openpojo.dns.routing.utils.NotSupportedMethodsValidator;

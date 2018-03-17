@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.service;
+package com.openpojo.dns.service.java;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.openpojo.dns.resolve.SimpleNameServiceLookup;
+import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.service;
+package com.openpojo.dns.service.java;
 
 import org.junit.Before;
 import org.junit.Test;

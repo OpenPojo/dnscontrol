@@ -26,7 +26,7 @@ import com.openpojo.dns.cache.utils.VerificationHelper;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.impl.EnvironmentDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
-import com.openpojo.dns.routing.RoutingResolver;
+import com.openpojo.dns.resolve.RoutingResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

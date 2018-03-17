@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.routing;
+package com.openpojo.dns.resolve;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.openpojo.dns.exception.ResolveException;
 import com.openpojo.dns.exception.RoutingException;
-import org.xbill.DNS.Flags;
-import org.xbill.DNS.Header;
+import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.Message;
+import org.xbill.DNS.Name;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.ResolverListener;
 import org.xbill.DNS.TSIG;
@@ -33,19 +33,36 @@ import org.xbill.DNS.TSIG;
 /**
  * @author oshoukry
  */
-public class NoOpResolver implements Resolver {
+public class RoutingResolver implements Resolver {
+  private final AtomicReference<RoutingTable> safeAccessRoutingTable = new AtomicReference<>();
+  private final Resolver defaultSystemResolver;
+
+  public RoutingResolver(Resolver defaultSystemResolver) {
+    this.defaultSystemResolver = defaultSystemResolver;
+  }
+
+  public void setRoutingTable(RoutingTable routingTable) {
+    safeAccessRoutingTable.set(routingTable);
+  }
+
+  public RoutingTable getRoutingTable() {
+    return safeAccessRoutingTable.get();
+  }
 
   @Override
   public Message send(Message query) throws IOException {
-    try {
-      final Message answer = (Message) query.clone();
-      final Header header = answer.getHeader();
-      header.setFlag(Flags.RA);
-      header.setFlag(Flags.QR);
-      return answer;
-    } catch (Exception e) {
-      throw ResolveException.getInstance("Failed to resolve for query [" + query + "]", e);
+    Resolver resolverToUse = null;
+
+    final RoutingTable routingTable = safeAccessRoutingTable.get();
+    if (routingTable != null) {
+      Name name = query.getQuestion().getName();
+      resolverToUse = routingTable.getResolverFor(name.toString());
     }
+
+    if (resolverToUse == null)
+      resolverToUse = defaultSystemResolver;
+
+    return resolverToUse.send(query);
   }
 
   @Override

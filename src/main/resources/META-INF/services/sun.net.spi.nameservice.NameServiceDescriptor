@@ -16,4 +16,4 @@
 # limitations under the License.
 #
 
-com.openpojo.dns.service.JavaNameServiceDescriptor
+com.openpojo.dns.service.java.JavaNameServiceDescriptor
