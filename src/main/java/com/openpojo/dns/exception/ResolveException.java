@@ -22,14 +22,6 @@ package com.openpojo.dns.exception;
  * @author oshoukry
  */
 public class ResolveException extends RuntimeException {
-  private ResolveException(String message) {
-    super(message);
-  }
-
-  public static ResolveException getInstance(String message) {
-    return new ResolveException(message);
-  }
-
   private ResolveException(String message, Throwable cause) {
     super(message, cause);
   }

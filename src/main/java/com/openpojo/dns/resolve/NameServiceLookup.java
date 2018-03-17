@@ -19,11 +19,12 @@
 package com.openpojo.dns.resolve;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author oshoukry
  */
 public interface NameServiceLookup {
-  InetAddress[] lookupAllHostAddr(String name);
-  String getHostByAddr(byte[] addr);
+  InetAddress[] lookupAllHostAddr(String name) throws UnknownHostException;
+  String getHostByAddr(byte[] addr) throws UnknownHostException;
 }

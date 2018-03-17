@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.service;
 
+import java.util.logging.Logger;
+
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
@@ -31,13 +33,17 @@ import static com.openpojo.dns.DnsControl.SERVICE_TYPE;
  * @author oshoukry
  */
 public class JavaNameServiceDescriptor implements NameServiceDescriptor {
-  private final JavaNameService javaNameService;
+  private static final Logger LOGGER = Logger.getLogger(JavaNameServiceDescriptor.class.getName());
+  private JavaNameService javaNameService;
 
+  @SuppressWarnings("WeakerAccess")
   public JavaNameServiceDescriptor() {
-    javaNameService = new JavaNameService(new DefaultDomain(), new DefaultIPv6Preference(), new DefaultResolver());
+    LOGGER.info("Descriptor service initialized");
   }
 
   public synchronized NameService createNameService() {
+    if (javaNameService == null)
+      javaNameService = new JavaNameService(new DefaultDomain(), new DefaultIPv6Preference(), new DefaultResolver());
     return javaNameService;
   }
 

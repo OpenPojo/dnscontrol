@@ -20,9 +20,7 @@ package com.openpojo.dns.resolve;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
-import com.openpojo.dns.exception.ResolveException;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.PTRRecord;
@@ -35,26 +33,20 @@ import org.xbill.DNS.Type;
  */
 public class ReverseLookup {
 
-  public static String getHostName(byte[] addr) {
+  public static String getHostName(byte[] addr) throws UnknownHostException {
     Name ipAddress = getName(addr);
     return getPTRName(ipAddress);
   }
 
-  private static Name getName(byte[] addr) {
-    Name name;
-    try {
-      name = ReverseMap.fromAddress(InetAddress.getByAddress(addr));
-    } catch (UnknownHostException e) {
-      throw ResolveException.getInstance("Unknown IPAddress " + Arrays.toString(addr), e);
-    }
-    return name;
+  private static Name getName(byte[] addr) throws UnknownHostException {
+    return ReverseMap.fromAddress(InetAddress.getByAddress(addr));
   }
 
   private static String getPTRName(Name ipAddress) {
     final Record[] records = new Lookup(ipAddress, Type.PTR).run();
     if (records == null)
       return null;
-    return ((PTRRecord)records[0]).getTarget().toString();
+    return ((PTRRecord) records[0]).getTarget().toString();
   }
 
   private ReverseLookup() {}

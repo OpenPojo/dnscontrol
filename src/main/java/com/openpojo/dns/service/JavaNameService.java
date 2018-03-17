@@ -19,6 +19,9 @@
 package com.openpojo.dns.service;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 import com.openpojo.dns.resolve.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
@@ -31,21 +34,25 @@ import sun.net.spi.nameservice.NameService;
  */
 public class JavaNameService implements NameService {
   private final SimpleNameServiceLookup nameServiceLookup;
+  private final static Logger LOGGER = Logger.getLogger(JavaNameService.class.getName());
 
   public JavaNameService(DefaultDomain defaultDomain, DefaultIPv6Preference ipV6Preference, DefaultResolver resolver) {
     defaultDomain.init();
     ipV6Preference.init();
     resolver.init();
     nameServiceLookup = new SimpleNameServiceLookup(ipV6Preference.get());
+    LOGGER.info("Java name service initialized");
   }
 
   @Override
-  public InetAddress[] lookupAllHostAddr(String name) {
+  public InetAddress[] lookupAllHostAddr(String name) throws UnknownHostException {
+    LOGGER.info("lookupAllHostAddr(" + name + ")");
     return nameServiceLookup.lookupAllHostAddr(name);
   }
 
   @Override
-  public String getHostByAddr(byte[] addr) {
+  public String getHostByAddr(byte[] addr) throws UnknownHostException {
+    LOGGER.info("getHostByAddr(" + Arrays.asList(addr) + ")");
     return nameServiceLookup.getHostByAddr(addr);
   }
 }

@@ -19,6 +19,7 @@
 package com.openpojo.dns.service;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import com.openpojo.dns.constants.TestConstants;
 import com.openpojo.dns.service.initialize.DefaultDomain;
@@ -75,7 +76,7 @@ public class JavaNameServiceTest {
   }
 
   @Test
-  public void shouldSuccessfullyDoIP4ForwardLookup() {
+  public void shouldSuccessfullyDoIP4ForwardLookup() throws UnknownHostException {
     nameService = new JavaNameService(defaultDomain, ipV6Preference, resolver);
     final InetAddress[] inetAddresses = nameService.lookupAllHostAddr(hostname);
     assertThat(inetAddresses, notNullValue());
@@ -86,7 +87,7 @@ public class JavaNameServiceTest {
 
 
   @Test
-  public void shouldSuccessfullyDoIP6ForwardLookup() {
+  public void shouldSuccessfullyDoIP6ForwardLookup() throws UnknownHostException {
     setPreferIPV6("" + true);
     nameService = new JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
     final InetAddress[] inetAddresses = nameService.lookupAllHostAddr(hostname);
@@ -97,13 +98,13 @@ public class JavaNameServiceTest {
   }
 
   @Test
-  public void shouldSuccessfullyDoIP4ReverseLookup() {
+  public void shouldSuccessfullyDoIP4ReverseLookup() throws UnknownHostException {
     nameService = new JavaNameService(defaultDomain, ipV6Preference, resolver);
     assertThat(nameService.getHostByAddr(hostIP4AsBytes), is(hostname));
   }
 
   @Test
-  public void shouldSuccessfullyDoIP6ReverseLookup() {
+  public void shouldSuccessfullyDoIP6ReverseLookup() throws UnknownHostException {
     setPreferIPV6("" + true);
     nameService = new JavaNameService(defaultDomain, new DefaultIPv6Preference(), resolver);
     assertThat(nameService.getHostByAddr(hostIP6AsBytes), is(hostname));

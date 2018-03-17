@@ -19,6 +19,7 @@
 package com.openpojo.dns.resolve;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import com.openpojo.dns.exception.ResolveException;
@@ -64,7 +65,7 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldBeAbleToLookupIPv4() {
+  public void shouldBeAbleToLookupIPv4() throws UnknownHostException {
     final InetAddress[] inetAddresses = createNameServiceLookup(false).lookupAllHostAddr(SERVER_1_NAME);
 
     assertThat(inetAddresses, notNullValue());
@@ -73,7 +74,7 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldBeAbleToLookupIPv6() {
+  public void shouldBeAbleToLookupIPv6() throws UnknownHostException {
     final InetAddress[] inetAddresses = createNameServiceLookup(true).lookupAllHostAddr(SERVER_1_NAME);
 
     assertThat(inetAddresses, notNullValue());
@@ -82,7 +83,7 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldFailIPv6LookupAndFallBackToIPv4() {
+  public void shouldFailIPv6LookupAndFallBackToIPv4() throws UnknownHostException {
     final InetAddress[] inetAddresses = createNameServiceLookup(true).lookupAllHostAddr(SERVER_2_NAME);
 
     assertThat(inetAddresses, notNullValue());
@@ -92,15 +93,15 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldThrowExceptionForUnknownHost() {
-    thrown.expect(ResolveException.class);
+  public void shouldThrowExceptionForUnknownHost() throws UnknownHostException {
+    thrown.expect(UnknownHostException.class);
     thrown.expectMessage("Unknown host [" + UNKNOWN_SERVER + "]");
 
     createNameServiceLookup(false).lookupAllHostAddr(UNKNOWN_SERVER);
   }
 
   @Test
-  public void shouldThrowExceptionForInvalidHostName() {
+  public void shouldThrowExceptionForInvalidHostName() throws UnknownHostException {
     thrown.expect(ResolveException.class);
     thrown.expectMessage("Failed to parse name []");
 
@@ -108,7 +109,7 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldThrowExceptionForNullHostName() {
+  public void shouldThrowExceptionForNullHostName() throws UnknownHostException {
     thrown.expect(ResolveException.class);
     thrown.expectMessage("Failed to parse name [null]");
 
@@ -116,26 +117,26 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldThrowExceptionForNullReverseLookup() {
-    thrown.expect(ResolveException.class);
-    thrown.expectMessage("Unknown IPAddress null");
+  public void shouldThrowExceptionForNullReverseLookup() throws UnknownHostException {
+    thrown.expect(UnknownHostException.class);
+    thrown.expectMessage("addr is of illegal length");
 
     createNameServiceLookup(false).getHostByAddr(null);
   }
 
   @Test
-  public void shouldThrowExceptionForInvalidReverseLookup() {
+  public void shouldThrowExceptionForInvalidReverseLookup() throws UnknownHostException {
     final byte[] addr = { 0 };
-    thrown.expect(ResolveException.class);
-    thrown.expectMessage("Unknown IPAddress " + Arrays.toString(addr));
+    thrown.expect(UnknownHostException.class);
+    thrown.expectMessage("addr is of illegal length");
 
     createNameServiceLookup(false).getHostByAddr(addr);
   }
 
   @Test
-  public void shouldThrowExceptionForUnknownIPAddressBytes() {
+  public void shouldThrowExceptionForUnknownIPAddressBytes() throws UnknownHostException {
     final byte[] addr = { 0, 1, 2, 3 };
-    thrown.expect(ResolveException.class);
+    thrown.expect(UnknownHostException.class);
     thrown.expectMessage("Unknown IPAddress " + Arrays.toString(addr));
 
     createNameServiceLookup(false).getHostByAddr(addr);

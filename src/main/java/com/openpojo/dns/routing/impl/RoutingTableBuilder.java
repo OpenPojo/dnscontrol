@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
@@ -38,6 +39,7 @@ import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
  * @author oshoukry
  */
 public class RoutingTableBuilder {
+  private static final Logger LOGGER = Logger.getLogger(RoutingTableBuilder.class.getName());
   private Map<String, List<String>> destinationMap = new HashMap<>();
 
   public static RoutingTableBuilder create() {
@@ -79,6 +81,7 @@ public class RoutingTableBuilder {
       for (Map.Entry<String, List<String>> entry : destinationMap.entrySet()) {
         final List<String> dnsServerList = entry.getValue();
         Resolver resolver = hasDnsServers(dnsServerList) ? new ExtendedResolver(getDnsServerArray(dnsServerList)) : new NoOpResolver();
+        LOGGER.info("building routing table with route [" + entry.getKey() + "=" + entry.getValue() + "]... Resolver set to[" + resolver + "]");
         optimizedRoutingEntries.put(entry.getKey(), resolver);
       }
 

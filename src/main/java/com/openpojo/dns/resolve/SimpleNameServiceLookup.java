@@ -19,9 +19,8 @@
 package com.openpojo.dns.resolve;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
-
-import com.openpojo.dns.exception.ResolveException;
 
 import static com.openpojo.dns.resolve.ForwardLookupWithFallBack.getIPAddresses;
 
@@ -44,19 +43,18 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
   }
 
   @Override
-  public InetAddress[] lookupAllHostAddr(String hostName) {
+  public InetAddress[] lookupAllHostAddr(String hostName) throws UnknownHostException {
     final InetAddress[] ipAddresses = getIPAddresses(hostName, IPv6Preference);
     if (ipAddresses == null)
-      throw ResolveException.getInstance("Unknown host [" + hostName + "]");
-
+      throw new UnknownHostException("Unknown host [" + hostName + "]");
     return ipAddresses;
   }
 
   @Override
-  public String getHostByAddr(byte[] ipAddress) {
+  public String getHostByAddr(byte[] ipAddress) throws UnknownHostException {
     String name = ReverseLookup.getHostName(ipAddress);
     if (name == null)
-      throw ResolveException.getInstance("Unknown IPAddress " + Arrays.toString(ipAddress));
+      throw new UnknownHostException("Unknown IPAddress " + Arrays.toString(ipAddress));
     return name;
   }
 }
