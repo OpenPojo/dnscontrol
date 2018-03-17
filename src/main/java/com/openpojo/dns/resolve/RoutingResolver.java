@@ -19,21 +19,17 @@
 package com.openpojo.dns.resolve;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.openpojo.dns.exception.RoutingException;
 import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Resolver;
-import org.xbill.DNS.ResolverListener;
-import org.xbill.DNS.TSIG;
 
 /**
  * @author oshoukry
  */
-public class RoutingResolver implements Resolver {
+public class RoutingResolver extends UnimplementedResolver {
   private final AtomicReference<RoutingTable> safeAccessRoutingTable = new AtomicReference<>();
   private final Resolver defaultSystemResolver;
 
@@ -63,50 +59,5 @@ public class RoutingResolver implements Resolver {
       resolverToUse = defaultSystemResolver;
 
     return resolverToUse.send(query);
-  }
-
-  @Override
-  public Object sendAsync(Message query, ResolverListener listener) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setPort(int port) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTCP(boolean flag) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setIgnoreTruncation(boolean flag) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setEDNS(int level) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setEDNS(int level, int payloadSize, int flags, List options) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTSIGKey(TSIG key) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTimeout(int secs, int msecs) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTimeout(int secs) {
-    throw RoutingException.getInstance("Operation not supported");
   }
 }

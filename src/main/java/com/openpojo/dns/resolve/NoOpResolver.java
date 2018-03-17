@@ -19,21 +19,16 @@
 package com.openpojo.dns.resolve;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.openpojo.dns.exception.ResolveException;
-import com.openpojo.dns.exception.RoutingException;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.Header;
 import org.xbill.DNS.Message;
-import org.xbill.DNS.Resolver;
-import org.xbill.DNS.ResolverListener;
-import org.xbill.DNS.TSIG;
 
 /**
  * @author oshoukry
  */
-public class NoOpResolver implements Resolver {
+public class NoOpResolver extends UnimplementedResolver {
 
   @Override
   public Message send(Message query) throws IOException {
@@ -46,50 +41,5 @@ public class NoOpResolver implements Resolver {
     } catch (Exception e) {
       throw ResolveException.getInstance("Failed to resolve for query [" + query + "]", e);
     }
-  }
-
-  @Override
-  public Object sendAsync(Message query, ResolverListener listener) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setPort(int port) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTCP(boolean flag) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setIgnoreTruncation(boolean flag) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setEDNS(int level) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setEDNS(int level, int payloadSize, int flags, List options) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTSIGKey(TSIG key) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTimeout(int secs, int msecs) {
-    throw RoutingException.getInstance("Operation not supported");
-  }
-
-  @Override
-  public void setTimeout(int secs) {
-    throw RoutingException.getInstance("Operation not supported");
   }
 }
