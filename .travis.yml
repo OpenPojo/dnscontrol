@@ -1,6 +1,6 @@
 language: java
 script:
-  - jdk_switcher use oraclejdk7
+  - jdk_switcher use openjdk7
   - mvn test jacoco:report
   - jdk_switcher use oraclejdk8
   - mvn test jacoco:report-aggregate coveralls:report
