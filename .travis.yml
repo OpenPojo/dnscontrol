@@ -1,5 +1,9 @@
 language: java
 jdk:
   - openjdk7
-after_success:
-  - mvn clean test jacoco:report coveralls:report
+  - oraclejdk8
+script:
+  - jdk_switcher use oraclejdk7
+  - mvn clean test jacoco:report
+  - jdk_switcher use oraclejdk8
+  - mvn clean test jacoco:report-aggregate coveralls:report
