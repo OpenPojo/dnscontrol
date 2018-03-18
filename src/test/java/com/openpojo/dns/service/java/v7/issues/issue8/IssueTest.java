@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.issues.issue8;
+package com.openpojo.dns.service.java.v7.issues.issue8;
 
 import java.net.UnknownHostException;
 
-import com.openpojo.dns.service.java.JavaNameService;
+import com.openpojo.dns.service.java.v7.JavaNameService;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;

@@ -45,14 +45,19 @@ public class OutOfOrderTestFragilityTest {
   private List<PojoClass> testClasses;
   private FilterClassName testClassFilter;
   private PojoClassFilter selfFilter;
+  private IncompatibleJVMTestsFilter incompatibleJVMTestsFilter;
   private List<String> orderOfTests;
 
   @Before
   public void setup() {
     testClassFilter = new FilterClassName(".*Test$");
     selfFilter = new OutOfOrderTestFragilityFilter();
+    incompatibleJVMTestsFilter = new IncompatibleJVMTestsFilter();
 
-    testClasses = getPojoClassesRecursively("com.openpojo.dns", new FilterChain(testClassFilter, selfFilter));
+    testClasses = getPojoClassesRecursively("com.openpojo.dns",
+        new FilterChain(testClassFilter
+            , selfFilter
+            , incompatibleJVMTestsFilter));
     orderOfTests = new ArrayList<>();
   }
 
@@ -101,6 +106,16 @@ public class OutOfOrderTestFragilityTest {
     @Override
     public boolean include(PojoClass pojoClass) {
       return !pojoClass.getName().equals(OutOfOrderTestFragilityTest.class.getName());
+    }
+  }
+
+  private static class IncompatibleJVMTestsFilter implements PojoClassFilter {
+    @Override
+    public boolean include(PojoClass pojoClass) {
+      final String packageName = pojoClass.getPackage().getName() + ".";
+      final String javaVersion = System.getProperty("java.version");
+      final String jvm7Tests = "com.openpojo.dns.service.java.v7.";
+      return !packageName.startsWith(jvm7Tests) || (!javaVersion.startsWith("9"));
     }
   }
 }
