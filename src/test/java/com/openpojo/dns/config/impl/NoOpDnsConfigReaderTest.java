@@ -36,7 +36,7 @@ public class NoOpDnsConfigReaderTest {
   private NoOpDnsConfigReader noOpDnsConfigReader;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     noOpDnsConfigReader = new NoOpDnsConfigReader();
   }
 

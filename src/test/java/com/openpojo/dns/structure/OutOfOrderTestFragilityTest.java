@@ -43,16 +43,13 @@ import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClassesRecurs
 public class OutOfOrderTestFragilityTest {
 
   private List<PojoClass> testClasses;
-  private FilterClassName testClassFilter;
-  private PojoClassFilter selfFilter;
-  private IncompatibleJVMTestsFilter incompatibleJVMTestsFilter;
   private List<String> orderOfTests;
 
   @Before
   public void setup() {
-    testClassFilter = new FilterClassName(".*Test$");
-    selfFilter = new OutOfOrderTestFragilityFilter();
-    incompatibleJVMTestsFilter = new IncompatibleJVMTestsFilter();
+    FilterClassName testClassFilter = new FilterClassName(".*Test$");
+    PojoClassFilter selfFilter = new OutOfOrderTestFragilityFilter();
+    IncompatibleJVMTestsFilter incompatibleJVMTestsFilter = new IncompatibleJVMTestsFilter();
 
     testClasses = getPojoClassesRecursively("com.openpojo.dns",
         new FilterChain(testClassFilter

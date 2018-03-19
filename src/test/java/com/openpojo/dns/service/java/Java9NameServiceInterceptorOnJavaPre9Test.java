@@ -33,13 +33,13 @@ import static org.junit.Assume.assumeThat;
  * @author oshoukry
  */
 public class Java9NameServiceInterceptorOnJavaPre9Test {
-  private String shouldRunOnJavaVersionLessThan = "9";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() {
     Version runningOn = VersionFactory.getVersion(System.getProperty("java.version"));
+    String shouldRunOnJavaVersionLessThan = "9";
     assumeThat(runningOn.compareTo(VersionFactory.getVersion(shouldRunOnJavaVersionLessThan)), is(-1));
   }
 

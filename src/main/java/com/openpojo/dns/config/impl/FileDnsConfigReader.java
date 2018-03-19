@@ -69,8 +69,7 @@ public class FileDnsConfigReader implements DnsConfigReader {
   }
 
   private PropertiesLoader getPropertiesLoader() {
-    final PropertiesLoader propertiesLoader = new PropertiesLoader(this.fileName);
-    return propertiesLoader;
+    return new PropertiesLoader(this.fileName);
   }
 
   @Override

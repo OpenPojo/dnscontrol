@@ -29,7 +29,6 @@ import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -42,10 +41,6 @@ import static org.junit.Assert.assertThat;
 public class PojoValidationTest {
 
   private static final String TOP_LEVEL_PACKAGE = "com.openpojo.dns";
-
-  @Before
-  public void setUp() throws Exception {
-  }
 
   @Test
   public void testAllGetters() {

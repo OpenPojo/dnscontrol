@@ -57,7 +57,7 @@ public class OptimizedRoutingTableTest {
   }
 
   @Test
-  public void whenMatchingHostReturnResolver() throws UnknownHostException {
+  public void whenMatchingHostReturnResolver() {
     compiledMap.put(toDnsDomain(SERVER_1_NAME), resolver);
 
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
@@ -66,7 +66,7 @@ public class OptimizedRoutingTableTest {
   }
 
   @Test
-  public void whenNoMatchingHostAndDefaultRouteReturnDefault() throws UnknownHostException {
+  public void whenNoMatchingHostAndDefaultRouteReturnDefault() {
     compiledMap.put(DOT, resolver);
 
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);

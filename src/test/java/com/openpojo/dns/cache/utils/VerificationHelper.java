@@ -38,8 +38,8 @@ import static org.hamcrest.Matchers.is;
 public class VerificationHelper {
 
   public static void verifyCacheIsEmpty() {
-    for (int i = 0; i < D_CLASS_TYPES.length; i++)
-      assertThat(Lookup.getDefaultCache(D_CLASS_TYPES[i]).getSize(), is(0));
+    for (int D_CLASS_TYPE : D_CLASS_TYPES)
+      assertThat(Lookup.getDefaultCache(D_CLASS_TYPE).getSize(), is(0));
   }
 
   public static int[] getDClassTypesSorted() {

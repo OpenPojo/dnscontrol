@@ -35,6 +35,8 @@ import static org.junit.Assert.assertThat;
  * @author oshoukry
  */
 public class ReflectionHelperTest {
+
+  @SuppressWarnings("unused") // used for field testing bellow by name
   private String someFieldToLoad;
 
   @Rule
