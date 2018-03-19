@@ -18,10 +18,14 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.hamcrest.Matchers.greaterThan;
@@ -33,9 +37,42 @@ import static org.junit.Assert.assertThat;
  * @author oshoukry
  */
 public class SystemDnsConfigReaderTest {
+
+  private SystemDnsConfigReader systemDnsConfigReader;
+
+  @Before
+  public void setup() {
+    ResolverConfig.refresh();
+    systemDnsConfigReader = new SystemDnsConfigReader();
+  }
+
+  @After
+  public void teardown() {
+    ResolverConfig.refresh();
+  }
+
+  @Test
+  public void shouldReturnEmptyConfigurationIfSystemServersIsNull() throws NoSuchFieldException, IllegalAccessException {
+    final String[] value = null;
+    setServersField(value);
+    assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
+  }
+
+  @Test
+  public void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() throws NoSuchFieldException, IllegalAccessException {
+    final String[] value = new String[0];
+    setServersField(value);
+    assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
+  }
+
+  private void setServersField(String[] value) throws NoSuchFieldException, IllegalAccessException {
+    Field serversField = ResolverConfig.class.getDeclaredField("servers");
+    serversField.setAccessible(true);
+    serversField.set(ResolverConfig.getCurrentConfig(), value);
+  }
+
   @Test
   public void canReadSystemDNSEntries() {
-    SystemDnsConfigReader systemDnsConfigReader = new SystemDnsConfigReader();
     final Map<String, List<String>> configuration = systemDnsConfigReader.getConfiguration();
     assertThat(configuration, notNullValue());
     assertThat(configuration.size(), is(1));
