@@ -21,9 +21,9 @@ package com.openpojo.dns.service.java.v9;
 import java.net.InetAddress;
 
 import com.openpojo.dns.service.java.reflection.NameServiceProxy;
-import com.openpojo.dns.service.java.reflection.ReflectionHelper;
 
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.createProxy;
+import static com.openpojo.dns.service.java.reflection.ReflectionHelper.loadClass;
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.setFieldValue;
 
 /**
@@ -38,9 +38,6 @@ public class Java9NameServiceInterceptor {
   }
 
   public Object createProxyForNameService() throws ClassNotFoundException {
-    Class<?> aClass = ReflectionHelper.loadClass(NAME_SERVICE_CLASS_NAME);
-    if (aClass != null)
-      return createProxy(InetAddress.class.getClassLoader(), new NameServiceProxy(), aClass);
-    return null;
+    return createProxy(InetAddress.class.getClassLoader(), new NameServiceProxy(), loadClass(NAME_SERVICE_CLASS_NAME));
   }
 }

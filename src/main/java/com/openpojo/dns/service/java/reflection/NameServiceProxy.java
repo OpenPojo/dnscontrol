@@ -39,7 +39,7 @@ public class NameServiceProxy implements InvocationHandler {
       return nameServiceLookup.getHostByAddr(byte[].class.cast(args[0]));
 
     if (method.getName().equals("toString"))
-      return nameServiceLookup.toString() + ".Generated_Proxy";
+      return nameServiceLookup.toString().replace("@", ".Generated_Proxy@");
 
     if (method.getName().equals("hashCode"))
       return nameServiceLookup.hashCode();
