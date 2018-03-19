@@ -38,7 +38,16 @@ public class NameServiceProxy implements InvocationHandler {
     if (method.getName().equals("getHostByAddr"))
       return nameServiceLookup.getHostByAddr(byte[].class.cast(args[0]));
 
-    return null;
+    if (method.getName().equals("toString"))
+      return nameServiceLookup.toString() + ".Generated_Proxy";
+
+    if (method.getName().equals("hashCode"))
+      return nameServiceLookup.hashCode();
+
+    if (method.getName().equals("equals"))
+      return nameServiceLookup.equals(args[0]);
+
+    throw new UnsupportedOperationException("Invalid method call [" + method.getName() + "] to NameServiceProxy!");
   }
 
   public NameServiceProxy() {

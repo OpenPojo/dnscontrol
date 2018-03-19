@@ -24,16 +24,14 @@ import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.openpojo.dns.DnsControl;
+import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.reflection.java.load.ClassUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.Lookup;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
@@ -100,5 +98,23 @@ public class Java9NameServiceInterceptorTest {
   public void reverseResolution() throws UnknownHostException {
     final InetAddress byAddress = InetAddress.getByAddress(ipv4Address);
     assertThat(byAddress.getHostName(), is(localhost));
+  }
+
+  @Test
+  public void proxyServiceShouldHandleToString() throws ClassNotFoundException {
+    final Object proxyForNameService = java9NameServiceInterceptor.createProxyForNameService();
+    assertThat(proxyForNameService.toString(), startsWith(SimpleNameServiceLookup.class.getName() + ".Generated_Proxy"));
+  }
+
+  @Test
+  public void proxyServiceShouldNotThrowExceptionOnEquals() throws ClassNotFoundException {
+    final Object proxyForNameService = java9NameServiceInterceptor.createProxyForNameService();
+    assertThat(proxyForNameService.equals(new Object()), is(false));
+  }
+
+  @Test
+  public void proxyServiceShouldNotThrowExceptionOnHashCode() throws ClassNotFoundException {
+    final Object proxyForNameService = java9NameServiceInterceptor.createProxyForNameService();
+    assertThat(proxyForNameService.hashCode(), notNullValue());
   }
 }

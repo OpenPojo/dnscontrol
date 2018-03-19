@@ -19,6 +19,6 @@ function switch_jdk() {
 switch_jdk 1.7
 mvn clean test jacoco:report
 switch_jdk 1.8
-mvn compile test jacoco:prepare-agent jacoco:report
+mvn compile test jacoco:report
 switch_jdk 9
 mvn test jacoco:report
