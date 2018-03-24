@@ -45,9 +45,7 @@ public class PropertiesLoader {
 
       try (InputStream asStream = getAsStream(fileName)) {
         properties.load(asStream);
-      } catch (Exception ignored) {
-      }
-
+      } catch (Exception ignored) { }
     }
     loaded.set(true);
   }
