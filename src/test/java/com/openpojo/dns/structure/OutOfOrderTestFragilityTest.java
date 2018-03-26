@@ -112,7 +112,7 @@ public class OutOfOrderTestFragilityTest {
       final String packageName = pojoClass.getPackage().getName() + ".";
       final String javaVersion = System.getProperty("java.version");
       final String jvm7Tests = "com.openpojo.dns.service.java.v7.";
-      return !packageName.startsWith(jvm7Tests) || (!javaVersion.startsWith("9"));
+      return !packageName.startsWith(jvm7Tests) || !(javaVersion.startsWith("9") || javaVersion.startsWith("10"));
     }
   }
 }

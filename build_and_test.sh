@@ -16,9 +16,17 @@ function switch_jdk() {
   java -version
 }
 
-switch_jdk 1.7
-mvn clean test jacoco:report
-switch_jdk 1.8
-mvn compile test jacoco:report
-switch_jdk 9
-mvn test jacoco:report
+test_on_jdk() {
+  switch_jdk $1
+  mvn test jacoco:report
+  if [ $? -ne 0 ]; then
+    echo "Build failed"
+    exit 1
+  fi
+}
+
+mvn clean
+test_on_jdk 1.7
+test_on_jdk 1.8
+test_on_jdk 9
+test_on_jdk 10
