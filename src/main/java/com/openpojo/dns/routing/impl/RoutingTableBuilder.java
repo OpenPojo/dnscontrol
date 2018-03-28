@@ -81,7 +81,9 @@ public class RoutingTableBuilder {
       for (Map.Entry<String, List<String>> entry : destinationMap.entrySet()) {
         final List<String> dnsServerList = entry.getValue();
         Resolver resolver = hasDnsServers(dnsServerList) ? new ExtendedResolver(getDnsServerArray(dnsServerList)) : new NoOpResolver();
-        LOGGER.info("building routing table with route [" + entry.getKey() + "=" + entry.getValue() + "]... Resolver set to[" + resolver + "]");
+        LOGGER.info("building routing table with route ["
+            + entry.getKey() + "=" + entry.getValue()
+            + "]... Resolver set to [" + resolver + "]");
         optimizedRoutingEntries.put(entry.getKey(), resolver);
       }
 
