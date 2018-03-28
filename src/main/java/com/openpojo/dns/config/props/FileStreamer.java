@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.config.props;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +34,11 @@ public class FileStreamer {
     return resourceAsStream;
   }
 
-  static ClassLoader getClassLoader() {
+  public static boolean exists(String fileName) {
+    return getClassLoader().getResource(fileName) != null || new File(fileName).exists();
+  }
+
+  private static ClassLoader getClassLoader() {
     return Thread.currentThread().getContextClassLoader();
   }
 

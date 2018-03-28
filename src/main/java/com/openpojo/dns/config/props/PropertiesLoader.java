@@ -18,14 +18,13 @@
 
 package com.openpojo.dns.config.props;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.openpojo.dns.config.props.FileStreamer.*;
+import static com.openpojo.dns.config.props.FileStreamer.getAsStream;
 
 /**
  * @author oshoukry
@@ -51,7 +50,7 @@ public class PropertiesLoader {
   }
 
   public boolean exists() {
-    return getClassLoader().getResource(fileName) != null || new File(fileName).exists();
+    return FileStreamer.exists(fileName);
   }
 
   public Map<String, String> getAllProperties() {
