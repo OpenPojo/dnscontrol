@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.reflection.java.load.ClassUtil;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.Lookup;
@@ -74,13 +74,14 @@ public class Java9NameServiceInterceptorTest {
     }
   }
 
-  @AfterClass
-  public static void teardown() throws IllegalAccessException {
-    assumeThat(testCanRun.get(), is(true));
-    if (nameServiceField != null)
-      nameServiceField.set(null, nameServiceFieldValue);
-    DnsControl.getInstance().unRegisterRoutingResolver();
-    Lookup.refreshDefault();
+  @After
+  public void teardown() throws IllegalAccessException {
+    if (testCanRun.get()) {
+      if (nameServiceField != null)
+        nameServiceField.set(null, nameServiceFieldValue);
+      DnsControl.getInstance().unRegisterRoutingResolver();
+      Lookup.refreshDefault();
+    }
   }
 
   @Test
