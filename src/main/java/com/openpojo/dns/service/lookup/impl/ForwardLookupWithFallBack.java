@@ -33,8 +33,8 @@ import org.xbill.DNS.Type;
  * @author oshoukry
  */
 public class ForwardLookupWithFallBack {
-  public static final int IPv4 = Type.A;
-  public static final int IPv6 = Type.AAAA;
+  private static final int IPv4 = Type.A;
+  private static final int IPv6 = Type.AAAA;
 
   public static InetAddress[] getIPAddresses(String hostName, boolean ipV6Preferred) {
     Name name = getName(hostName);
