@@ -18,10 +18,6 @@
 
 package com.openpojo.dns.service.lookup;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
 import com.openpojo.dns.exception.ResolveException;
 import org.junit.After;
 import org.junit.Before;
@@ -30,8 +26,24 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Lookup;
 
-import static com.openpojo.dns.constants.TestConstants.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+
+import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST;
+import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST_IPv4_BYTES;
+import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST_IPv6_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv6_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
+import static com.openpojo.dns.constants.TestConstants.SERVER_2_IPv4_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_2_NAME;
+import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -52,11 +64,6 @@ public class SimpleNameServiceLookupTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void initialIPv6PreferenceShouldBeFalse() {
-    assertThat(new SimpleNameServiceLookup().getIPv6Preference(), is(false));
-  }
 
   @Test
   public void shouldBeAbleToConstructWithPreference() {
@@ -118,8 +125,11 @@ public class SimpleNameServiceLookupTest {
 
   @Test
   public void shouldThrowExceptionForNullReverseLookup() throws UnknownHostException {
-    thrown.expect(UnknownHostException.class);
-    thrown.expectMessage("addr is of illegal length");
+    thrown.expect(ResolveException.class);
+    thrown.expectMessage("Failed to parse address [null]");
+    thrown.expectCause(allOf(
+        isA(UnknownHostException.class),
+        hasProperty("message", is("addr is of illegal length"))));
 
     createNameServiceLookup(false).getHostByAddr(null);
   }
@@ -127,8 +137,12 @@ public class SimpleNameServiceLookupTest {
   @Test
   public void shouldThrowExceptionForInvalidReverseLookup() throws UnknownHostException {
     final byte[] addr = { 0 };
-    thrown.expect(UnknownHostException.class);
-    thrown.expectMessage("addr is of illegal length");
+
+    thrown.expect(ResolveException.class);
+    thrown.expectMessage("Failed to parse address [[0]]");
+    thrown.expectCause(allOf(
+        isA(UnknownHostException.class),
+        hasProperty("message", is("addr is of illegal length"))));
 
     createNameServiceLookup(false).getHostByAddr(addr);
   }
@@ -140,6 +154,34 @@ public class SimpleNameServiceLookupTest {
     thrown.expectMessage("Unknown IPAddress " + Arrays.toString(addr));
 
     createNameServiceLookup(false).getHostByAddr(addr);
+  }
+
+  @Test
+  public void shouldGetIPAddressForLocalhost() throws UnknownHostException {
+    final InetAddress[] localhosts = createNameServiceLookup(false).lookupAllHostAddr(LOCAL_HOST);
+    assertThat(localhosts, notNullValue());
+    assertThat(localhosts.length, greaterThan(0));
+    for (InetAddress localhost : localhosts) {
+      assertThat(localhost.isLoopbackAddress(), is(true));
+    }
+  }
+
+  @Test
+  public void shouldGetNameForReverseLookupLoopBackAddress() throws UnknownHostException {
+    String localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv4_BYTES);
+    assertThat(localhost, is(LOCAL_HOST));
+    localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv6_BYTES);
+    assertThat(localhost, is(LOCAL_HOST));
+  }
+
+  @Test
+  public void shouldGetIPAddressForHostByName() throws UnknownHostException {
+    final InetAddress[] localIPAddresses = createNameServiceLookup(false).lookupAllHostAddr(InetAddress.getLocalHost().getHostName());
+    assertThat(localIPAddresses, notNullValue());
+    assertThat(localIPAddresses.length, greaterThan(0));
+    for (InetAddress localhost : localIPAddresses) {
+      assertThat(!localhost.isLoopbackAddress(), is(true));
+    }
   }
 
   private SimpleNameServiceLookup createNameServiceLookup(boolean iPv6Preference) {

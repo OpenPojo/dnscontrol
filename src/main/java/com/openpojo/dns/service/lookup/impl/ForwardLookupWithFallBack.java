@@ -18,16 +18,14 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
-import java.net.InetAddress;
-
-import com.openpojo.dns.exception.ResolveException;
 import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
-import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
+
+import java.net.InetAddress;
 
 /**
  * @author oshoukry
@@ -36,24 +34,11 @@ public class ForwardLookupWithFallBack {
   private static final int IPv4 = Type.A;
   private static final int IPv6 = Type.AAAA;
 
-  public static InetAddress[] getIPAddresses(String hostName, boolean ipV6Preferred) {
-    Name name = getName(hostName);
-
+  public static InetAddress[] getIPAddresses(Name hostname, boolean ipV6Preferred) {
     if (ipV6Preferred)
-      return getRecordsWithFallback(name, IPv6, IPv4);
+      return getRecordsWithFallback(hostname, IPv6, IPv4);
     else
-      return getRecordsWithFallback(name, IPv4, IPv6);
-  }
-
-  private static Name getName(String hostName) {
-    Name name;
-    try {
-      name = new Name(hostName);
-    } catch (NullPointerException | TextParseException e) {
-      throw ResolveException.getInstance("Failed to parse name [" + hostName + "]", e);
-    }
-
-    return name;
+      return getRecordsWithFallback(hostname, IPv4, IPv6);
   }
 
   private static InetAddress[] getRecordsWithFallback(Name name, int preferredType, int fallbackType) {
@@ -64,10 +49,10 @@ public class ForwardLookupWithFallBack {
       extractedTypeInt = fallbackType;
     }
 
-    return extractInetAddresses(records, extractedTypeInt);
+    return extractAddresses(records, extractedTypeInt);
   }
 
-  private static InetAddress[] extractInetAddresses(Record[] records, int extractedTypeInt) {
+  private static InetAddress[] extractAddresses(Record[] records, int extractedTypeInt) {
     if (records == null)
       return null;
 

@@ -20,7 +20,7 @@ test_on_jdk() {
   switch_jdk $1
   mvn test jacoco:report
   if [ $? -ne 0 ]; then
-    echo "Build failed"
+    echo "Build failed on JDK $1"
     exit 1
   fi
 }

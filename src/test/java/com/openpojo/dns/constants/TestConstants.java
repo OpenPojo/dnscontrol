@@ -43,6 +43,12 @@ public class TestConstants {
   public static final String SERVER_2_IPv4_STRING = "163.121.19.186";
   public static final byte[] SERVER_2_IPv4_BYTES = getAddressBytes(SERVER_2_IPv4_STRING);
 
+  public static final String LOCAL_HOST = "localhost";
+  public static final String LOCAL_HOST_IPv4 = "127.0.0.1";
+  public static final byte[] LOCAL_HOST_IPv4_BYTES = getAddressBytes(LOCAL_HOST_IPv4);
+  public static final String LOCAL_HOST_IPv6 = "::1";
+  public static final byte[] LOCAL_HOST_IPv6_BYTES = getAddressBytes(LOCAL_HOST_IPv6);
+
   public static final String DNS_CONTROL_CONFIG = "dnscontrol.test.conf";
 
   private static byte[] getAddressBytes(String ip_asString) {

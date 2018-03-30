@@ -18,44 +18,73 @@
 
 package com.openpojo.dns.service.lookup;
 
+import com.openpojo.dns.service.lookup.impl.SimpleHostMapNameService;
+import com.openpojo.dns.service.lookup.util.NameFactory;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.PTRRecord;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.Type;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import static com.openpojo.dns.service.lookup.impl.ForwardLookupWithFallBack.getIPAddresses;
-import static com.openpojo.dns.service.lookup.impl.ReverseLookup.getHostName;
 
 /**
  * @author oshoukry
  */
 public class SimpleNameServiceLookup implements NameServiceLookup {
-  private boolean IPv6Preference;
+  private boolean iPv6Preference;
+  private HostMapNameService hostMapNameService;
 
-  public SimpleNameServiceLookup() {
-    this(false);
+  public SimpleNameServiceLookup(boolean iPv6Preference) {
+    this(iPv6Preference, new SimpleHostMapNameService());
   }
 
-  public SimpleNameServiceLookup(boolean IPv6Preference) {
-    this.IPv6Preference = IPv6Preference;
+  public SimpleNameServiceLookup(boolean iPv6Preference, HostMapNameService hostMapNameService) {
+    this.iPv6Preference = iPv6Preference;
+    this.hostMapNameService = hostMapNameService;
   }
 
   public boolean getIPv6Preference() {
-    return IPv6Preference;
+    return iPv6Preference;
   }
 
   @Override
   public InetAddress[] lookupAllHostAddr(String hostName) throws UnknownHostException {
-    final InetAddress[] ipAddresses = getIPAddresses(hostName, IPv6Preference);
+    final Name name = NameFactory.getName(hostName);
+
+    InetAddress[] ipAddresses = hostMapNameService.lookupAllHostAddr(name);
+    if (ipAddresses == null)
+        ipAddresses = getIPAddresses(name, iPv6Preference);
+
     if (ipAddresses == null)
       throw new UnknownHostException("Unknown host [" + hostName + "]");
+
     return ipAddresses;
   }
 
   @Override
   public String getHostByAddr(byte[] ipAddress) throws UnknownHostException {
-    String name = getHostName(ipAddress);
-    if (name == null)
+    final Name name = NameFactory.getName(ipAddress);
+    String hostName = hostMapNameService.getHostByAddr(name);
+
+    if (hostName == null)
+      hostName = getPTRName(name);
+
+    if (hostName == null)
       throw new UnknownHostException("Unknown IPAddress " + Arrays.toString(ipAddress));
-    return name;
+
+    return hostName;
   }
+
+  private static String getPTRName(Name ipAddress) {
+    final Record[] records = new Lookup(ipAddress, Type.PTR).run();
+    if (records == null)
+      return null;
+    return ((PTRRecord) records[0]).getTarget().toString();
+  }
+
 }

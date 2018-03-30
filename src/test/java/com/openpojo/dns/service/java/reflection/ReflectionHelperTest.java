@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.getFieldByName;
+import static com.openpojo.dns.service.java.reflection.ReflectionHelper.getFieldValue;
+import static com.openpojo.dns.service.java.reflection.ReflectionHelper.invokeMethodOnClass;
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.loadClass;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -79,7 +81,15 @@ public class ReflectionHelperTest {
     assertThat(someFieldToLoad, nullValue());
     assertThat(ReflectionHelper.setFieldValue(ReflectionHelperTest.class, "someFieldToLoad", this, anyString), is(true));
     assertThat(someFieldToLoad, is(anyString));
-
   }
 
+  @Test
+  public void shouldReturnNullIfFailedToInvokeMethod() {
+    assertThat(invokeMethodOnClass(null, null, null), nullValue());
+  }
+
+  @Test
+  public void shouldReturnNullIfFailedToGetFieldValue() {
+    assertThat(getFieldValue(null, null, null), nullValue());
+  }
 }

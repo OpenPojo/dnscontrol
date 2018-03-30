@@ -20,6 +20,7 @@ package com.openpojo.dns.service.java.reflection;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
@@ -41,7 +42,31 @@ public class ReflectionHelper {
       final Field declaredField = clazz.getDeclaredField(fieldName);
       declaredField.setAccessible(true);
       return declaredField;
-    } catch (NoSuchFieldException ignored) { }
+    } catch (Exception ignored) { }
+    return null;
+  }
+
+  public static Object getFieldValue(Class<?> clazz, String fieldName, Object instance) {
+    Object fieldValue = null;
+    try {
+      Field field = clazz.getDeclaredField(fieldName);
+      field.setAccessible(true);
+      fieldValue = field.get(instance);
+    } catch (Exception ignored) { }
+    return fieldValue;
+  }
+
+  public static Object invokeMethodOnClass(Class<?> clazz, String methodName, Object instance) {
+    try {
+      Class<?> classToUse = clazz;
+      if (instance != null)
+        classToUse = instance.getClass();
+
+      Method method;
+        method = classToUse.getDeclaredMethod(methodName);
+      method.setAccessible(true);
+      return method.invoke(instance);
+    } catch (Exception ignored) { }
     return null;
   }
 

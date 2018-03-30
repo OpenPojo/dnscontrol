@@ -18,8 +18,6 @@
 
 package com.openpojo.dns.structure;
 
-import java.util.List;
-
 import com.openpojo.reflection.PojoClass;
 import com.openpojo.reflection.PojoClassFilter;
 import com.openpojo.reflection.PojoField;
@@ -31,7 +29,9 @@ import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.greaterThan;
+import java.util.List;
+
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -56,7 +56,7 @@ public class PojoValidationTest {
     };
 
     final List<PojoClass> validated = validator.validateRecursively(TOP_LEVEL_PACKAGE, pojoClassFilters);
-    assertThat(validated.size(), greaterThan(1));
+    assertThat(validated.size(), greaterThanOrEqualTo(1));
   }
 
   @Test

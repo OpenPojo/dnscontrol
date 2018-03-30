@@ -18,11 +18,6 @@
 
 package com.openpojo.dns.service.java.v9;
 
-import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.reflection.java.load.ClassUtil;
@@ -31,7 +26,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.Lookup;
 
-import static org.hamcrest.Matchers.*;
+import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
@@ -46,7 +50,7 @@ public class Java9NameServiceInterceptorTest {
   private static byte[] ipv4Address;
   private static byte[] ipv6Address;
   private static byte[] specialLoopBackAddress;
-  private static String localhost = "localhost.";
+  private static String localhost = "localhost";
   private static String ipv4LoopBack = "127.0.0.1";
   private static AtomicBoolean testCanRun = new AtomicBoolean(false);
 

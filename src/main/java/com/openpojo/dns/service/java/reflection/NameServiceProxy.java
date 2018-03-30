@@ -18,17 +18,18 @@
 
 package com.openpojo.dns.service.java.reflection;
 
+import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
+import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
-
-import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 
 /**
  * @author oshoukry
  */
 public class NameServiceProxy implements InvocationHandler {
-  private final SimpleNameServiceLookup nameServiceLookup = new SimpleNameServiceLookup();
+  private final SimpleNameServiceLookup nameServiceLookup;
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws UnknownHostException {
@@ -51,5 +52,8 @@ public class NameServiceProxy implements InvocationHandler {
   }
 
   public NameServiceProxy() {
+    final DefaultIPv6Preference defaultIPv6Preference = new DefaultIPv6Preference();
+    defaultIPv6Preference.init();
+    nameServiceLookup = new SimpleNameServiceLookup(defaultIPv6Preference.get());
   }
 }
