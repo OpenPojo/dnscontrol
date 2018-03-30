@@ -70,9 +70,7 @@ public class LocalHostInfo {
           if (netInterface.isUp()) {
             allUpInterfaces.add(netInterface);
           }
-        } catch (SocketException ignored) {
-          // Continue even if one interface throws an error.
-        }
+        } catch (SocketException ignored) { } // Continue even if one interface throws an error.
       }
     } catch (SocketException ignored) { }
     return allUpInterfaces;
