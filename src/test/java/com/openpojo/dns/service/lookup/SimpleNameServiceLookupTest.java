@@ -39,11 +39,13 @@ import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.constants.TestConstants.SERVER_2_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_2_NAME;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
+import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -169,9 +171,9 @@ public class SimpleNameServiceLookupTest {
   @Test
   public void shouldGetNameForReverseLookupLoopBackAddress() throws UnknownHostException {
     String localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv4_BYTES);
-    assertThat(localhost, is(LOCAL_HOST));
+    assertThat(localhost, isOneOf(LOCAL_HOST, LOCAL_HOST + DOT));
     localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv6_BYTES);
-    assertThat(localhost, is(LOCAL_HOST));
+    assertThat(localhost, isOneOf(LOCAL_HOST, LOCAL_HOST + DOT));
   }
 
   @Test
