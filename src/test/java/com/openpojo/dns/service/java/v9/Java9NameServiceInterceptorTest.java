@@ -19,6 +19,7 @@
 package com.openpojo.dns.service.java.v9;
 
 import com.openpojo.dns.DnsControl;
+import com.openpojo.dns.service.java.reflection.ReflectionHelper;
 import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.reflection.java.load.ClassUtil;
 import org.junit.After;
@@ -26,11 +27,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.Lookup;
 
-import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv6_BYTES;
+import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -43,29 +46,20 @@ import static org.junit.Assume.assumeThat;
  * @author oshoukry
  */
 public class Java9NameServiceInterceptorTest {
+  private static final String NAME_SERVICE_INTERFACE_CLASS = "java.net.InetAddress$NameService";
+  private static final String NAME_SERVICE_FIELD = "nameservice";
 
   private Java9NameServiceInterceptor java9NameServiceInterceptor;
-  private static Field nameServiceField;
   private static Object nameServiceFieldValue;
-  private static byte[] ipv4Address;
-  private static byte[] ipv6Address;
-  private static byte[] specialLoopBackAddress;
-  private static String localhost = "localhost";
-  private static String ipv4LoopBack = "127.0.0.1";
   private static AtomicBoolean testCanRun = new AtomicBoolean(false);
 
   @Before
   public void setup() {
     try {
-      ipv4Address = InetAddress.getByName(ipv4LoopBack).getAddress();
-      ipv6Address = InetAddress.getByName("::1").getAddress();
-      specialLoopBackAddress = InetAddress.getByName("fe80::1").getAddress();
-      assumeThat(ClassUtil.loadClass("java.net.InetAddress$NameService"), notNullValue());
+      assumeThat(ClassUtil.loadClass(NAME_SERVICE_INTERFACE_CLASS), notNullValue());
 
       //noinspection JavaReflectionMemberAccess
-      nameServiceField = InetAddress.class.getDeclaredField("nameService");
-      nameServiceField.setAccessible(true);
-      nameServiceFieldValue = nameServiceField.get(null);
+      nameServiceFieldValue = ReflectionHelper.getFieldValue(InetAddress.class, NAME_SERVICE_FIELD, null);
 
       Lookup.refreshDefault();
       DnsControl.recreateInstance().registerRoutingResolver();
@@ -79,10 +73,10 @@ public class Java9NameServiceInterceptorTest {
   }
 
   @After
-  public void teardown() throws IllegalAccessException {
+  public void teardown() {
     if (testCanRun.get()) {
-      if (nameServiceField != null)
-        nameServiceField.set(null, nameServiceFieldValue);
+      ReflectionHelper.setFieldValue(InetAddress.class, NAME_SERVICE_FIELD, null, nameServiceFieldValue);
+
       DnsControl.getInstance().unRegisterRoutingResolver();
       Lookup.refreshDefault();
     }
@@ -90,19 +84,19 @@ public class Java9NameServiceInterceptorTest {
 
   @Test
   public void forwardResolution() throws UnknownHostException {
-    final InetAddress[] loopBackAddresses = InetAddress.getAllByName(localhost);
+    final InetAddress[] loopBackAddresses = InetAddress.getAllByName(SERVER_1_NAME);
 
     assertThat(loopBackAddresses.length, greaterThan(0));
     for (InetAddress address : loopBackAddresses) {
-      assertThat(address.getHostName(), is(localhost));
-      assertThat(address.getAddress(), anyOf(is(ipv4Address), is(ipv6Address), is(specialLoopBackAddress)));
+      assertThat(address.getHostName(), is(SERVER_1_NAME));
+      assertThat(address.getAddress(), anyOf(is(SERVER_1_IPv4_BYTES), is(SERVER_1_IPv6_BYTES)));
     }
   }
 
   @Test
   public void reverseResolution() throws UnknownHostException {
-    final InetAddress byAddress = InetAddress.getByAddress(ipv4Address);
-    assertThat(byAddress.getHostName(), is(localhost));
+    final InetAddress byAddress = InetAddress.getByAddress(SERVER_1_IPv4_BYTES);
+    assertThat(byAddress.getHostName(), is(SERVER_1_NAME));
   }
 
   @Test
