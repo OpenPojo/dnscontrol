@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.service.lookup;
+package com.openpojo.dns.service.lookup.impl;
 
 import java.net.InetAddress;
 

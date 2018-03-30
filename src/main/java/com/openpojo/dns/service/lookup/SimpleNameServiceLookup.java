@@ -22,7 +22,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import static com.openpojo.dns.service.lookup.ForwardLookupWithFallBack.getIPAddresses;
+import static com.openpojo.dns.service.lookup.impl.ForwardLookupWithFallBack.getIPAddresses;
+import static com.openpojo.dns.service.lookup.impl.ReverseLookup.getHostName;
 
 /**
  * @author oshoukry
@@ -52,7 +53,7 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
 
   @Override
   public String getHostByAddr(byte[] ipAddress) throws UnknownHostException {
-    String name = ReverseLookup.getHostName(ipAddress);
+    String name = getHostName(ipAddress);
     if (name == null)
       throw new UnknownHostException("Unknown IPAddress " + Arrays.toString(ipAddress));
     return name;
