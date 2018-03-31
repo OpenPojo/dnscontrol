@@ -47,6 +47,10 @@ public class NameFactory {
     try {
       return getName(InetAddress.getByName(address));
     } catch (Exception e) {
+      if (address.contains("%"))
+        try {
+          return getName(InetAddress.getByName(address.substring(0, address.indexOf("%"))));
+        } catch (Exception ignored) { }
       throw ResolveException.getInstance("Failed to parse address [" + address + "]", e);
     }
   }

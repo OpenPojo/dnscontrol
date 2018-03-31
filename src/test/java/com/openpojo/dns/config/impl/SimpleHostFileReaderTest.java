@@ -57,7 +57,7 @@ public class SimpleHostFileReaderTest {
     for (Map.Entry<String, List<String>> entry : configuration.entrySet())
       switch (entry.getKey()) {
         case "localhost":
-          assertThat(entry.getKey(), entry.getValue(), contains("127.0.0.1", "::1", "fe80::1%lo0"));
+          assertThat(entry.getKey(), entry.getValue(), contains("127.0.0.1", "::1", "fe80::1%unknown0"));
           break;
         case "mylocalserver":
           assertThat(entry.getKey(), entry.getValue(), contains("10.0.0.1"));
@@ -113,7 +113,7 @@ public class SimpleHostFileReaderTest {
         case "::1":
           assertThat(entry.getKey(), entry.getValue(), contains("localhost"));
           break;
-        case "fe80::1%lo0":
+        case "fe80::1%unknown0":
           assertThat(entry.getKey(), entry.getValue(), contains("localhost"));
           break;
         case "10.0.0.1":
