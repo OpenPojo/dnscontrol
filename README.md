@@ -25,6 +25,8 @@ www.openpojo.com=10.1.1.1
 # Suppress any queries that you'd like to never resolve
 hiddenhost.openpojo.com=
 
+# Finally if you want to use your current system's DNS servers without having to know the entries.
+unchanged.resolution.openpojo.com=SYSTEM
 ```
 startup your JVM passing NameService provider as well as DNS routing file
 ```sh
