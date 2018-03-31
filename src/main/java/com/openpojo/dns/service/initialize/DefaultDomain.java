@@ -26,7 +26,7 @@ import org.xbill.DNS.TextParseException;
  * @author oshoukry
  */
 public class DefaultDomain implements Initializer {
-  public DefaultDomain() {}
+  public DefaultDomain() { }
 
   public void init() {
     String domainConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_DOMAIN);

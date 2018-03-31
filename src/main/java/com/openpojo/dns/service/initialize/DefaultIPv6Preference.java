@@ -24,10 +24,10 @@ package com.openpojo.dns.service.initialize;
 public class DefaultIPv6Preference implements Initializer {
   private boolean preferIPv6Addresses;
 
-  public DefaultIPv6Preference() {}
+  public DefaultIPv6Preference() { }
 
   public void init() {
-    preferIPv6Addresses= Boolean.valueOf(System.getProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES));
+    preferIPv6Addresses = Boolean.valueOf(System.getProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES));
   }
 
   public boolean get() {

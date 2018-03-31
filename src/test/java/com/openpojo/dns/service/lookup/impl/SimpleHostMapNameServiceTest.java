@@ -18,6 +18,9 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import com.openpojo.random.RandomFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,14 +28,7 @@ import org.xbill.DNS.Name;
 import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.TextParseException;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -81,6 +77,5 @@ public class SimpleHostMapNameServiceTest {
     for (int i = 0; i < randomValue.length; i++)
       randomValue[i] = RandomFactory.getRandomValue(byte.class);
     assertThat(nameService.getHostByAddr(ReverseMap.fromAddress(randomValue)), nullValue());
-
   }
 }

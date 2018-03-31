@@ -26,5 +26,6 @@ import java.net.UnknownHostException;
  */
 public interface NameServiceLookup {
   InetAddress[] lookupAllHostAddr(String name) throws UnknownHostException;
+
   String getHostByAddr(byte[] addr) throws UnknownHostException;
 }

@@ -18,15 +18,15 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
-import com.openpojo.dns.service.java.reflection.LocalHostInfo;
-import com.openpojo.dns.service.lookup.HostMapNameService;
-import org.xbill.DNS.Name;
-
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.openpojo.dns.service.java.reflection.LocalHostInfo;
+import com.openpojo.dns.service.lookup.HostMapNameService;
+import org.xbill.DNS.Name;
 
 import static com.openpojo.dns.service.lookup.util.NameFactory.getName;
 

@@ -48,7 +48,7 @@ public class ServerParserTest {
 
   @Test
   public void shouldReturnArrayForOnlyNonEmptyEntries() {
-    String [] entries = {"1", "2", "", "3", null, "4"};
+    String[] entries = { "1", "2", "", "3", null, "4" };
     List<String> expected = Arrays.asList("1", "2", "3", "4");
     final List<String> serversAsList = ServerParser.getServersAsList(entries);
     assertThat(serversAsList, notNullValue());

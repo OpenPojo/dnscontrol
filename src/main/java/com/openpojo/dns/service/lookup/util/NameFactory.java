@@ -18,12 +18,12 @@
 
 package com.openpojo.dns.service.lookup.util;
 
+import java.net.InetAddress;
+import java.util.Arrays;
+
 import com.openpojo.dns.exception.ResolveException;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.ReverseMap;
-
-import java.net.InetAddress;
-import java.util.Arrays;
 
 public class NameFactory {
 
@@ -47,5 +47,5 @@ public class NameFactory {
     return getName(address.getAddress());
   }
 
-  private NameFactory() {}
+  private NameFactory() { }
 }

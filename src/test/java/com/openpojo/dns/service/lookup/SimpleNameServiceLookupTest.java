@@ -18,6 +18,10 @@
 
 package com.openpojo.dns.service.lookup;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+
 import com.openpojo.dns.exception.ResolveException;
 import org.junit.After;
 import org.junit.Before;
@@ -26,27 +30,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Lookup;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
-import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST;
-import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST_IPv4_BYTES;
-import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST_IPv6_BYTES;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv6_BYTES;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
-import static com.openpojo.dns.constants.TestConstants.SERVER_2_IPv4_BYTES;
-import static com.openpojo.dns.constants.TestConstants.SERVER_2_NAME;
-import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
+import static com.openpojo.dns.constants.TestConstants.*;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**

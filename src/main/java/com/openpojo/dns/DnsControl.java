@@ -80,7 +80,7 @@ public class DnsControl {
     try {
       return new ExtendedResolver(configReader.getConfiguration().get(DOT).toArray(new String[0]));
     } catch (UnknownHostException e) {
-      throw RouteSetupException.getInstance("Unknown host defined in configuration reader [" + configReader +"] " + e.getMessage(), e);
+      throw RouteSetupException.getInstance("Unknown host defined in configuration reader [" + configReader + "] " + e.getMessage(), e);
     }
   }
 

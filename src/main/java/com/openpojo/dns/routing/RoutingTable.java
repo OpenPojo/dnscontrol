@@ -25,5 +25,6 @@ import org.xbill.DNS.Resolver;
  */
 public interface RoutingTable {
   String DOT = ".";
+
   Resolver getResolverFor(String name);
 }

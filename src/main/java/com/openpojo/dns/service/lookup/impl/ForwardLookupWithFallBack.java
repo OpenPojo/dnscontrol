@@ -18,14 +18,14 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
+import java.net.InetAddress;
+
 import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Type;
-
-import java.net.InetAddress;
 
 /**
  * @author oshoukry
@@ -64,6 +64,5 @@ public class ForwardLookupWithFallBack {
     return inetAddresses;
   }
 
-  private ForwardLookupWithFallBack() {
-  }
+  private ForwardLookupWithFallBack() { }
 }

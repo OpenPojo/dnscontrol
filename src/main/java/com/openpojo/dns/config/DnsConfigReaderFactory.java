@@ -26,7 +26,7 @@ import com.openpojo.dns.exception.ConfigurationFileNotFoundException;
 
 import static com.openpojo.dns.config.DnsConfigReader.CONFIG_FILE_ENV_VARIABLE;
 import static com.openpojo.dns.config.DnsConfigReader.DEFAULT_CONFIG_FILE;
-import static java.lang.System.*;
+import static java.lang.System.getProperty;
 
 /**
  * @author oshoukry
@@ -58,5 +58,5 @@ public class DnsConfigReaderFactory {
     return getSystemDnsConfigReader();
   }
 
-  private DnsConfigReaderFactory() {}
+  private DnsConfigReaderFactory() { }
 }

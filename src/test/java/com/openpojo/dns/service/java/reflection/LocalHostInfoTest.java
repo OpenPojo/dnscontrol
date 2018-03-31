@@ -18,8 +18,6 @@
 
 package com.openpojo.dns.service.java.reflection;
 
-import org.junit.Test;
-
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -28,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+
+import org.junit.Test;
 
 import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST;
 import static org.hamcrest.Matchers.containsInAnyOrder;

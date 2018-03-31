@@ -80,6 +80,5 @@ public class LocalHostInfo {
     return getFieldValue(InetAddress.class, "impl", null);
   }
 
-  private LocalHostInfo() {
-  }
+  private LocalHostInfo() { }
 }

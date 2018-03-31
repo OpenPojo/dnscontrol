@@ -18,6 +18,10 @@
 
 package com.openpojo.dns.service.java.v9;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.service.java.reflection.ReflectionHelper;
 import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
@@ -27,18 +31,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.Lookup;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv6_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 

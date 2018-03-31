@@ -33,5 +33,5 @@ public class CacheControl {
       Lookup.setDefaultCache(new Cache(type), type);
   }
 
-  private CacheControl() {}
+  private CacheControl() { }
 }

@@ -23,10 +23,10 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import com.openpojo.dns.service.initialize.DefaultDomain;
 import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
 import com.openpojo.dns.service.initialize.DefaultResolver;
+import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 import sun.net.spi.nameservice.NameService;
 
 /**

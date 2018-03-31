@@ -28,7 +28,7 @@ import org.xbill.DNS.Resolver;
 public class ResolverSpyFactory {
   public static ResolverSpy create(Resolver resolver) {
     ClassLoader loader = resolver.getClass().getClassLoader();
-    return (ResolverSpy) Proxy.newProxyInstance(loader, new Class[]{ ResolverSpy.class }, new SpyInvocationHandler<>(resolver));
+    return (ResolverSpy) Proxy.newProxyInstance(loader, new Class[] { ResolverSpy.class }, new SpyInvocationHandler<>(resolver));
   }
 
 }

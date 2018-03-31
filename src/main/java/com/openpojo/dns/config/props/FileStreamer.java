@@ -42,5 +42,5 @@ public class FileStreamer {
     return Thread.currentThread().getContextClassLoader();
   }
 
-  private FileStreamer() {}
+  private FileStreamer() { }
 }

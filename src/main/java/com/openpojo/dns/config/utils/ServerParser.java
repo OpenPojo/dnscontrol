@@ -40,7 +40,7 @@ public class ServerParser {
     return singletonList(value);
   }
 
-  public static List<String> getServersAsList(String ... serverArray) {
+  public static List<String> getServersAsList(String... serverArray) {
     List<String> servers = new ArrayList<>();
 
     if (serverArray == null) {
@@ -58,5 +58,5 @@ public class ServerParser {
     return server == null || server.length() == 0;
   }
 
-  private ServerParser() {}
+  private ServerParser() { }
 }

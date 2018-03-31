@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public interface DnsConfigReader {
   String DEFAULT_CONFIG_FILE = "dnscontrol.conf";
-  String CONFIG_FILE_ENV_VARIABLE= "dnscontrol.conf.file";
+  String CONFIG_FILE_ENV_VARIABLE = "dnscontrol.conf.file";
   String CONFIG_VALUES_SEPARATOR = ",";
 
   String ENV_NAME_SERVERS_KEY = "sun.net.spi.nameservice.nameservers";

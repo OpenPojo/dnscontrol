@@ -18,6 +18,10 @@
 
 package com.openpojo.dns.service.lookup;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+
 import com.openpojo.dns.service.lookup.impl.SimpleHostMapNameService;
 import com.openpojo.dns.service.lookup.util.NameFactory;
 import org.xbill.DNS.Lookup;
@@ -25,10 +29,6 @@ import org.xbill.DNS.Name;
 import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Type;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import static com.openpojo.dns.service.lookup.impl.ForwardLookupWithFallBack.getIPAddresses;
 
@@ -58,7 +58,7 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
 
     InetAddress[] ipAddresses = hostMapNameService.lookupAllHostAddr(name);
     if (ipAddresses == null)
-        ipAddresses = getIPAddresses(name, iPv6Preference);
+      ipAddresses = getIPAddresses(name, iPv6Preference);
 
     if (ipAddresses == null)
       throw new UnknownHostException("Unknown host [" + hostName + "]");
@@ -86,5 +86,4 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
       return null;
     return ((PTRRecord) records[0]).getTarget().toString();
   }
-
 }

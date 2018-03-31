@@ -18,11 +18,12 @@
 
 package com.openpojo.dns.service.lookup;
 
-import org.xbill.DNS.Name;
-
 import java.net.InetAddress;
+
+import org.xbill.DNS.Name;
 
 public interface HostMapNameService {
   InetAddress[] lookupAllHostAddr(Name name);
+
   String getHostByAddr(Name name);
 }

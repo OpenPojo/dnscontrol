@@ -63,7 +63,7 @@ public class ReflectionHelper {
         classToUse = instance.getClass();
 
       Method method;
-        method = classToUse.getDeclaredMethod(methodName);
+      method = classToUse.getDeclaredMethod(methodName);
       method.setAccessible(true);
       return method.invoke(instance);
     } catch (Exception ignored) { }
@@ -80,9 +80,9 @@ public class ReflectionHelper {
     return false;
   }
 
-  public static Object createProxy(ClassLoader classLoader, InvocationHandler invocationHandler, Class ... interfaces) {
+  public static Object createProxy(ClassLoader classLoader, InvocationHandler invocationHandler, Class... interfaces) {
     return Proxy.newProxyInstance(classLoader, interfaces, invocationHandler);
   }
 
-  private ReflectionHelper() {}
+  private ReflectionHelper() { }
 }

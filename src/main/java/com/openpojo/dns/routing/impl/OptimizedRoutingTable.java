@@ -41,7 +41,7 @@ public class OptimizedRoutingTable implements RoutingTable {
 
     String key = toDnsDomain(name);
     Resolver resolver = compiledMap.get(key);
-    while(key != null && key.length() > 0 && resolver == null) {
+    while (key != null && key.length() > 0 && resolver == null) {
       key = key.substring(0, key.lastIndexOf(DOT));
       resolver = compiledMap.get(key + DOT);
     }

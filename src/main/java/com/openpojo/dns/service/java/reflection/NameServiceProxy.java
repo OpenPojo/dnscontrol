@@ -18,12 +18,12 @@
 
 package com.openpojo.dns.service.java.reflection;
 
-import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
-import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
+
+import com.openpojo.dns.service.initialize.DefaultIPv6Preference;
+import com.openpojo.dns.service.lookup.SimpleNameServiceLookup;
 
 /**
  * @author oshoukry
