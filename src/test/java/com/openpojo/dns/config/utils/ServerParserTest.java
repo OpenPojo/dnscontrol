@@ -53,6 +53,12 @@ public class ServerParserTest {
     final List<String> serversAsList = ServerParser.getServersAsList(entries);
     assertThat(serversAsList, notNullValue());
     assertThat(serversAsList, is(expected));
+  }
 
+  @Test
+  public void shouldReturnEmptyCollectionIfStringIsNull() {
+    final List<String> actual = ServerParser.splitServers(null);
+    assertThat(actual, notNullValue());
+    assertThat(actual.size(), is(0));
   }
 }

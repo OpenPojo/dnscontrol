@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import com.openpojo.dns.service.lookup.impl.HostsFileNameService;
 import com.openpojo.dns.service.lookup.impl.SimpleHostMapNameService;
 import com.openpojo.dns.service.lookup.util.NameFactory;
 import org.xbill.DNS.Lookup;
@@ -37,15 +38,17 @@ import static com.openpojo.dns.service.lookup.impl.ForwardLookupWithFallBack.get
  */
 public class SimpleNameServiceLookup implements NameServiceLookup {
   private boolean iPv6Preference;
-  private HostMapNameService hostMapNameService;
+  private HostMapNameService simpleHostMapNameService;
+  private HostMapNameService hostFileNameService;
 
   public SimpleNameServiceLookup(boolean iPv6Preference) {
-    this(iPv6Preference, new SimpleHostMapNameService());
+    this(iPv6Preference, new SimpleHostMapNameService(), new HostsFileNameService());
   }
 
-  public SimpleNameServiceLookup(boolean iPv6Preference, HostMapNameService hostMapNameService) {
+  public SimpleNameServiceLookup(boolean iPv6Preference, HostMapNameService hostMapNameService, HostMapNameService hostFileNameService) {
     this.iPv6Preference = iPv6Preference;
-    this.hostMapNameService = hostMapNameService;
+    this.simpleHostMapNameService = hostMapNameService;
+    this.hostFileNameService = hostFileNameService;
   }
 
   public boolean getIPv6Preference() {
@@ -56,7 +59,11 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
   public InetAddress[] lookupAllHostAddr(String hostName) throws UnknownHostException {
     final Name name = NameFactory.getName(hostName);
 
-    InetAddress[] ipAddresses = hostMapNameService.lookupAllHostAddr(name);
+    InetAddress[] ipAddresses = hostFileNameService.lookupAllHostAddr(name);
+
+    if (ipAddresses == null)
+      ipAddresses = simpleHostMapNameService.lookupAllHostAddr(name);
+
     if (ipAddresses == null)
       ipAddresses = getIPAddresses(name, iPv6Preference);
 
@@ -69,7 +76,11 @@ public class SimpleNameServiceLookup implements NameServiceLookup {
   @Override
   public String getHostByAddr(byte[] ipAddress) throws UnknownHostException {
     final Name name = NameFactory.getName(ipAddress);
-    String hostName = hostMapNameService.getHostByAddr(name);
+
+    String hostName = hostFileNameService.getHostByAddr(name);
+
+    if (hostName == null)
+      hostName = simpleHostMapNameService.getHostByAddr(name);
 
     if (hostName == null)
       hostName = getPTRName(name);

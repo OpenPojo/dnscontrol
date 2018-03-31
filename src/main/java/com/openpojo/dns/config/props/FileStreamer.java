@@ -35,7 +35,11 @@ public class FileStreamer {
   }
 
   public static boolean exists(String fileName) {
-    return getClassLoader().getResource(fileName) != null || new File(fileName).exists();
+    boolean exists = false;
+    try {
+      exists = getClassLoader().getResource(fileName) != null || new File(fileName).exists();
+    } catch (Exception ignored) {}
+    return exists;
   }
 
   private static ClassLoader getClassLoader() {

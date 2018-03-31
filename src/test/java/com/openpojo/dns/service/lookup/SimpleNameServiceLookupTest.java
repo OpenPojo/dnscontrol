@@ -23,6 +23,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import com.openpojo.dns.exception.ResolveException;
+import com.openpojo.dns.service.lookup.impl.HostsFileNameService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,12 +42,9 @@ import static org.junit.Assert.assertThat;
 public class SimpleNameServiceLookupTest {
 
   @Before
-  public void setup() {
-    Lookup.refreshDefault();
-  }
-
   @After
-  public void teardown() {
+  public void setupAndTeardown() {
+    System.clearProperty(HostsFileNameService.JDK_NET_HOSTS_FILE);
     Lookup.refreshDefault();
   }
 
@@ -170,6 +168,16 @@ public class SimpleNameServiceLookupTest {
     for (InetAddress localhost : localIPAddresses) {
       assertThat(!localhost.isLoopbackAddress(), is(true));
     }
+  }
+
+  @Test
+  public void shouldUtilizeHostsFile() throws UnknownHostException {
+    System.setProperty(HostsFileNameService.JDK_NET_HOSTS_FILE, "hosts.test.file");
+    final SimpleNameServiceLookup nameServiceLookup = createNameServiceLookup(false);
+    final InetAddress[] actual = nameServiceLookup.lookupAllHostAddr(HOSTS_SERVER_1_NAME);
+    assertThat(actual, notNullValue());
+    assertThat(actual, is(InetAddress.getAllByName(HOSTS_SERVER_1_IPv4_String)));
+    assertThat(nameServiceLookup.getHostByAddr(HOSTS_SERVER_1_IPv4_BYTES), is(HOSTS_SERVER_1_NAME));
   }
 
   private SimpleNameServiceLookup createNameServiceLookup(boolean iPv6Preference) {

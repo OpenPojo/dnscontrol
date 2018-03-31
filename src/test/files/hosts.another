@@ -1,0 +1,5 @@
+127.0.0.1   localhost
+::1         localhost
+
+10.0.1.4    myserver-v4-only
+fd2f::1     myserver-v6-only

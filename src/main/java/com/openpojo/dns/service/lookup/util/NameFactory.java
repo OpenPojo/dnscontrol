@@ -43,6 +43,14 @@ public class NameFactory {
     }
   }
 
+  public static Name getNameByAddressString(String address) {
+    try {
+      return getName(InetAddress.getByName(address));
+    } catch (Exception e) {
+      throw ResolveException.getInstance("Failed to parse address [" + address + "]", e);
+    }
+  }
+
   public static Name getName(InetAddress address) {
     return getName(address.getAddress());
   }

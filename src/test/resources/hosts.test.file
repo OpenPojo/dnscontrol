@@ -1,0 +1,24 @@
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1	localhost
+255.255.255.255	broadcasthost
+::1             localhost
+fe80::1%lo0	localhost
+
+# Block useless traffic
+127.0.0.1      server1.com server1	server1again
+127.0.0.1      server2.com
+
+10.0.0.1	mylocalserver
+
+   10.0.0.2     server2
+   10.0.0.3	server3
+	10.0.0.4    server4
+	10.0.0.5	server5.com server50
+#Invalid Entries
+10.0.0.6
+

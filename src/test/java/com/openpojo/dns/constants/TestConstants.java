@@ -51,6 +51,19 @@ public class TestConstants {
 
   public static final String DNS_CONTROL_CONFIG = "dnscontrol.test.conf";
 
+  /**
+   * The Entries that are in the hosts.test.file on the classpath.
+   */
+  // 10.0.0.5 server5 server50
+  public static final String HOSTS_SERVER_50_NAME = "server50";
+  public static final String HOSTS_SERVER_50_IPv4_STRING = "10.0.0.5";
+  public static final byte[] HOSTS_SERVER_50_IPv4_BYTES = getAddressBytes(HOSTS_SERVER_50_IPv4_STRING);
+  public static final String HOSTS_SERVER_50_REVERSE_LOOKUP_NAME = "server5.com";
+  // 10.0.0.1 mylocalserver
+  public static final String HOSTS_SERVER_1_NAME = "mylocalserver";
+  public static final String HOSTS_SERVER_1_IPv4_String = "10.0.0.1";
+  public static final byte[] HOSTS_SERVER_1_IPv4_BYTES = getAddressBytes(HOSTS_SERVER_1_IPv4_String);
+
   private static byte[] getAddressBytes(String ip_asString) {
     try {
       return InetAddress.getByName(ip_asString).getAddress();
