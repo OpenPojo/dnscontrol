@@ -27,12 +27,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.openpojo.dns.config.DnsConfigReader;
+import com.openpojo.dns.config.impl.SystemDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Resolver;
 
+import static com.openpojo.dns.config.DnsConfigReader.CONFIG_SERVER_SYSTEM;
+import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 
 /**
@@ -41,6 +44,7 @@ import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 public class RoutingTableBuilder {
   private static final Logger LOGGER = Logger.getLogger(RoutingTableBuilder.class.getName());
   private Map<String, List<String>> destinationMap = new HashMap<>();
+  private final SystemDnsConfigReader systemDnsConfigReader = new SystemDnsConfigReader();
 
   public static RoutingTableBuilder create() {
     return new RoutingTableBuilder();
@@ -63,12 +67,21 @@ public class RoutingTableBuilder {
       dnsServersList = new ArrayList<>();
 
     for (String dnsServer : dnsServers) {
-      if (dnsServer != null && dnsServer.length() > 0)
-        dnsServersList.add(dnsServer);
+      if (dnsServer != null && dnsServer.length() > 0) {
+        addServerToList(dnsServersList, dnsServer);
+      }
     }
     destinationMap.put(hierarchicalDomain, dnsServersList);
 
     return this;
+  }
+
+  private void addServerToList(List<String> dnsServersList, String dnsServerEntry) {
+    if (dnsServerEntry.equalsIgnoreCase(CONFIG_SERVER_SYSTEM)) {
+      dnsServersList.addAll(systemDnsConfigReader.getConfiguration().get(DOT));
+    } else {
+      dnsServersList.add(dnsServerEntry);
+    }
   }
 
   public Map<String, List<String>> getDestinationMap() {

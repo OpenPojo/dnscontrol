@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.openpojo.dns.config.impl.FileDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
@@ -34,14 +35,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Resolver;
+import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -126,4 +125,16 @@ public class RoutingTableBuilderTest {
     RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
     routingTableBuilder.with("www.openpojo.com", Collections.singletonList(UNKNOWN_SERVER)).build();
   }
+
+  @Test
+  public void shouldBreakOutSystemToResolveConfEntries() {
+    final FileDnsConfigReader fileDnsConfigReader = new FileDnsConfigReader("dnscontrol.test.withsystem.conf");
+    RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
+    routingTableBuilder.with(fileDnsConfigReader);
+    final Map<String, List<String>> destinationMap = routingTableBuilder.getDestinationMap();
+
+    final String[] servers = ResolverConfig.getCurrentConfig().servers();
+    assertThat(destinationMap.get(toDnsDomain("system.openpojo.com")), contains(servers));
+  }
+
 }
