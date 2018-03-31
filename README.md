@@ -30,11 +30,14 @@ unchanged.resolution.openpojo.com=SYSTEM
 ```
 startup your JVM passing NameService provider as well as DNS routing file
 ```sh
-java -Dsun.net.spi.nameservice.provider.1=dns,dnscontrol -Ddnscontrol.conf.file=/path/where/dns_control_file
+java -Dsun.net.spi.nameservice.provider.1=dns,dnscontrol \
+     -Ddnscontrol.conf.file=/path/where/dns_control_file
 ```
 If you have a hosts file you'd like to also use you may use the jdk.net.hosts.file property and add it to your startup parameters
 ```sh
-java -Djdk.net.hosts.file=/path/where/hosts_file
+java -Dsun.net.spi.nameservice.provider.1=dns,dnscontrol \
+     -Ddnscontrol.conf.file=/path/where/dns_control_file \
+     -Djdk.net.hosts.file=/path/where/hosts_file
 ```
 ##### Notes:
 1. The default value for dnscontrol.conf.file is /dnscontrol.conf on root of the classpath.
