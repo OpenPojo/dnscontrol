@@ -44,7 +44,6 @@ public class HostsFileNameService implements HostMapNameService {
   private String jdkNetHostsFile;
   private final AtomicReference<Map<Name, InetAddress[]>> forwardLookupMap = new AtomicReference<>();
   private final AtomicReference<Map<Name, String>> reverseLookupMap = new AtomicReference<>();
-  ;
 
   public HostsFileNameService() {
     init();
