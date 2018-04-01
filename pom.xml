@@ -32,7 +32,7 @@
   <name>${project.artifactId}</name>
 
   <description>This project was born out of a need to have more finer grain control over Java's DNS subsystem.</description>
-  <url>https://github.com/openpojo/dnscontrol</url>
+  <url>http://dnscontrol.openpojo.com</url>
 
   <inceptionYear>2018</inceptionYear>
 
