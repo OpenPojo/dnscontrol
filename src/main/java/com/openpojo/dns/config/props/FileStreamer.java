@@ -20,26 +20,39 @@ package com.openpojo.dns.config.props;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Date;
 
 /**
  * @author oshoukry
  */
 public class FileStreamer {
-  public static InputStream getAsStream(String fileName) throws IOException {
-    final InputStream resourceAsStream = getClassLoader().getResourceAsStream(fileName);
-    if (resourceAsStream == null)
-      return new FileInputStream(fileName);
-    return resourceAsStream;
+  public static InputStream getAsStream(String fileName) throws FileNotFoundException {
+    return new FileInputStream(getFile(fileName));
   }
 
   public static boolean exists(String fileName) {
-    boolean exists = false;
-    try {
-      exists = getClassLoader().getResource(fileName) != null || new File(fileName).exists();
-    } catch (Exception ignored) {}
-    return exists;
+    return getFile(fileName).exists();
+  }
+
+  public static Date getLastUpdatedDate(String fileName) {
+    File file = getFile(fileName);
+    if (file.exists())
+      return new Date(file.lastModified());
+    return null;
+  }
+
+  private static File getFile(String fileName) {
+    final URL resource = getResource(fileName);
+    if (resource == null)
+      return new File(fileName);
+    return new File(resource.getFile());
+  }
+
+  private static URL getResource(String fileName) {
+    return getClassLoader().getResource(fileName);
   }
 
   private static ClassLoader getClassLoader() {

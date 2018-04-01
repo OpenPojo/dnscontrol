@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -134,5 +135,27 @@ public class SimpleHostFileReaderTest {
         default:
           fail("Found unrecognized entry " + entry);
       }
+  }
+
+  @Test
+  public void canGetLastUpdated() {
+    final String fileName = "hosts.test.file";
+    File file = new File(this.getClass().getClassLoader().getResource(fileName).getFile());
+    final long yesterday = getCurrentTimeNoMillis() - (1000 * 60 * 60 * 24);
+    final long now = getCurrentTimeNoMillis();
+    final long tomorrow = getCurrentTimeNoMillis() + (1000 * 60 * 60 * 24);
+
+    final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader(fileName);
+
+    assertThat(file.setLastModified(yesterday), is(true));
+    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(yesterday));
+    assertThat(file.setLastModified(now), is(true));
+    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(now));
+    assertThat(file.setLastModified(tomorrow), is(true));
+    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(tomorrow));
+  }
+
+  private long getCurrentTimeNoMillis() {
+    return (System.currentTimeMillis()/1000)*1000;
   }
 }

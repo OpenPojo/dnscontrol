@@ -20,6 +20,7 @@ package com.openpojo.dns.config.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,5 +94,9 @@ public class SimpleHostFileReader implements HostFileReader {
   @Override
   public boolean hasConfiguration() {
     return FileStreamer.exists(fileName);
+  }
+
+  public Date lastUpdated() {
+    return FileStreamer.getLastUpdatedDate(fileName);
   }
 }
