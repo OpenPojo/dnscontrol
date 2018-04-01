@@ -27,6 +27,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -153,6 +154,12 @@ public class SimpleHostFileReaderTest {
     assertThat(simpleHostFileReader.lastUpdated().getTime(), is(now));
     assertThat(file.setLastModified(tomorrow), is(true));
     assertThat(simpleHostFileReader.lastUpdated().getTime(), is(tomorrow));
+  }
+
+  @Test
+  public void whenFileIsNotFoundGetLastUpdatedReturnsNull() {
+    final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader(null);
+    assertThat(simpleHostFileReader.lastUpdated(), nullValue());
   }
 
   private long getCurrentTimeNoMillis() {
