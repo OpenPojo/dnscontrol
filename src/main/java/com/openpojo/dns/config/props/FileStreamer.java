@@ -34,14 +34,19 @@ public class FileStreamer {
   }
 
   public static boolean exists(String fileName) {
-    return getFile(fileName).exists();
+    try {
+      return getFile(fileName).exists();
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   public static Date getLastUpdatedDate(String fileName) {
-    File file = getFile(fileName);
-    if (file.exists())
-      return new Date(file.lastModified());
-    return null;
+    try {
+      return new Date(getFile(fileName).lastModified());
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 
   private static File getFile(String fileName) {
