@@ -20,7 +20,6 @@ package com.openpojo.dns.service.java.v7;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import com.openpojo.dns.service.initialize.DefaultDomain;
@@ -52,7 +51,7 @@ public class JavaNameService implements NameService {
 
   @Override
   public String getHostByAddr(byte[] addr) throws UnknownHostException {
-    LOGGER.info("getHostByAddr(" + Arrays.asList(addr) + ")");
+    LOGGER.info("getHostByAddr(" + InetAddress.getByAddress(addr).getHostAddress() + ")");
     return nameServiceLookup.getHostByAddr(addr);
   }
 }
