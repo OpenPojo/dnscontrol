@@ -44,6 +44,8 @@ public class HostsFileNameService implements HostMapNameService {
   private String jdkNetHostsFile;
   private final AtomicReference<Map<Name, InetAddress[]>> forwardLookupMap = new AtomicReference<>();
   private final AtomicReference<Map<Name, String>> reverseLookupMap = new AtomicReference<>();
+  private SimpleHostFileReader simpleHostFileReader;
+  private Long priorLastUpdated;
 
   public HostsFileNameService() {
     init();
@@ -52,8 +54,9 @@ public class HostsFileNameService implements HostMapNameService {
   public void init() {
     this.jdkNetHostsFile = System.getProperty(JDK_NET_HOSTS_FILE);
     LOGGER.info("Initializing with " + JDK_NET_HOSTS_FILE + " set to [" + this.jdkNetHostsFile + "]");
-    final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader(this.jdkNetHostsFile);
+    simpleHostFileReader = new SimpleHostFileReader(this.jdkNetHostsFile);
     if (simpleHostFileReader.hasConfiguration()) {
+      priorLastUpdated = simpleHostFileReader.lastUpdated();
       initForwardLookupMap(simpleHostFileReader.getHostNameMap());
       initReverseLookupMap(simpleHostFileReader.getAddressNameMap());
     } else {
@@ -92,12 +95,30 @@ public class HostsFileNameService implements HostMapNameService {
 
   @Override
   public InetAddress[] lookupAllHostAddr(Name name) {
+    refreshIfUpdated();
     return forwardLookupMap.get().get(name);
   }
 
   @Override
   public String getHostByAddr(Name name) {
+    refreshIfUpdated();
     return reverseLookupMap.get().get(name);
+  }
+
+  private void refreshIfUpdated() {
+    Long currentLastUpdated = simpleHostFileReader.lastUpdated();
+
+    if (!areEqual(currentLastUpdated, priorLastUpdated)) {
+      priorLastUpdated = currentLastUpdated;
+      LOGGER.info("Hosts file [" + jdkNetHostsFile + "] changed, reloading");
+      init();
+    }
+  }
+
+  private boolean areEqual(Long currentLastUpdated, Long priorLastUpdated) {
+    return
+        (currentLastUpdated == null && priorLastUpdated == null)
+            || (currentLastUpdated != null && currentLastUpdated.equals(priorLastUpdated));
   }
 
   public String getJdkNetHostsFile() {

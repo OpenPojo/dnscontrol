@@ -19,12 +19,7 @@
 package com.openpojo.dns.config.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.openpojo.dns.config.HostFileEntry;
@@ -96,7 +91,7 @@ public class SimpleHostFileReader implements HostFileReader {
     return FileStreamer.exists(fileName);
   }
 
-  public Date lastUpdated() {
+  public Long lastUpdated() {
     return FileStreamer.getLastUpdatedDate(fileName);
   }
 }

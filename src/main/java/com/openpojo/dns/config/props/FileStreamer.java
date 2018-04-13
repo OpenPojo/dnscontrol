@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Date;
 
 /**
  * @author oshoukry
@@ -41,9 +40,9 @@ public class FileStreamer {
     }
   }
 
-  public static Date getLastUpdatedDate(String fileName) {
+  public static Long getLastUpdatedDate(String fileName) {
     try {
-      return new Date(getFile(fileName).lastModified());
+      return getFile(fileName).lastModified();
     } catch (Exception ignored) {
       return null;
     }

@@ -139,6 +139,7 @@ public class SimpleHostFileReaderTest {
   }
 
   @Test
+  @SuppressWarnings("ConstantConditions")
   public void canGetLastUpdated() {
     final String fileName = "hosts.test.file";
     File file = new File(this.getClass().getClassLoader().getResource(fileName).getFile());
@@ -149,11 +150,11 @@ public class SimpleHostFileReaderTest {
     final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader(fileName);
 
     assertThat(file.setLastModified(yesterday), is(true));
-    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(yesterday));
+    assertThat(simpleHostFileReader.lastUpdated(), is(yesterday));
     assertThat(file.setLastModified(now), is(true));
-    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(now));
+    assertThat(simpleHostFileReader.lastUpdated(), is(now));
     assertThat(file.setLastModified(tomorrow), is(true));
-    assertThat(simpleHostFileReader.lastUpdated().getTime(), is(tomorrow));
+    assertThat(simpleHostFileReader.lastUpdated(), is(tomorrow));
   }
 
   @Test
