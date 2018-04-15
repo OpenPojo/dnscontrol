@@ -20,7 +20,6 @@ package com.openpojo.dns.service.java.v9;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.service.java.reflection.ReflectionHelper;
@@ -42,40 +41,24 @@ import static org.junit.Assume.assumeThat;
  * @author oshoukry
  */
 public class Java9NameServiceInterceptorTest {
-  private static final String NAME_SERVICE_INTERFACE_CLASS = "java.net.InetAddress$NameService";
-  private static final String NAME_SERVICE_FIELD = "nameservice";
-
   private Java9NameServiceInterceptor java9NameServiceInterceptor;
-  private static Object nameServiceFieldValue;
-  private static AtomicBoolean testCanRun = new AtomicBoolean(false);
 
   @Before
-  public void setup() {
-    try {
-      assumeThat(ClassUtil.loadClass(NAME_SERVICE_INTERFACE_CLASS), notNullValue());
+  public void setup() throws ClassNotFoundException {
+    assumeThat(ClassUtil.loadClass("java.net.InetAddress$NameService"), notNullValue());
 
-      //noinspection JavaReflectionMemberAccess
-      nameServiceFieldValue = ReflectionHelper.getFieldValue(InetAddress.class, NAME_SERVICE_FIELD, null);
+    Lookup.refreshDefault();
+    DnsControl.recreateInstance().registerRoutingResolver();
 
-      Lookup.refreshDefault();
-      DnsControl.recreateInstance().registerRoutingResolver();
-
-      java9NameServiceInterceptor = new Java9NameServiceInterceptor();
-      java9NameServiceInterceptor.changeInetAddressProxy(java9NameServiceInterceptor.createProxyForNameService());
-      testCanRun = new AtomicBoolean(true);
-    } catch (Exception ignored) {
-      assumeThat("Ignoring running tests as setup failed!", false, is(true));
-    }
+    java9NameServiceInterceptor = new Java9NameServiceInterceptor();
+    java9NameServiceInterceptor.changeInetAddressProxy(java9NameServiceInterceptor.createProxyForNameService());
   }
 
   @After
   public void teardown() {
-    if (testCanRun.get()) {
-      ReflectionHelper.setFieldValue(InetAddress.class, NAME_SERVICE_FIELD, null, nameServiceFieldValue);
-
-      DnsControl.getInstance().unRegisterRoutingResolver();
-      Lookup.refreshDefault();
-    }
+    Object value = ReflectionHelper.invokeMethodOnClass(InetAddress.class, "createNameService", null);
+    ReflectionHelper.setFieldValue(InetAddress.class, "nameService", null, value);
+    Lookup.refreshDefault();
   }
 
   @Test
