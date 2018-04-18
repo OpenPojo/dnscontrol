@@ -18,8 +18,6 @@
 
 package com.openpojo.dns.resolve;
 
-import java.io.IOException;
-
 import com.openpojo.dns.exception.ResolveException;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.Header;
@@ -31,7 +29,7 @@ import org.xbill.DNS.Message;
 public class NoOpResolver extends UnimplementedResolver {
 
   @Override
-  public Message send(Message query) throws IOException {
+  public Message send(Message query) {
     try {
       final Message answer = (Message) query.clone();
       final Header header = answer.getHeader();
