@@ -53,7 +53,11 @@ public class HostsFileNameService implements HostMapNameService {
 
   public void init() {
     this.jdkNetHostsFile = System.getProperty(JDK_NET_HOSTS_FILE);
-    LOGGER.info("Initializing with " + JDK_NET_HOSTS_FILE + " set to [" + this.jdkNetHostsFile + "]");
+    if (jdkNetHostsFile == null)
+      LOGGER.info("Initializing, no host file set (" + JDK_NET_HOSTS_FILE  + " not set)");
+    else
+      LOGGER.info("Initializing with " + JDK_NET_HOSTS_FILE + " set to [" + this.jdkNetHostsFile + "]");
+
     simpleHostFileReader = new SimpleHostFileReader(this.jdkNetHostsFile);
     if (simpleHostFileReader.hasConfiguration()) {
       priorLastUpdated = simpleHostFileReader.lastUpdated();
