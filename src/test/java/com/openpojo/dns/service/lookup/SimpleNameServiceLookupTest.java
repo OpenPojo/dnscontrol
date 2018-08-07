@@ -153,10 +153,14 @@ public class SimpleNameServiceLookupTest {
   }
 
   @Test
-  public void shouldGetNameForReverseLookupLoopBackAddress() throws UnknownHostException {
+  public void shouldGetNameForReverseLookupLoopBackAddressIP4() throws UnknownHostException {
     String localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv4_BYTES);
     assertThat(localhost, isOneOf(LOCAL_HOST, LOCAL_HOST + DOT));
-    localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv6_BYTES);
+  }
+
+  @Test
+  public void shouldGetNameForReverseLookupLoopBackAddressIP6() throws UnknownHostException {
+    String localhost = createNameServiceLookup(false).getHostByAddr(LOCAL_HOST_IPv6_BYTES);
     assertThat(localhost, isOneOf(LOCAL_HOST, LOCAL_HOST + DOT));
   }
 
