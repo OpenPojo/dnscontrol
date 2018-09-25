@@ -146,8 +146,8 @@ public class DnsControlTest {
   public void whenRecreateGetInstanceShouldBeDifferent() {
     DnsControl instance = DnsControl.getInstance();
     assertThat(instance, sameInstance(DnsControl.getInstance()));
-    DnsControl differentInsance = DnsControl.recreateInstance();
-    assertThat(differentInsance, not(sameInstance(instance)));
-    assertThat(differentInsance, sameInstance(DnsControl.getInstance()));
+    DnsControl differentInstance = DnsControl.recreateInstance();
+    assertThat(differentInstance, not(sameInstance(instance)));
+    assertThat(differentInstance, sameInstance(DnsControl.getInstance()));
   }
 }
