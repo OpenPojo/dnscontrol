@@ -1,8 +1,6 @@
 language: java
-jdk:
-  - openjdk7
-  - oraclejdk8
-  - oraclejdk9
+before_install:
+  - jdk_switcher use openjdk7
 script:
   - jdk_switcher use openjdk7
   - mvn clean test jacoco:report
