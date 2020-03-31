@@ -82,8 +82,8 @@ public class SimpleNameServiceLookupTest {
 
     assertThat(inetAddresses, notNullValue());
     assertThat(inetAddresses.length, is(1));
-    assertThat(inetAddresses[0].getAddress(), is(SERVER_2_IPv4_BYTES));
 
+    assertThat(inetAddresses[0].getAddress(), is(SERVER_2_IPv4_BYTES));
   }
 
   @Test

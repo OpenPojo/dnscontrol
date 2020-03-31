@@ -39,8 +39,8 @@ public class TestConstants {
   public static final String SERVER_1_IPv6_STRING = "2001:503:ba3e::2:30";
   public static final byte[] SERVER_1_IPv6_BYTES = getAddressBytes(SERVER_1_IPv6_STRING);
 
-  public static final String SERVER_2_NAME = "egyptianmuseum.gov.eg.";
-  public static final String SERVER_2_IPv4_STRING = "163.121.19.186";
+  public static final String SERVER_2_NAME = "egypt.gov.eg.";
+  public static final String SERVER_2_IPv4_STRING = "81.21.103.81";
   public static final byte[] SERVER_2_IPv4_BYTES = getAddressBytes(SERVER_2_IPv4_STRING);
 
   public static final String LOCAL_HOST = "localhost";
