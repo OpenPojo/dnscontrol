@@ -54,8 +54,11 @@ public class SimpleHostMapNameServiceTest {
   @Test
   public void canReverseLookupIPToHostName() throws UnknownHostException {
     final InetAddress localHost = InetAddress.getLocalHost();
-    final String hostByAddr = nameService.getHostByAddr(ReverseMap.fromAddress(localHost.getAddress()));
-    assertThat("\nGiven: \n\t" + localHost + ",\n\t" + nameService, hostByAddr,
+    byte[] address = localHost.getAddress();
+
+    Name name = ReverseMap.fromAddress(address);
+    final String hostByAddr = nameService.getHostByAddr(name);
+    assertThat("\nGiven: \n\t" + name + ",\n\t" + nameService, hostByAddr,
         anyOf(is(localHost.getHostName() /* JDK 1.8+ returns machine name */),
             is("localhost" /* for JDK 1.7 */)));
   }
