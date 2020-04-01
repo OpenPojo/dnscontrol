@@ -1,6 +1,5 @@
+dist: trusty
 language: java
-before_install:
-  - jdk_switcher use openjdk7
 script:
   - jdk_switcher use openjdk7
   - mvn clean test jacoco:report
