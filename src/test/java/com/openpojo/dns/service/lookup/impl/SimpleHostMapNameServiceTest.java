@@ -18,9 +18,6 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.openpojo.random.RandomFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +25,11 @@ import org.xbill.DNS.Name;
 import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.TextParseException;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry
@@ -58,7 +58,7 @@ public class SimpleHostMapNameServiceTest {
 
     Name name = ReverseMap.fromAddress(address);
     final String hostByAddr = nameService.getHostByAddr(name);
-    assertThat("\nGiven: \n\t" + name + ",\n\t" + nameService, hostByAddr,
+    assertThat("\nGiven: \n\t" + localHost + ",\n\t" + nameService, hostByAddr,
         anyOf(is(localHost.getHostName() /* JDK 1.8+ returns machine name */),
             is("localhost" /* for JDK 1.7 */)));
   }

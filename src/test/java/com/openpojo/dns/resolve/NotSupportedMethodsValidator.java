@@ -30,8 +30,8 @@ import org.junit.Assert;
 
 import static com.openpojo.random.RandomFactory.getRandomValue;
 import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClass;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

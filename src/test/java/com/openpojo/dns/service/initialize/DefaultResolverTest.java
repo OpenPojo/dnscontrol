@@ -26,10 +26,10 @@ import org.junit.Test;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

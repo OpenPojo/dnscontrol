@@ -30,10 +30,10 @@ import java.util.List;
 import org.junit.Test;
 
 import static com.openpojo.dns.constants.TestConstants.LOCAL_HOST;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class LocalHostInfoTest {
 

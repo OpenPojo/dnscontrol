@@ -33,10 +33,10 @@ import org.xbill.DNS.Section;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.random.RandomFactory.getRandomValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

@@ -33,8 +33,8 @@ import org.xbill.DNS.Lookup;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv6_BYTES;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
 /**

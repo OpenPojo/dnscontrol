@@ -38,8 +38,8 @@ import static com.openpojo.dns.DnsControl.recreateInstance;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

@@ -21,8 +21,8 @@ package com.openpojo.dns.config;
 import org.junit.Test;
 
 import static com.openpojo.dns.config.HostFileEntryFactory.getEntry;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

@@ -28,8 +28,8 @@ import static com.openpojo.dns.config.DnsConfigReader.CONFIG_FILE_ENV_VARIABLE;
 import static com.openpojo.dns.config.DnsConfigReaderFactory.getDnsConfigFileReader;
 import static com.openpojo.dns.constants.TestConstants.DNS_CONTROL_CONFIG;
 import static java.lang.System.clearProperty;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

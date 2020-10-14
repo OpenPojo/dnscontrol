@@ -40,8 +40,8 @@ import org.xbill.DNS.ResolverConfig;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

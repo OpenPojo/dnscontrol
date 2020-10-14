@@ -28,11 +28,11 @@ import org.junit.rules.ExpectedException;
 
 import static com.openpojo.dns.constants.TestConstants.DNS_CONTROL_CONFIG;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

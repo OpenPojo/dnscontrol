@@ -28,10 +28,10 @@ import static com.openpojo.dns.service.java.reflection.ReflectionHelper.getField
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.getFieldValue;
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.invokeMethodOnClass;
 import static com.openpojo.dns.service.java.reflection.ReflectionHelper.loadClass;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry

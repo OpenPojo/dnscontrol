@@ -29,9 +29,10 @@ import org.junit.Test;
 
 import static com.openpojo.dns.config.DnsConfigReader.ENV_NAME_SERVERS_KEY;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 /**
  * @author oshoukry

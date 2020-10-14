@@ -18,13 +18,6 @@
 
 package com.openpojo.dns.service.lookup.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.openpojo.dns.exception.ResolveException;
 import com.openpojo.dns.service.lookup.util.NameFactory;
 import com.openpojo.random.RandomFactory;
@@ -35,14 +28,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.Name;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import static com.openpojo.dns.constants.TestConstants.HOSTS_SERVER_50_IPv4_BYTES;
 import static com.openpojo.dns.constants.TestConstants.HOSTS_SERVER_50_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.HOSTS_SERVER_50_NAME;
 import static com.openpojo.dns.constants.TestConstants.HOSTS_SERVER_50_REVERSE_LOOKUP_NAME;
 import static com.openpojo.dns.service.lookup.util.NameFactory.getName;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author oshoukry
@@ -103,7 +103,7 @@ public class HostsFileNameServiceTest {
     // file created with 10.10.10.10 The10thServer
     final HostsFileNameService hostsFileNameService = new HostsFileNameService();
     final InetAddress[] hostAddr = hostsFileNameService.lookupAllHostAddr(name);
-    assertThat(hostAddr, is(new InetAddress[] { address1 }));
+    assertThat(hostAddr, is(new InetAddress[]{address1}));
     assertThat(hostsFileNameService.getHostByAddr(address1Name), is(serverName));
     assertThat(hostsFileNameService.getHostByAddr(address2Name), nullValue());
 
@@ -115,7 +115,7 @@ public class HostsFileNameServiceTest {
 
     // file re-created with 10.10.10.20 The10thServer
     writeEntryToFile(ip2, serverName, file);
-    assertThat(hostsFileNameService.lookupAllHostAddr(name), is(new InetAddress[] { address2 } ));
+    assertThat(hostsFileNameService.lookupAllHostAddr(name), is(new InetAddress[]{address2}));
     assertThat(hostsFileNameService.getHostByAddr(address1Name), nullValue());
     assertThat(hostsFileNameService.getHostByAddr(address2Name), is(serverName));
     file.delete();
