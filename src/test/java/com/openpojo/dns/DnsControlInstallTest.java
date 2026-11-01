@@ -44,6 +44,8 @@ import org.xbill.DNS.hosts.HostsFileParser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
@@ -138,6 +140,7 @@ class DnsControlInstallTest {
 
     DnsControl second = DnsControl.install();
 
+    assertThat(first, sameInstance(DnsControl.getInstance()));
     assertThat(second, sameInstance(first));
     assertThat(((RoutingResolver) Lookup.getDefaultResolver()).getRoutingTable(), sameInstance(installedTable));
   }
@@ -178,6 +181,25 @@ class DnsControlInstallTest {
     new Lookup("host", Type.A).run();
 
     assertThat(domainServer.queries(), contains(Record.newRecord(Name.fromString("host.a.test."), Type.A, DClass.IN)));
+  }
+
+  @Test
+  void shouldRegisterTheRoutingResolverEvenWithoutAConfigurationFile() {
+    System.clearProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE);
+
+    DnsControl.install();
+
+    assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
+    assertThat(((RoutingResolver) Lookup.getDefaultResolver()).getRoutingTable(), nullValue());
+  }
+
+  @Test
+  void uninstallWithoutInstallShouldChangeNothing() {
+    Resolver resolverBefore = Lookup.getDefaultResolver();
+
+    DnsControl.uninstall();
+
+    assertThat(Lookup.getDefaultResolver(), sameInstance(resolverBefore));
   }
 
   private static Path hostsFileWith(String line) throws Exception {
