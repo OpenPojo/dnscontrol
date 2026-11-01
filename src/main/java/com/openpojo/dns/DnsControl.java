@@ -19,6 +19,7 @@
 package com.openpojo.dns;
 
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.config.DnsConfigReader;
@@ -29,6 +30,7 @@ import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
+import org.xbill.DNS.hosts.HostsFileParser;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.cache.CacheControl.resetCache;
@@ -64,7 +66,25 @@ public class DnsControl {
     if (!builder.getDestinationMap().isEmpty())
       control.setRoutingTable(builder.build());
     control.registerRoutingResolver();
+    installHostsFile();
     return control;
+  }
+
+  /** The JDK's own property for an alternate hosts file; honoured here because dnsjava only knows the system one. */
+  public static final String JDK_NET_HOSTS_FILE = "jdk.net.hosts.file";
+
+  /** dnsjava's own knob for how often a hosts file is re-checked for changes; dnsjava defaults it to five minutes. */
+  public static final String DNSJAVA_HOSTS_FILE_CHECK_INTERVAL = "dnsjava.hostsfile.change_check_interval_ms";
+  /** DNSControl's default for that knob, so an edited hosts file is seen within a second instead of five minutes. */
+  public static final String DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS = "1000";
+
+  private static void installHostsFile() {
+    String hostsFile = System.getProperty(JDK_NET_HOSTS_FILE);
+    if (hostsFile == null)
+      return;
+    if (System.getProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL) == null)
+      System.setProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL, DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS);
+    Lookup.setDefaultHostsFileParser(new HostsFileParser(Path.of(hostsFile), true));
   }
 
   public void setRoutingTable(RoutingTable routingTable) {
