@@ -90,6 +90,12 @@ class ServerAddressParserTest {
     assertThrows(UnknownHostException.class, () -> parse("unknown.host.openpojo.com.:53"));
   }
 
+  @Test
+  void shouldFormatWhatItParses() throws UnknownHostException {
+    assertThat(ServerAddressParser.format(parse("[::1]:5353")), is("[0:0:0:0:0:0:0:1]:5353"));
+    assertThat(ServerAddressParser.format(parse("10.0.0.1")), is("10.0.0.1:53"));
+  }
+
   private static InetSocketAddress socket(String address, int port) throws UnknownHostException {
     return new InetSocketAddress(InetAddress.getByName(address), port);
   }

@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.util.Arrays;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.lang.reflect.Field;
@@ -31,6 +33,7 @@ import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -97,5 +100,12 @@ class SystemDnsConfigReaderTest {
       }
     }
     return true;
+  }
+
+  @Test
+  void shouldKeepThePortOfEachSystemServer() throws Exception {
+    setServersField(Arrays.asList(new InetSocketAddress(InetAddress.getByName("::1"), 5353), new InetSocketAddress(InetAddress.getByName("10.0.0.1"), 53)));
+
+    assertThat(systemDnsConfigReader.getConfiguration().get(DOT), contains("[0:0:0:0:0:0:0:1]:5353", "10.0.0.1:53"));
   }
 }

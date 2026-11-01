@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.config.utils;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -48,6 +49,14 @@ public final class ServerAddressParser {
     }
 
     return new InetSocketAddress(InetAddress.getByName(host), port);
+  }
+
+  /** The inverse of {@link #parse}: {@code host:port}, with IPv6 addresses in brackets. */
+  public static String format(InetSocketAddress address) {
+    String host = address.getAddress().getHostAddress();
+    if (address.getAddress() instanceof Inet6Address)
+      host = "[" + host + "]";
+    return host + ":" + address.getPort();
   }
 
   private static int parsePort(String port, String entry) throws UnknownHostException {

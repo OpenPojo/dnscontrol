@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.routing.impl;
 
+import com.openpojo.dns.config.utils.ServerAddressParser;
 import org.xbill.DNS.Type;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Name;
@@ -138,7 +139,7 @@ class RoutingTableBuilderTest {
     final Map<String, List<String>> destinationMap = routingTableBuilder.getDestinationMap();
 
     final String[] servers = ResolverConfig.getCurrentConfig().servers().stream()
-        .map(server -> server.getAddress().getHostAddress()).toArray(String[]::new);
+        .map(ServerAddressParser::format).toArray(String[]::new);
     assertThat(destinationMap.get(toDnsDomain("system.openpojo.com")), contains(servers));
   }
 
