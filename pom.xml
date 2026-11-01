@@ -1,37 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2018-2018 Osman Shoukry
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-  ~ or implied.
-  ~
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>oss-parent</artifactId>
-    <groupId>org.sonatype.oss</groupId>
-    <version>9</version>
-  </parent>
-
   <groupId>com.openpojo</groupId>
   <artifactId>dnscontrol</artifactId>
-  <version>0.0.9-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
 
-  <description>This project was born out of a need to have more finer grain control over Java's DNS subsystem.</description>
+  <description>Finer grain control over Java's DNS subsystem: route lookups by host or domain to specific DNS servers, built as a plugin on dnsjava.</description>
   <url>http://dnscontrol.openpojo.com</url>
 
   <inceptionYear>2018</inceptionYear>
@@ -63,48 +39,123 @@
   </scm>
 
   <properties>
-    <coveralls-maven-plugin.version>3.0.1</coveralls-maven-plugin.version>
-    <dnsjava.version>2.1.8</dnsjava.version>
-    <hamcrest-all.version>1.3</hamcrest-all.version>
-    <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
-    <java.version>1.7</java.version>
-    <junit.version>4.13.1</junit.version>
-    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-    <maven-deploy-plugin.version>2.8</maven-deploy-plugin.version>
-    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-    <maven-release-plugin.version>2.1</maven-release-plugin.version>
-    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-    <openpojo.version>0.8.10</openpojo.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <dnsjava.version>3.7.0</dnsjava.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <junit.version>5.13.4</junit.version>
+    <hamcrest.version>3.0</hamcrest.version>
+    <openpojo.version>0.9.1</openpojo.version>
+
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <pitest-maven.version>1.30.1</pitest-maven.version>
+    <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>JBOSS</id>
-      <name>JBoss Repository</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
-    </repository>
-  </repositories>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+      <version>${dnsjava.version}</version>
+    </dependency>
+    <dependency>
+      <!-- dnsjava logs through slf4j; route it to java.util.logging like the rest of this project. -->
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- Runs the remaining JUnit 4 tests until M7 finishes the migration. -->
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>${hamcrest.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.openpojo</groupId>
+      <artifactId>openpojo</artifactId>
+      <version>${openpojo.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${maven-enforcer-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>enforce-build-environment</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                  <message>DNSControl 1.x requires JDK 21 or newer to build (java.net.spi resolver SPI). Java 7/8 users: see the java8-maintenance branch.</message>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.8.9,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>${maven-release-plugin.version}</version>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <arguments>-Psonatype-oss-release,dnscontrol-release</arguments>
+          <!-- Legacy JVM hook and the name-service layer it fed (sun.net.spi.nameservice, reflection into InetAddress).
+               Superseded by dnsjava 3.x Lookup; deleted in M5. -->
+          <excludes>
+            <exclude>com/openpojo/dns/service/java/**</exclude>
+            <exclude>com/openpojo/dns/service/lookup/**</exclude>
+          </excludes>
+          <testExcludes>
+            <testExclude>com/openpojo/dns/service/java/**</testExclude>
+            <testExclude>com/openpojo/dns/service/lookup/**</testExclude>
+          </testExcludes>
         </configuration>
       </plugin>
 
@@ -116,6 +167,20 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
         <configuration>
@@ -123,14 +188,43 @@
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
+            <manifestEntries>
+              <Automatic-Module-Name>com.openpojo.dnscontrol</Automatic-Module-Name>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>${coveralls-maven-plugin.version}</version>
+        <!-- Mutation testing. Not bound to a phase; run with: ./mvnw verify pitest:mutationCoverage -->
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>${pitest-maven.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>${pitest-junit5-plugin.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <targetClasses>
+            <param>com.openpojo.dns.*</param>
+          </targetClasses>
+          <targetTests>
+            <param>com.openpojo.dns.*</param>
+          </targetTests>
+          <excludedTestClasses>
+            <!-- Re-runs every other test class through JUnitCore; meaningless and very slow under mutation. -->
+            <param>com.openpojo.dns.structure.OutOfOrderTestFragilityTest</param>
+          </excludedTestClasses>
+          <outputFormats>
+            <param>HTML</param>
+            <param>XML</param>
+          </outputFormats>
+          <timestampedReports>false</timestampedReports>
+          <threads>4</threads>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -143,95 +237,26 @@
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-            <configuration>
-              <destFile>${project.build.directory}/jacoco_default.exec</destFile>
-            </configuration>
           </execution>
           <execution>
-            <id>merge-all-jacoco</id>
-            <phase>test</phase>
+            <id>report</id>
+            <phase>verify</phase>
             <goals>
-              <goal>merge</goal>
+              <goal>report</goal>
             </goals>
-            <configuration>
-              <destFile>${project.build.directory}/jacoco.exec</destFile>
-              <fileSets>
-                <fileSet>
-                  <directory>${project.build.directory}</directory>
-                  <includes>
-                    <include>*.exec</include>
-                  </includes>
-                </fileSet>
-              </fileSets>
-            </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <groupId>dnsjava</groupId>
-      <artifactId>dnsjava</artifactId>
-      <version>${dnsjava.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.openpojo</groupId>
-      <artifactId>openpojo</artifactId>
-      <version>${openpojo.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-      <version>${hamcrest-all.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <profiles>
     <profile>
-      <id>sun-net-spi-name-service-skip</id>
-      <activation>
-        <jdk>[9,10]</jdk>
-        <activeByDefault>false</activeByDefault>
-      </activation>
+      <!-- Signs and publishes to Maven Central through the Sonatype Central Portal. Credentials come from the
+           "central" server entry in settings.xml. Wired into the tag-driven release workflow in M8. -->
+      <id>release</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
-            <configuration>
-              <excludes>
-                <exclude>com.openpojo.dns.service.java.v7.**</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>dnscontrol-release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <version>${maven-deploy-plugin.version}</version>
-            <configuration>
-              <updateReleaseInfo>true</updateReleaseInfo>
-            </configuration>
-          </plugin>
-
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
@@ -245,7 +270,6 @@
               </execution>
             </executions>
           </plugin>
-
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
@@ -259,9 +283,32 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+            </configuration>
+          </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
-
 </project>

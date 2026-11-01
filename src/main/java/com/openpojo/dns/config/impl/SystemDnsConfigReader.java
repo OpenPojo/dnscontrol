@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,6 @@ import static com.openpojo.dns.config.utils.ServerParser.getServersAsList;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.xbill.DNS.ResolverConfig.getCurrentConfig;
 
-/**
- * @author oshoukry
- */
 public class SystemDnsConfigReader implements DnsConfigReader {
 
   @Override
@@ -38,14 +36,24 @@ public class SystemDnsConfigReader implements DnsConfigReader {
     Map<String, List<String>> resolvConf = new HashMap<>();
 
     if (hasConfiguration())
-      resolvConf.put(DOT, getServersAsList(getCurrentConfig().servers()));
+      resolvConf.put(DOT, getServersAsList(systemServers()));
 
     return resolvConf;
   }
 
   @Override
   public boolean hasConfiguration() {
-    final String[] servers = getCurrentConfig().servers();
-    return servers != null && servers.length > 0;
+    return systemServers().length > 0;
+  }
+
+  /**
+   * dnsjava 3.x reports the system servers as socket addresses. Keep the historical address-string form
+   * (port 53 implied) that the routing table builder expects.
+   */
+  private static String[] systemServers() {
+    final List<InetSocketAddress> servers = getCurrentConfig().servers();
+    if (servers == null)
+      return new String[0];
+    return servers.stream().map(server -> server.getAddress().getHostAddress()).toArray(String[]::new);
   }
 }

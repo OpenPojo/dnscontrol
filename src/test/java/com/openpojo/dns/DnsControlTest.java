@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xbill.DNS.*;
+import org.xbill.DNS.Record;
 
 import static com.openpojo.dns.DnsControl.recreateInstance;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;

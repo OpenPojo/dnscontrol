@@ -19,6 +19,7 @@
 package com.openpojo.dns.resolve;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 import com.openpojo.dns.exception.RoutingException;
@@ -68,6 +69,11 @@ public class UnimplementedResolver implements Resolver {
 
   @Override
   public void setTimeout(int secs) {
+    throw RoutingException.getInstance("Operation not supported");
+  }
+
+  @Override
+  public void setTimeout(Duration timeout) {
     throw RoutingException.getInstance("Operation not supported");
   }
 

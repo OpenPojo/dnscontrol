@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xbill.DNS.*;
+import org.xbill.DNS.Record;
 
 import static com.openpojo.dns.cache.utils.VerificationHelper.verifyCacheIsEmpty;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_DOMAIN;
