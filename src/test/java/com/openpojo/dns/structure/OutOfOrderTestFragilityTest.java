@@ -20,99 +20,76 @@ package com.openpojo.dns.structure;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.openpojo.reflection.PojoClass;
 import com.openpojo.reflection.PojoClassFilter;
 import com.openpojo.reflection.filters.FilterChain;
 import com.openpojo.reflection.filters.FilterClassName;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.Computer;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClassesRecursively;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 
 /**
- * @author oshoukry
+ * Runs every test class in the project in a random order, several times, to catch tests that only pass because of
+ * state left behind by another test. Uses the JUnit Platform launcher so Jupiter and vintage tests are both covered.
  */
-public class OutOfOrderTestFragilityTest {
+class OutOfOrderTestFragilityTest {
+  private static final int ROUNDS = 5;
 
   private List<PojoClass> testClasses;
   private List<String> orderOfTests;
 
-  @Before
-  public void setup() {
-    FilterClassName testClassFilter = new FilterClassName(".*Test$");
-    PojoClassFilter selfFilter = new OutOfOrderTestFragilityFilter();
-    IncompatibleJVMTestsFilter incompatibleJVMTestsFilter = new IncompatibleJVMTestsFilter();
-
-    testClasses = getPojoClassesRecursively("com.openpojo.dns",
-        new FilterChain(testClassFilter
-            , selfFilter
-            , incompatibleJVMTestsFilter));
+  @BeforeEach
+  void setup() {
+    PojoClassFilter testClassFilter = new FilterClassName(".*Test$");
+    PojoClassFilter selfFilter = pojoClass -> !pojoClass.getName().equals(OutOfOrderTestFragilityTest.class.getName());
+    testClasses = getPojoClassesRecursively("com.openpojo.dns", new FilterChain(testClassFilter, selfFilter));
     orderOfTests = new ArrayList<>();
   }
 
   @Test
-  public void regressTestingOrder() {
-    for (int i = 0; i < 5; i++)
+  void regressTestingOrder() {
+    for (int i = 0; i < ROUNDS; i++)
       runAllTestsInRandomOrder();
   }
 
   private void runAllTestsInRandomOrder() {
-    Map<String, Result> testsAndResults = new LinkedHashMap<>();
-
     Collections.shuffle(testClasses);
-
-    for (PojoClass clazz : testClasses) {
-      Computer computer = new Computer();
-      JUnitCore jUnitCore = new JUnitCore();
-      testsAndResults.put(clazz.getName(), jUnitCore.run(computer, clazz.getClazz()));
-    }
+    Launcher launcher = LauncherFactory.create();
 
     boolean passed = true;
-    for (Map.Entry<String, Result> entry : testsAndResults.entrySet()) {
-      final boolean wasSuccessful = entry.getValue().wasSuccessful();
+    for (PojoClass clazz : testClasses) {
+      TestExecutionSummary summary = run(launcher, clazz.getClazz());
+      boolean wasSuccessful = summary.getTotalFailureCount() == 0;
       passed &= wasSuccessful;
-      final String resultValue = getResultValue(wasSuccessful);
-      String testOutcome = "Test: " + entry.getKey() + "..." + resultValue;
+      String testOutcome = "Test: " + clazz.getName() + "..." + (wasSuccessful ? "Passed!" : "Failed!");
       if (!wasSuccessful)
-        testOutcome += entry.getValue().getFailures();
+        for (TestExecutionSummary.Failure failure : summary.getFailures())
+          testOutcome += "\n    " + failure.getTestIdentifier().getDisplayName() + ": " + failure.getException();
       orderOfTests.add(testOutcome);
     }
+
     if (!passed) {
-      for (String entry : orderOfTests) {
+      for (String entry : orderOfTests)
         System.out.println(entry);
-      }
-
-      Assert.fail("One or more test failed!");
+      fail("One or more test failed!");
     }
   }
 
-  private String getResultValue(boolean wasSuccessful) {
-    return wasSuccessful ? "Passed!" : "Failed!";
-  }
-
-  private static class OutOfOrderTestFragilityFilter implements PojoClassFilter {
-
-    @Override
-    public boolean include(PojoClass pojoClass) {
-      return !pojoClass.getName().equals(OutOfOrderTestFragilityTest.class.getName());
-    }
-  }
-
-  private static class IncompatibleJVMTestsFilter implements PojoClassFilter {
-    @Override
-    public boolean include(PojoClass pojoClass) {
-      final String packageName = pojoClass.getPackage().getName() + ".";
-      final String javaVersion = System.getProperty("java.version");
-      final String jvm7Tests = "com.openpojo.dns.service.java.v7.";
-      return !packageName.startsWith(jvm7Tests) || !(javaVersion.startsWith("9") || javaVersion.startsWith("10"));
-    }
+  private static TestExecutionSummary run(Launcher launcher, Class<?> testClass) {
+    LauncherDiscoveryRequest request = request().selectors(selectClass(testClass)).build();
+    SummaryGeneratingListener listener = new SummaryGeneratingListener();
+    launcher.execute(request, listener);
+    return listener.getSummary();
   }
 }
