@@ -59,6 +59,8 @@
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <pitest-maven.version>1.20.0</pitest-maven.version>
+    <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -190,6 +192,38 @@
               <Automatic-Module-Name>com.openpojo.dnscontrol</Automatic-Module-Name>
             </manifestEntries>
           </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Mutation testing. Not bound to a phase; run with: ./mvnw verify pitest:mutationCoverage -->
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>${pitest-maven.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>${pitest-junit5-plugin.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <targetClasses>
+            <param>com.openpojo.dns.*</param>
+          </targetClasses>
+          <targetTests>
+            <param>com.openpojo.dns.*</param>
+          </targetTests>
+          <excludedTestClasses>
+            <!-- Re-runs every other test class through JUnitCore; meaningless and very slow under mutation. -->
+            <param>com.openpojo.dns.structure.OutOfOrderTestFragilityTest</param>
+          </excludedTestClasses>
+          <outputFormats>
+            <param>HTML</param>
+            <param>XML</param>
+          </outputFormats>
+          <timestampedReports>false</timestampedReports>
+          <threads>4</threads>
         </configuration>
       </plugin>
 
