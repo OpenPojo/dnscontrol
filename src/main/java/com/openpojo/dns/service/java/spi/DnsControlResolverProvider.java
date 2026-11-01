@@ -36,9 +36,17 @@ import com.openpojo.dns.DnsControl;
  */
 public final class DnsControlResolverProvider extends InetAddressResolverProvider {
   public static final String NAME = "dnscontrol";
+  /**
+   * Set to {@code false} to keep the jar on the class path without activating it on the first lookup; the application
+   * then decides when to call {@link DnsControl#install()}. Read here without touching DnsControl, because the JDK
+   * may load this provider very early, before coverage agents and the like have finished starting.
+   */
+  public static final String AUTO_INSTALL = "dnscontrol.autoinstall";
 
   @Override
   public InetAddressResolver get(Configuration configuration) {
+    if (!Boolean.parseBoolean(System.getProperty(AUTO_INSTALL, "true")))
+      return configuration.builtinResolver();
     return resolver(configuration::builtinResolver, configuration::lookupLocalHostName);
   }
 

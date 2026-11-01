@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.openpojo.dns.config.DnsConfigReader;
+import com.openpojo.dns.service.java.spi.DnsControlResolverProvider;
 import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +80,14 @@ class ResolverProviderIT {
   @Test
   void dnscontrolDisabledLeavesTheJvmWithItsOwnResolver() throws Exception {
     List<String> output = resolveInAFreshJvm(ROUTED_HOST, "-D" + "dnscontrol.enabled=false");
+
+    assertThat(output, contains(UnknownHostException.class.getName()));
+    assertThat(domainServer.queries(), empty());
+  }
+
+  @Test
+  void autoInstallOffLeavesTheJvmWithItsOwnResolverUntilTheApplicationInstalls() throws Exception {
+    List<String> output = resolveInAFreshJvm(ROUTED_HOST, "-D" + DnsControlResolverProvider.AUTO_INSTALL + "=false");
 
     assertThat(output, contains(UnknownHostException.class.getName()));
     assertThat(domainServer.queries(), empty());
