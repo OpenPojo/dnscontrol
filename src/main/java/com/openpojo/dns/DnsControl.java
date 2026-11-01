@@ -28,6 +28,7 @@ import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
+import com.openpojo.dns.service.initialize.DefaultDomain;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.hosts.HostsFileParser;
@@ -83,6 +84,7 @@ public class DnsControl {
     resolverBeforeInstall = Lookup.getDefaultResolver();
     hostsFileParserBeforeInstall = Lookup.getDefaultHostsFileParser();
 
+    new DefaultDomain().init();
     RoutingTableBuilder builder = RoutingTableBuilder.create().with(DnsConfigReaderFactory.getDnsConfigFileReader());
     if (!builder.getDestinationMap().isEmpty())
       setRoutingTable(builder.build());

@@ -22,6 +22,9 @@ package com.openpojo.dns.service.initialize;
  * @author oshoukry
  */
 public interface Initializer {
+  /** Search domain appended to relative names. */
+  String DNSCONTROL_SEARCH_DOMAIN = "dnscontrol.search.domain";
+  /** Deprecated alias of {@link #DNSCONTROL_SEARCH_DOMAIN}; nothing in the JDK has read it since Java 8. */
   String SUN_NET_SPI_NAMESERVICE_DOMAIN = "sun.net.spi.nameservice.domain";
   String JAVA_NET_PREFER_IPV6_ADDRESSES = "java.net.preferIPv6Addresses";
 

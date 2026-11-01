@@ -45,6 +45,7 @@ class DefaultDomainTest {
     defaultDomain = new DefaultDomain();
     originalDomainValue = System.getProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
     System.clearProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
+    System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
     preTestSearchPath = Lookup.getDefaultSearchPath();
   }
 
@@ -54,6 +55,7 @@ class DefaultDomainTest {
       System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, originalDomainValue);
     else
       System.clearProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
+    System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
     Lookup.setDefaultSearchPath(preTestSearchPath);
   }
 
@@ -74,5 +76,24 @@ class DefaultDomainTest {
 
     DomainException thrown = assertThrows(DomainException.class, () -> defaultDomain.init());
     assertThat(thrown.getMessage(), containsString("Failed to setup Default Domain using domain []"));
+  }
+
+  @Test
+  void shouldReadTheSearchDomainFromTheDnscontrolProperty() {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "a.test.");
+
+    defaultDomain.init();
+
+    assertThat(Lookup.getDefaultSearchPath().get(0).toString(), is("a.test."));
+  }
+
+  @Test
+  void shouldPreferTheDnscontrolPropertyOverTheDeprecatedOne() {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "new.test.");
+    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, "old.test.");
+
+    defaultDomain.init();
+
+    assertThat(Lookup.getDefaultSearchPath().get(0).toString(), is("new.test."));
   }
 }

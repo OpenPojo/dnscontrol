@@ -27,6 +27,7 @@ import java.time.Instant;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.service.initialize.Initializer;
 import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +71,7 @@ class DnsControlInstallTest {
     System.clearProperty(JDK_NET_HOSTS_FILE);
     System.clearProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL);
     System.clearProperty(DnsControl.ENABLED);
+    System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
     Lookup.refreshDefault();
     DnsControl.recreateInstance();
     domainServer.close();
@@ -166,6 +168,16 @@ class DnsControlInstallTest {
 
     assertThat(Lookup.getDefaultResolver(), sameInstance(resolverBefore));
     assertThat(Lookup.getDefaultHostsFileParser(), sameInstance(parserBefore));
+  }
+
+  @Test
+  void shouldSearchRelativeNamesInTheConfiguredDomain() throws Exception {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "a.test.");
+    DnsControl.install();
+
+    new Lookup("host", Type.A).run();
+
+    assertThat(domainServer.queries(), contains(Record.newRecord(Name.fromString("host.a.test."), Type.A, DClass.IN)));
   }
 
   private static Path hostsFileWith(String line) throws Exception {
