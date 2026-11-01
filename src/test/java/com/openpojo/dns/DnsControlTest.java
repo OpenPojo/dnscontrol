@@ -27,6 +27,7 @@ import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.impl.EnvironmentDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
+import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,5 +145,21 @@ class DnsControlTest {
     DnsControl differentInstance = DnsControl.recreateInstance();
     assertThat(differentInstance, not(sameInstance(instance)));
     assertThat(differentInstance, sameInstance(DnsControl.getInstance()));
+  }
+
+  @Test
+  void shouldSendUnroutedQueriesToTheConfiguredDefaultServers() throws Exception {
+    try (FakeDnsServer defaultServer = FakeDnsServer.start()) {
+      System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, defaultServer.hostAndPort());
+      recreateInstance().registerRoutingResolver();
+      Record question = Record.newRecord(Name.fromString("host.other.test."), Type.A, DClass.IN);
+
+      new Lookup(question.getName(), Type.A).run();
+
+      assertThat(defaultServer.queries(), contains(question));
+    } finally {
+      System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
+      recreateInstance();
+    }
   }
 }

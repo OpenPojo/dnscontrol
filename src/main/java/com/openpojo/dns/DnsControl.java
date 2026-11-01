@@ -31,6 +31,7 @@ import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.cache.CacheControl.resetCache;
+import static com.openpojo.dns.resolve.ResolverFactory.extendedResolverFor;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 
 /**
@@ -78,7 +79,7 @@ public class DnsControl {
 
   private ExtendedResolver createExtendedResolver(DnsConfigReader configReader) {
     try {
-      return new ExtendedResolver(configReader.getConfiguration().get(DOT).toArray(new String[0]));
+      return extendedResolverFor(configReader.getConfiguration().get(DOT));
     } catch (UnknownHostException e) {
       throw RouteSetupException.getInstance("Unknown host defined in configuration reader [" + configReader + "] " + e.getMessage(), e);
     }
