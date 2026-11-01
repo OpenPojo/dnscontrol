@@ -19,6 +19,7 @@
 package com.openpojo.dns;
 
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.config.DnsConfigReader;
@@ -26,8 +27,11 @@ import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.routing.impl.RoutingTableBuilder;
+import com.openpojo.dns.service.initialize.DefaultDomain;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
+import org.xbill.DNS.hosts.HostsFileParser;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.cache.CacheControl.resetCache;
@@ -43,6 +47,9 @@ public class DnsControl {
 
   private final RoutingResolver routingResolver;
   private final Resolver defaultResolver;
+  private boolean installed;
+  private Resolver resolverBeforeInstall;
+  private HostsFileParser hostsFileParserBeforeInstall;
 
   public static DnsControl getInstance() {
     return Instance.INSTANCE.get();
@@ -51,6 +58,64 @@ public class DnsControl {
   public static DnsControl recreateInstance() {
     Instance.INSTANCE.set(new DnsControl());
     return Instance.INSTANCE.get();
+  }
+
+  /**
+   * Wires DNSControl into dnsjava: loads the routing table from the configuration file (if any) and makes the routing
+   * resolver dnsjava's default, so every {@link Lookup} is routed.
+   */
+  public static DnsControl install() {
+    DnsControl control = getInstance();
+    control.installIntoDnsjava();
+    return control;
+  }
+
+  /** Undoes {@link #install()}: dnsjava gets back the default resolver and hosts file parser it had before. */
+  public static void uninstall() {
+    getInstance().uninstallFromDnsjava();
+  }
+
+  /** Set to {@code false} to make {@link #install()} a no-op, e.g. when the jar arrives through a transitive dependency. */
+  public static final String ENABLED = "dnscontrol.enabled";
+
+  private synchronized void installIntoDnsjava() {
+    if (installed || "false".equalsIgnoreCase(System.getProperty(ENABLED)))
+      return;
+    resolverBeforeInstall = Lookup.getDefaultResolver();
+    hostsFileParserBeforeInstall = Lookup.getDefaultHostsFileParser();
+
+    new DefaultDomain().init();
+    RoutingTableBuilder builder = RoutingTableBuilder.create().with(DnsConfigReaderFactory.getDnsConfigFileReader());
+    if (!builder.getDestinationMap().isEmpty())
+      setRoutingTable(builder.build());
+    registerRoutingResolver();
+    installHostsFile();
+    installed = true;
+  }
+
+  private synchronized void uninstallFromDnsjava() {
+    if (!installed)
+      return;
+    Lookup.setDefaultResolver(resolverBeforeInstall);
+    Lookup.setDefaultHostsFileParser(hostsFileParserBeforeInstall);
+    installed = false;
+  }
+
+  /** The JDK's own property for an alternate hosts file; honoured here because dnsjava only knows the system one. */
+  public static final String JDK_NET_HOSTS_FILE = "jdk.net.hosts.file";
+
+  /** dnsjava's own knob for how often a hosts file is re-checked for changes; dnsjava defaults it to five minutes. */
+  public static final String DNSJAVA_HOSTS_FILE_CHECK_INTERVAL = "dnsjava.hostsfile.change_check_interval_ms";
+  /** DNSControl's default for that knob, so an edited hosts file is seen within a second instead of five minutes. */
+  public static final String DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS = "1000";
+
+  private static void installHostsFile() {
+    String hostsFile = System.getProperty(JDK_NET_HOSTS_FILE);
+    if (hostsFile == null)
+      return;
+    if (System.getProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL) == null)
+      System.setProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL, DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS);
+    Lookup.setDefaultHostsFileParser(new HostsFileParser(Path.of(hostsFile), true));
   }
 
   public void setRoutingTable(RoutingTable routingTable) {

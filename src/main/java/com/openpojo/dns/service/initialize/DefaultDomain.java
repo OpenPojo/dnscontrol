@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.service.initialize;
 
+import java.util.logging.Logger;
+
 import com.openpojo.dns.exception.DomainException;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.TextParseException;
@@ -26,10 +28,17 @@ import org.xbill.DNS.TextParseException;
  * @author oshoukry
  */
 public class DefaultDomain implements Initializer {
+  private static final Logger LOGGER = Logger.getLogger(DefaultDomain.class.getName());
+
   public DefaultDomain() { }
 
   public void init() {
-    String domainConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_DOMAIN);
+    String domainConfig = System.getProperty(DNSCONTROL_SEARCH_DOMAIN);
+    if (domainConfig == null) {
+      domainConfig = System.getProperty(SUN_NET_SPI_NAMESERVICE_DOMAIN);
+      if (domainConfig != null)
+        LOGGER.warning(SUN_NET_SPI_NAMESERVICE_DOMAIN + " is deprecated; use " + DNSCONTROL_SEARCH_DOMAIN + " instead");
+    }
     if (domainConfig != null) try {
       Lookup.setDefaultSearchPath(new String[] { domainConfig });
     } catch (TextParseException e) {

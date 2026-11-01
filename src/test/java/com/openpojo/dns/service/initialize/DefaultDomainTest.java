@@ -18,7 +18,12 @@
 
 package com.openpojo.dns.service.initialize;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import com.openpojo.dns.exception.DomainException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +34,7 @@ import org.xbill.DNS.Name;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -45,6 +51,7 @@ class DefaultDomainTest {
     defaultDomain = new DefaultDomain();
     originalDomainValue = System.getProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
     System.clearProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
+    System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
     preTestSearchPath = Lookup.getDefaultSearchPath();
   }
 
@@ -54,6 +61,7 @@ class DefaultDomainTest {
       System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, originalDomainValue);
     else
       System.clearProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
+    System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
     Lookup.setDefaultSearchPath(preTestSearchPath);
   }
 
@@ -74,5 +82,58 @@ class DefaultDomainTest {
 
     DomainException thrown = assertThrows(DomainException.class, () -> defaultDomain.init());
     assertThat(thrown.getMessage(), containsString("Failed to setup Default Domain using domain []"));
+  }
+
+  @Test
+  void shouldReadTheSearchDomainFromTheDnscontrolProperty() {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "a.test.");
+
+    defaultDomain.init();
+
+    assertThat(Lookup.getDefaultSearchPath().get(0).toString(), is("a.test."));
+  }
+
+  @Test
+  void shouldPreferTheDnscontrolPropertyOverTheDeprecatedOne() {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "new.test.");
+    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, "old.test.");
+
+    defaultDomain.init();
+
+    assertThat(Lookup.getDefaultSearchPath().get(0).toString(), is("new.test."));
+  }
+
+  @Test
+  void shouldWarnWhenTheDeprecatedPropertyIsUsed() {
+    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, "old.test.");
+    List<LogRecord> records = capturingLogsOf(DefaultDomain.class, () -> defaultDomain.init());
+
+    assertThat(records.size(), is(1));
+    assertThat(records.get(0).getLevel(), is(Level.WARNING));
+    assertThat(records.get(0).getMessage(), containsString("sun.net.spi.nameservice.domain is deprecated"));
+  }
+
+  @Test
+  void shouldNotWarnWhenTheDnscontrolPropertyIsUsed() {
+    System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "new.test.");
+
+    assertThat(capturingLogsOf(DefaultDomain.class, () -> defaultDomain.init()), empty());
+  }
+
+  private static List<LogRecord> capturingLogsOf(Class<?> source, Runnable action) {
+    List<LogRecord> records = new ArrayList<>();
+    Logger logger = Logger.getLogger(source.getName());
+    Handler handler = new Handler() {
+      @Override public void publish(LogRecord record) { records.add(record); }
+      @Override public void flush() { }
+      @Override public void close() { }
+    };
+    logger.addHandler(handler);
+    try {
+      action.run();
+    } finally {
+      logger.removeHandler(handler);
+    }
+    return records;
   }
 }
