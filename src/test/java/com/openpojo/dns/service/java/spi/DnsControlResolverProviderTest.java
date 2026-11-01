@@ -48,6 +48,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -67,6 +69,8 @@ class DnsControlResolverProviderTest {
   @BeforeEach
   void routeADomainToAFakeServer() throws Exception {
     Lookup.refreshDefault();
+    // The JDK may already have loaded the provider (and installed DNSControl) earlier in this JVM; start clean.
+    DnsControl.recreateInstance();
     domainServer = FakeDnsServer.start();
     routedV4 = InetAddress.getByName("10.4.4.4");
     routedV6 = InetAddress.getByName("2001:db8::4");
@@ -146,6 +150,17 @@ class DnsControlResolverProviderTest {
   @Test
   void shouldThrowUnknownHostForAnAddressWithNoPtrRecord() {
     assertThrows(UnknownHostException.class, () -> resolver().lookupByAddress(InetAddress.getByName("10.5.5.5").getAddress()));
+  }
+
+  @Test
+  void shouldHandBackTheBuiltInResolverWhenDisabled() {
+    System.setProperty(DnsControl.ENABLED, "false");
+    try {
+      assertThat(resolver(), sameInstance(builtin));
+      assertThat(Lookup.getDefaultResolver(), not(instanceOf(RoutingResolver.class)));
+    } finally {
+      System.clearProperty(DnsControl.ENABLED);
+    }
   }
 
   private InetAddressResolver resolver() {

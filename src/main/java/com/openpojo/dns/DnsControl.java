@@ -76,8 +76,13 @@ public class DnsControl {
   /** Set to {@code false} to make {@link #install()} a no-op, e.g. when the jar arrives through a transitive dependency. */
   public static final String ENABLED = "dnscontrol.enabled";
 
+  /** True when {@code dnscontrol.enabled=false}: install() does nothing and the JVM keeps its built-in resolver. */
+  public static boolean isDisabled() {
+    return "false".equalsIgnoreCase(System.getProperty(ENABLED));
+  }
+
   private synchronized void installIntoDnsjava() {
-    if (installed || "false".equalsIgnoreCase(System.getProperty(ENABLED)))
+    if (installed || isDisabled())
       return;
     resolverBeforeInstall = Lookup.getDefaultResolver();
     hostsFileParserBeforeInstall = Lookup.getDefaultHostsFileParser();

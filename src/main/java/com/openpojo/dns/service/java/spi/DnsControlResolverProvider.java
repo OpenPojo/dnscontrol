@@ -48,6 +48,8 @@ public final class DnsControlResolverProvider extends InetAddressResolverProvide
   }
 
   static InetAddressResolver resolver(Supplier<InetAddressResolver> builtin, Supplier<String> localHostName) {
+    if (DnsControl.isDisabled())
+      return builtin.get();
     DnsControl.install();
     return new DnsControlInetAddressResolver(builtin, localHostName);
   }
