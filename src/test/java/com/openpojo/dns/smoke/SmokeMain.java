@@ -16,27 +16,24 @@
  * limitations under the License.
  */
 
-package com.openpojo.dns.service.lookup.util;
+package com.openpojo.dns.smoke;
 
-import com.openpojo.dns.exception.ResolveException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
- * @author oshoukry
+ * Runs in a fresh JVM with dnscontrol on the class path and prints what the JDK resolves a name to, one address per
+ * line, or the exception class name. The integration test reads this output.
  */
-public class NameFactoryTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void shouldThrowExceptionWhenStringAddressFailsAddressGetBytes() {
-    final String invalidAddress = "10.0.0.1.2";
-
-    thrown.expect(ResolveException.class);
-    thrown.expectMessage("Failed to parse address [" + invalidAddress + "]");
-
-    NameFactory.getNameByAddressString(invalidAddress);
+public final class SmokeMain {
+  public static void main(String[] args) {
+    try {
+      for (InetAddress address : InetAddress.getAllByName(args[0]))
+        System.out.println(address.getHostAddress());
+    } catch (UnknownHostException e) {
+      System.out.println(e.getClass().getName());
+    }
   }
+
+  private SmokeMain() { }
 }

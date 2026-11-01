@@ -26,7 +26,6 @@ public interface Initializer {
   String DNSCONTROL_SEARCH_DOMAIN = "dnscontrol.search.domain";
   /** Deprecated alias of {@link #DNSCONTROL_SEARCH_DOMAIN}; nothing in the JDK has read it since Java 8. */
   String SUN_NET_SPI_NAMESERVICE_DOMAIN = "sun.net.spi.nameservice.domain";
-  String JAVA_NET_PREFER_IPV6_ADDRESSES = "java.net.preferIPv6Addresses";
 
   void init();
 }

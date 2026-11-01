@@ -40,6 +40,8 @@
 
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
+    <!-- Filled by the JaCoCo agent; referenced late-bound by surefire and failsafe below. -->
+    <argLine></argLine>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -144,30 +146,28 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <!-- Legacy JVM hook and the name-service layer it fed (sun.net.spi.nameservice, reflection into InetAddress).
-               Superseded by dnsjava 3.x Lookup; deleted in M5. -->
-          <excludes>
-            <exclude>com/openpojo/dns/service/java/**</exclude>
-            <exclude>com/openpojo/dns/service/lookup/**</exclude>
-          </excludes>
-          <testExcludes>
-            <testExclude>com/openpojo/dns/service/java/**</testExclude>
-            <testExclude>com/openpojo/dns/service/lookup/**</testExclude>
-          </testExcludes>
-        </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <!-- The provider is on this JVM's class path; keep it from auto-activating on the first lookup so the
+               tests stay hermetic. ResolverProviderIT spawns a JVM without this flag to prove the real path. -->
+          <argLine>@{argLine} -Ddnscontrol.autoinstall=false</argLine>
+        </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>${maven-failsafe-plugin.version}</version>
+        <configuration>
+          <!-- The integration test spawns a JVM with java.class.path; a manifest-only jar would hide the real entries. -->
+          <useManifestOnlyJar>false</useManifestOnlyJar>
+          <argLine>@{argLine} -Ddnscontrol.autoinstall=false</argLine>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -213,6 +213,11 @@
           <targetTests>
             <param>com.openpojo.dns.*</param>
           </targetTests>
+          <excludedClasses>
+            <!-- The JDK loads the provider on the first hostname lookup inside the PIT minion, before PIT instruments
+                 anything, so its mutants can never be covered in-process. ResolverProviderIT proves it in a cold JVM. -->
+            <param>com.openpojo.dns.service.java.spi.DnsControlResolverProvider</param>
+          </excludedClasses>
           <excludedTestClasses>
             <!-- Re-runs every other test class through JUnitCore; meaningless and very slow under mutation. -->
             <param>com.openpojo.dns.structure.OutOfOrderTestFragilityTest</param>
@@ -224,6 +229,9 @@
           <timestampedReports>false</timestampedReports>
           <mutationThreshold>95</mutationThreshold>
           <threads>4</threads>
+          <jvmArgs>
+            <jvmArg>-Ddnscontrol.autoinstall=false</jvmArg>
+          </jvmArgs>
         </configuration>
       </plugin>
 

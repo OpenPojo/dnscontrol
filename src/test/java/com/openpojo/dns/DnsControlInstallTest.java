@@ -61,6 +61,8 @@ class DnsControlInstallTest {
   @BeforeEach
   void configureARouteToAFakeServer() throws Exception {
     Lookup.refreshDefault();
+    // The JDK may already have loaded the provider (and installed DNSControl) earlier in this JVM; start clean.
+    DnsControl.recreateInstance();
     domainServer = FakeDnsServer.start();
     Path config = Files.createTempFile("dnscontrol", ".conf");
     Files.writeString(config, ".a.test=" + domainServer.hostAndPort() + "\n");
