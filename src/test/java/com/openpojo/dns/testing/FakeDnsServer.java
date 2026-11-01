@@ -21,6 +21,7 @@ package com.openpojo.dns.testing;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -70,6 +71,13 @@ public final class FakeDnsServer implements AutoCloseable {
 
   public InetSocketAddress address() {
     return new InetSocketAddress(socket.getLocalAddress(), socket.getLocalPort());
+  }
+
+  /** The server as a routing-table entry, e.g. {@code [0:0:0:0:0:0:0:1]:53421} or {@code 127.0.0.1:53421}. */
+  public String hostAndPort() {
+    InetAddress address = socket.getLocalAddress();
+    String host = address instanceof Inet6Address ? "[" + address.getHostAddress() + "]" : address.getHostAddress();
+    return host + ":" + socket.getLocalPort();
   }
 
   public void addRecord(Record record) {
