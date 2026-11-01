@@ -26,6 +26,7 @@ import com.openpojo.dns.exception.ResolveException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.xbill.DNS.Flags;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
@@ -74,6 +75,17 @@ public class NoOpResolverTest {
 
     NoOpResolver noOpResolver = new NoOpResolver();
     noOpResolver.send(null);
+  }
+
+  @Test
+  public void shouldFlagTheAnswerAsAResponseWithRecursionAvailable() throws IOException {
+    NoOpResolver noOpResolver = new NoOpResolver();
+    Message query = Message.newQuery(Record.newRecord(new Name(anyHost()), anyType(), anyDClass()));
+
+    Message response = noOpResolver.send(query);
+
+    assertThat(response.getHeader().getFlag(Flags.QR), is(true));
+    assertThat(response.getHeader().getFlag(Flags.RA), is(true));
   }
 
   private void verifyEmptySection(Message answer, int section) {

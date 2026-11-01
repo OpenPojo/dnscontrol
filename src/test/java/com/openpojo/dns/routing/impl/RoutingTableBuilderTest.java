@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.routing.impl;
 
+import com.openpojo.dns.config.impl.NoOpDnsConfigReader;
+import java.util.Arrays;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,4 +140,16 @@ public class RoutingTableBuilderTest {
     assertThat(destinationMap.get(toDnsDomain("system.openpojo.com")), contains(servers));
   }
 
+  @Test
+  public void withReaderShouldReturnTheSameBuilderForChaining() {
+    RoutingTableBuilder builder = RoutingTableBuilder.create();
+    assertThat(builder.with(new NoOpDnsConfigReader()), sameInstance(builder));
+  }
+
+  @Test
+  public void shouldIgnoreEmptyServerEntries() {
+    RoutingTableBuilder builder = RoutingTableBuilder.create();
+    builder.with("host.test", Arrays.asList("", "10.0.0.1"));
+    assertThat(builder.getDestinationMap().get(toDnsDomain("host.test")), contains("10.0.0.1"));
+  }
 }

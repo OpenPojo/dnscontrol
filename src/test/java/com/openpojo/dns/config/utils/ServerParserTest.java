@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -60,5 +61,10 @@ public class ServerParserTest {
     final List<String> actual = ServerParser.splitServers(null);
     assertThat(actual, notNullValue());
     assertThat(actual.size(), is(0));
+  }
+
+  @Test
+  public void shouldSplitAListThatStartsWithASeparator() {
+    assertThat(ServerParser.splitServers(",10.0.0.1"), contains("10.0.0.1"));
   }
 }

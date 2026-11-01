@@ -32,4 +32,9 @@ public class HostFileEntryFactoryTest {
   public void shouldReturnNullIfParsingNullString() {
     assertThat(getEntry(null), nullValue());
   }
+
+  @Test
+  public void shouldReturnNullForAWhitespaceOnlyLine() {
+    assertThat(getEntry("   \t "), nullValue());
+  }
 }

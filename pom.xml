@@ -228,6 +228,7 @@
             <param>XML</param>
           </outputFormats>
           <timestampedReports>false</timestampedReports>
+          <mutationThreshold>95</mutationThreshold>
           <threads>4</threads>
         </configuration>
       </plugin>

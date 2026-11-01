@@ -27,6 +27,7 @@ import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
@@ -68,5 +69,16 @@ public class DefaultResolverTest {
     DefaultResolver defaultResolver = new DefaultResolver();
     defaultResolver.init();
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
+  }
+
+  @Test
+  public void shouldInstallTheConfiguredRoutingTable() {
+    System.setProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE, "dnscontrol.test.conf");
+
+    new DefaultResolver().init();
+
+    RoutingResolver installed = (RoutingResolver) Lookup.getDefaultResolver();
+    assertThat(installed.getRoutingTable(), notNullValue());
+    assertThat(installed.getRoutingTable().getResolverFor("someOtherHost.openpojo.com."), notNullValue());
   }
 }

@@ -36,9 +36,7 @@ public class DefaultResolver implements Initializer {
     routingTableBuilder.with(getDnsConfigFileReader());
 
     if (routingTableBuilder.getDestinationMap().size() > 0) {
-      final DnsControl dnsControl = DnsControl.getInstance();
-      dnsControl.setRoutingTable(routingTableBuilder.build());
-      dnsControl.registerRoutingResolver();
+      DnsControl.getInstance().setRoutingTable(routingTableBuilder.build());
     }
   }
 
