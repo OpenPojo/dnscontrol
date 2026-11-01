@@ -26,6 +26,7 @@ import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
+import com.openpojo.dns.routing.impl.RoutingTableBuilder;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
@@ -51,6 +52,19 @@ public class DnsControl {
   public static DnsControl recreateInstance() {
     Instance.INSTANCE.set(new DnsControl());
     return Instance.INSTANCE.get();
+  }
+
+  /**
+   * Wires DNSControl into dnsjava: loads the routing table from the configuration file (if any) and makes the routing
+   * resolver dnsjava's default, so every {@link Lookup} is routed.
+   */
+  public static DnsControl install() {
+    DnsControl control = getInstance();
+    RoutingTableBuilder builder = RoutingTableBuilder.create().with(DnsConfigReaderFactory.getDnsConfigFileReader());
+    if (!builder.getDestinationMap().isEmpty())
+      control.setRoutingTable(builder.build());
+    control.registerRoutingResolver();
+    return control;
   }
 
   public void setRoutingTable(RoutingTable routingTable) {
