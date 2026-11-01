@@ -25,6 +25,8 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 import com.openpojo.dns.config.DnsConfigReader;
+import com.openpojo.dns.resolve.RoutingResolver;
+import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +36,16 @@ import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
+import org.xbill.DNS.Resolver;
 import org.xbill.DNS.Type;
+import org.xbill.DNS.hosts.HostsFileParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 
 /**
  * DnsControl as a plugin on dnsjava: install() wires the routing table, hosts file and caches into Lookup so that any
@@ -63,6 +69,7 @@ class DnsControlInstallTest {
     System.clearProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE);
     System.clearProperty(JDK_NET_HOSTS_FILE);
     System.clearProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL);
+    System.clearProperty(DnsControl.ENABLED);
     Lookup.refreshDefault();
     DnsControl.recreateInstance();
     domainServer.close();
@@ -120,6 +127,45 @@ class DnsControlInstallTest {
     DnsControl.install();
 
     assertThat(System.getProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL), is("12345"));
+  }
+
+  @Test
+  void shouldInstallOnlyOnce() {
+    DnsControl first = DnsControl.install();
+    RoutingTable installedTable = ((RoutingResolver) Lookup.getDefaultResolver()).getRoutingTable();
+
+    DnsControl second = DnsControl.install();
+
+    assertThat(second, sameInstance(first));
+    assertThat(((RoutingResolver) Lookup.getDefaultResolver()).getRoutingTable(), sameInstance(installedTable));
+  }
+
+  @Test
+  void uninstallShouldRestoreWhatDnsjavaHadBefore() throws Exception {
+    Resolver resolverBefore = Lookup.getDefaultResolver();
+    HostsFileParser parserBefore = Lookup.getDefaultHostsFileParser();
+    hostsFileWith("10.0.0.5 server50.a.test");
+    DnsControl.install();
+    assertThat(Lookup.getDefaultResolver(), not(sameInstance(resolverBefore)));
+    assertThat(Lookup.getDefaultHostsFileParser(), not(sameInstance(parserBefore)));
+
+    DnsControl.uninstall();
+
+    assertThat(Lookup.getDefaultResolver(), sameInstance(resolverBefore));
+    assertThat(Lookup.getDefaultHostsFileParser(), sameInstance(parserBefore));
+  }
+
+  @Test
+  void shouldInstallNothingWhenDisabled() throws Exception {
+    Resolver resolverBefore = Lookup.getDefaultResolver();
+    HostsFileParser parserBefore = Lookup.getDefaultHostsFileParser();
+    hostsFileWith("10.0.0.5 server50.a.test");
+    System.setProperty(DnsControl.ENABLED, "false");
+
+    DnsControl.install();
+
+    assertThat(Lookup.getDefaultResolver(), sameInstance(resolverBefore));
+    assertThat(Lookup.getDefaultHostsFileParser(), sameInstance(parserBefore));
   }
 
   private static Path hostsFileWith(String line) throws Exception {

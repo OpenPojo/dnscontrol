@@ -46,6 +46,9 @@ public class DnsControl {
 
   private final RoutingResolver routingResolver;
   private final Resolver defaultResolver;
+  private boolean installed;
+  private Resolver resolverBeforeInstall;
+  private HostsFileParser hostsFileParserBeforeInstall;
 
   public static DnsControl getInstance() {
     return Instance.INSTANCE.get();
@@ -62,12 +65,38 @@ public class DnsControl {
    */
   public static DnsControl install() {
     DnsControl control = getInstance();
+    control.installIntoDnsjava();
+    return control;
+  }
+
+  /** Undoes {@link #install()}: dnsjava gets back the default resolver and hosts file parser it had before. */
+  public static void uninstall() {
+    getInstance().uninstallFromDnsjava();
+  }
+
+  /** Set to {@code false} to make {@link #install()} a no-op, e.g. when the jar arrives through a transitive dependency. */
+  public static final String ENABLED = "dnscontrol.enabled";
+
+  private synchronized void installIntoDnsjava() {
+    if (installed || "false".equalsIgnoreCase(System.getProperty(ENABLED)))
+      return;
+    resolverBeforeInstall = Lookup.getDefaultResolver();
+    hostsFileParserBeforeInstall = Lookup.getDefaultHostsFileParser();
+
     RoutingTableBuilder builder = RoutingTableBuilder.create().with(DnsConfigReaderFactory.getDnsConfigFileReader());
     if (!builder.getDestinationMap().isEmpty())
-      control.setRoutingTable(builder.build());
-    control.registerRoutingResolver();
+      setRoutingTable(builder.build());
+    registerRoutingResolver();
     installHostsFile();
-    return control;
+    installed = true;
+  }
+
+  private synchronized void uninstallFromDnsjava() {
+    if (!installed)
+      return;
+    Lookup.setDefaultResolver(resolverBeforeInstall);
+    Lookup.setDefaultHostsFileParser(hostsFileParserBeforeInstall);
+    installed = false;
   }
 
   /** The JDK's own property for an alternate hosts file; honoured here because dnsjava only knows the system one. */
