@@ -135,10 +135,23 @@ class DnsControlResolverProviderTest {
   void shouldLeaveLocalhostAndTheMachineNameToTheBuiltInResolver() throws Exception {
     InetAddressResolver resolver = resolver();
 
-    resolver.lookupByName("localhost", LookupPolicy.of(LookupPolicy.IPV4));
-    resolver.lookupByName(LOCAL_HOST_NAME, LookupPolicy.of(LookupPolicy.IPV4));
+    List<InetAddress> localhost = resolver.lookupByName("localhost", LookupPolicy.of(LookupPolicy.IPV4)).toList();
+    List<InetAddress> machine = resolver.lookupByName(LOCAL_HOST_NAME, LookupPolicy.of(LookupPolicy.IPV4)).toList();
 
     assertThat(builtinAskedFor, contains("localhost", LOCAL_HOST_NAME));
+    assertThat(localhost, contains(InetAddress.getLoopbackAddress()));
+    assertThat(machine, contains(InetAddress.getLoopbackAddress()));
+    assertThat(domainServer.queries().size(), is(0));
+  }
+
+  @Test
+  void shouldThrowUnknownHostForANameDnsCannotEvenExpress() {
+    String tooLongLabel = "x".repeat(64) + ".a.test.";
+
+    UnknownHostException thrown = assertThrows(UnknownHostException.class,
+        () -> resolver().lookupByName(tooLongLabel, LookupPolicy.of(LookupPolicy.IPV4)));
+
+    assertThat(thrown.getMessage(), containsString(tooLongLabel));
     assertThat(domainServer.queries().size(), is(0));
   }
 

@@ -213,6 +213,11 @@
           <targetTests>
             <param>com.openpojo.dns.*</param>
           </targetTests>
+          <excludedClasses>
+            <!-- The JDK loads the provider on the first hostname lookup inside the PIT minion, before PIT instruments
+                 anything, so its mutants can never be covered in-process. ResolverProviderIT proves it in a cold JVM. -->
+            <param>com.openpojo.dns.service.java.spi.DnsControlResolverProvider</param>
+          </excludedClasses>
           <excludedTestClasses>
             <!-- Re-runs every other test class through JUnitCore; meaningless and very slow under mutation. -->
             <param>com.openpojo.dns.structure.OutOfOrderTestFragilityTest</param>
