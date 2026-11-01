@@ -27,11 +27,9 @@ import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.impl.EnvironmentDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.*;
 import org.xbill.DNS.Record;
 
@@ -40,41 +38,40 @@ import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
 import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.*;
 
 /**
  * @author oshoukry
  */
-public class DnsControlTest {
+class DnsControlTest {
 
   private final DnsControl dnsControl = DnsControl.getInstance();
   private Resolver defaultResolver;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     Lookup.refreshDefault();
     CacheControl.resetCache();
     defaultResolver = Lookup.getDefaultResolver();
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     Lookup.refreshDefault();
     CacheControl.resetCache();
   }
 
   @Test
-  public void canGetInstance() {
+  void canGetInstance() {
     assertThat(dnsControl, notNullValue());
   }
 
   @Test
-  public void canRegister() {
+  void canRegister() {
     assertThat(defaultResolver, not(instanceOf(RoutingResolver.class)));
     assertThat(dnsControl.isRoutingResolverRegistered(), is(false));
 
@@ -85,7 +82,7 @@ public class DnsControlTest {
   }
 
   @Test
-  public void canUnRegister() {
+  void canUnRegister() {
     dnsControl.registerRoutingResolver();
     assertThat(dnsControl.isRoutingResolverRegistered(), is(true));
     assertThat(Lookup.getDefaultResolver(), instanceOf(RoutingResolver.class));
@@ -96,7 +93,7 @@ public class DnsControlTest {
   }
 
   @Test
-  public void canResolveSomeEntry() throws TextParseException, UnknownHostException {
+  void canResolveSomeEntry() throws TextParseException, UnknownHostException {
     dnsControl.registerRoutingResolver();
     final Name rootServer = new Name(SERVER_1_NAME);
     final String expectedIP = SERVER_1_IPv4_STRING;
@@ -112,7 +109,7 @@ public class DnsControlTest {
   }
 
   @Test
-  public void whenChangingRoutingTableAutoRegisterRoutingResolver() {
+  void whenChangingRoutingTableAutoRegisterRoutingResolver() {
     assertThat(dnsControl.isRoutingResolverRegistered(), is(false));
     assertThat(Lookup.getDefaultResolver(), not(instanceOf(RoutingResolver.class)));
     dnsControl.setRoutingTable(null);
@@ -121,7 +118,7 @@ public class DnsControlTest {
   }
 
   @Test
-  public void shouldClearCacheWheneverRoutingTableChanges() throws TextParseException {
+  void shouldClearCacheWheneverRoutingTableChanges() throws TextParseException {
     dnsControl.registerRoutingResolver();
     VerificationHelper.verifyCacheIsEmpty();
 
@@ -132,19 +129,16 @@ public class DnsControlTest {
   }
 
   @Test
-  public void shouldThrowResolverException() {
-    thrown.expect(RouteSetupException.class);
-    thrown.expectMessage(
-        "Unknown host defined in configuration reader [" + EnvironmentDnsConfigReader.class.getName() + "] " + UNKNOWN_SERVER);
+  void shouldThrowResolverException() {
+        System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, UNKNOWN_SERVER);
 
-    thrown.expectCause(isA(java.net.UnknownHostException.class));
-
-    System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, UNKNOWN_SERVER);
-    recreateInstance();
+    RouteSetupException thrown = assertThrows(RouteSetupException.class, () -> recreateInstance());
+    assertThat(thrown.getMessage(), containsString("Unknown host defined in configuration reader [" + EnvironmentDnsConfigReader.class.getName() + "] " + UNKNOWN_SERVER));
+    assertThat(thrown.getCause(), isA(java.net.UnknownHostException.class));
   }
 
   @Test
-  public void whenRecreateGetInstanceShouldBeDifferent() {
+  void whenRecreateGetInstanceShouldBeDifferent() {
     DnsControl instance = DnsControl.getInstance();
     assertThat(instance, sameInstance(DnsControl.getInstance()));
     DnsControl differentInstance = DnsControl.recreateInstance();

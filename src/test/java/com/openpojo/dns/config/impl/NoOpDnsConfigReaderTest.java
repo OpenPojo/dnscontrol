@@ -21,8 +21,8 @@ package com.openpojo.dns.config.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -31,22 +31,22 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author oshoukry
  */
-public class NoOpDnsConfigReaderTest {
+class NoOpDnsConfigReaderTest {
 
   private NoOpDnsConfigReader noOpDnsConfigReader;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     noOpDnsConfigReader = new NoOpDnsConfigReader();
   }
 
   @Test
-  public void shouldAlwaysReturnFalseForExists() {
+  void shouldAlwaysReturnFalseForExists() {
     assertThat(noOpDnsConfigReader.hasConfiguration(), is(false));
   }
 
   @Test
-  public void shouldReturnEmptyMap() {
+  void shouldReturnEmptyMap() {
     final Map<String, List<String>> configuration = noOpDnsConfigReader.getConfiguration();
     assertThat(configuration, notNullValue());
     assertThat(configuration.size(), is(0));

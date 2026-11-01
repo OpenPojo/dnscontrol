@@ -20,14 +20,14 @@ package com.openpojo.dns.resolve;
 
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author oshoukry
  */
-public class UnimplementedResolverTest {
+class UnimplementedResolverTest {
   @Test
-  public void shouldThrowUnImplementedOnAllMethods() {
+  void shouldThrowUnImplementedOnAllMethods() {
     NotSupportedMethodsValidator.validateMethodsNotImplemented(UnimplementedResolver.class, Collections.<String>emptyList());
   }
 }

@@ -32,10 +32,7 @@ import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.testdouble.spy.DnsConfigReaderSpy;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.ResolverConfig;
 
@@ -43,31 +40,30 @@ import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.*;
 
 /**
  * @author oshoukry
  */
-public class RoutingTableBuilderTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+class RoutingTableBuilderTest {
 
   @Test
-  public void shouldCreateEmptyRoutingTable() {
+  void shouldCreateEmptyRoutingTable() {
     RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
     assertThat(routingTableBuilder, notNullValue());
     assertThat(routingTableBuilder.getDestinationMap().size(), is(0));
   }
 
   @Test
-  public void shouldCreateOptimizeRoutingTableWhenBuild() {
+  void shouldCreateOptimizeRoutingTableWhenBuild() {
     RoutingTable routingTable = RoutingTableBuilder.create().build();
     assertThat(routingTable, notNullValue());
   }
 
   @Test
-  public void whenCalledWithNullServerSetsResolverToNoOpResolver() {
+  void whenCalledWithNullServerSetsResolverToNoOpResolver() {
     final String destination = "host.com";
 
     final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, null).build();
@@ -76,7 +72,7 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void whenHostPassedInMapHasOneEntryOptimized() {
+  void whenHostPassedInMapHasOneEntryOptimized() {
     String destination = "host.com";
     List<String> dnsServers = singletonList("127.0.0.1");
     final RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create().with(destination, dnsServers);
@@ -94,7 +90,7 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void shouldBuildProperRoutingTable() {
+  void shouldBuildProperRoutingTable() {
     String destination = "www.openpojo.com";
     List<String> dnsServers = singletonList("127.0.0.1");
     final RoutingTable routingTable = RoutingTableBuilder.create().with(destination, dnsServers).build();
@@ -103,7 +99,7 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void shouldBuildWithDnsConfigReader() {
+  void shouldBuildWithDnsConfigReader() {
     Map<String, List<String>> configuration = new HashMap<>();
     final String destination = "www.openpojo.com";
     configuration.put(destination, new ArrayList<String>());
@@ -112,7 +108,7 @@ public class RoutingTableBuilderTest {
     RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
 
     dnsConfigReaderSpy.configuration = configuration;
-    Assert.assertThat(dnsConfigReaderSpy.getConfigurationCalled, is(false));
+    assertThat(dnsConfigReaderSpy.getConfigurationCalled, is(false));
 
     routingTableBuilder.with(dnsConfigReaderSpy);
     assertThat(dnsConfigReaderSpy.getConfigurationCalled, is(true));
@@ -120,16 +116,16 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void shouldThrowRouteSetupWhenHostIsUnknown() {
-    thrown.expect(RouteSetupException.class);
-    thrown.expectMessage("Failed to create dns routing map");
-    thrown.expectCause(isA(UnknownHostException.class));
-    RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
-    routingTableBuilder.with("www.openpojo.com", Collections.singletonList(UNKNOWN_SERVER)).build();
+  void shouldThrowRouteSetupWhenHostIsUnknown() {
+        RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
+
+    RouteSetupException thrown = assertThrows(RouteSetupException.class, () -> routingTableBuilder.with("www.openpojo.com", Collections.singletonList(UNKNOWN_SERVER)).build());
+    assertThat(thrown.getMessage(), containsString("Failed to create dns routing map"));
+    assertThat(thrown.getCause(), isA(UnknownHostException.class));
   }
 
   @Test
-  public void shouldBreakOutSystemToResolveConfEntries() {
+  void shouldBreakOutSystemToResolveConfEntries() {
     final FileDnsConfigReader fileDnsConfigReader = new FileDnsConfigReader("dnscontrol.test.withsystem.conf");
     RoutingTableBuilder routingTableBuilder = RoutingTableBuilder.create();
     routingTableBuilder.with(fileDnsConfigReader);
@@ -141,13 +137,13 @@ public class RoutingTableBuilderTest {
   }
 
   @Test
-  public void withReaderShouldReturnTheSameBuilderForChaining() {
+  void withReaderShouldReturnTheSameBuilderForChaining() {
     RoutingTableBuilder builder = RoutingTableBuilder.create();
     assertThat(builder.with(new NoOpDnsConfigReader()), sameInstance(builder));
   }
 
   @Test
-  public void shouldIgnoreEmptyServerEntries() {
+  void shouldIgnoreEmptyServerEntries() {
     RoutingTableBuilder builder = RoutingTableBuilder.create();
     builder.with("host.test", Arrays.asList("", "10.0.0.1"));
     assertThat(builder.getDestinationMap().get(toDnsDomain("host.test")), contains("10.0.0.1"));

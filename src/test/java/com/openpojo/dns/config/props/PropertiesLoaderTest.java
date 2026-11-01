@@ -22,20 +22,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class PropertiesLoaderTest {
+class PropertiesLoaderTest {
 
   @Test
-  public void shouldNotThrowExceptionWhenNull() {
+  void shouldNotThrowExceptionWhenNull() {
     new PropertiesLoader(null).load();
   }
 
   @Test
-  public void shouldLoadTheFileOnlyOnce() throws IOException {
+  void shouldLoadTheFileOnlyOnce() throws IOException {
     Path file = Files.createTempFile("dnscontrol", ".properties");
     Files.writeString(file, "key=first");
     PropertiesLoader loader = new PropertiesLoader(file.toString());
@@ -48,7 +48,7 @@ public class PropertiesLoaderTest {
   }
 
   @Test
-  public void existsShouldReflectWhetherTheFileIsThere() throws IOException {
+  void existsShouldReflectWhetherTheFileIsThere() throws IOException {
     Path file = Files.createTempFile("dnscontrol", ".properties");
     assertThat(new PropertiesLoader(file.toString()).exists(), is(true));
     Files.delete(file);
@@ -56,7 +56,7 @@ public class PropertiesLoaderTest {
   }
 
   @Test
-  public void existsShouldBeFalseForANullFileName() {
+  void existsShouldBeFalseForANullFileName() {
     assertThat(new PropertiesLoader(null).exists(), is(false));
   }
 }

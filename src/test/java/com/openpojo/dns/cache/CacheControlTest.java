@@ -19,8 +19,8 @@
 package com.openpojo.dns.cache;
 
 import com.openpojo.dns.cache.utils.VerificationHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.TextParseException;
@@ -35,15 +35,15 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author oshoukry
  */
-public class CacheControlTest {
+class CacheControlTest {
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     Lookup.refreshDefault();
   }
 
   @Test
-  public void shouldClearCachePostPopulation() throws TextParseException {
+  void shouldClearCachePostPopulation() throws TextParseException {
     verifyCacheIsEmpty();
     new Lookup(SERVER_1_NAME, DClass.IN).run();
     assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1)); // put an entry in cache
@@ -52,7 +52,7 @@ public class CacheControlTest {
   }
 
   @Test
-  public void shouldClearAllDefinedCaches() {
+  void shouldClearAllDefinedCaches() {
     final int[] actual = D_CLASS_TYPES.clone();
     final int[] expected = VerificationHelper.getDClassTypesSorted();
     sort(actual);

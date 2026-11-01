@@ -20,9 +20,9 @@ package com.openpojo.dns.config;
 
 import com.openpojo.dns.config.impl.FileDnsConfigReader;
 import com.openpojo.dns.config.impl.NoOpDnsConfigReader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.openpojo.dns.config.DnsConfigReader.CONFIG_FILE_ENV_VARIABLE;
 import static com.openpojo.dns.config.DnsConfigReaderFactory.getDnsConfigFileReader;
@@ -34,21 +34,21 @@ import static org.hamcrest.Matchers.instanceOf;
 /**
  * @author oshoukry
  */
-public class DnsConfigReaderFactoryTest {
+class DnsConfigReaderFactoryTest {
 
-  @Before
-  @After
-  public void cleanup() {
+  @BeforeEach
+  @AfterEach
+  void cleanup() {
     clearProperty(CONFIG_FILE_ENV_VARIABLE);
   }
 
   @Test
-  public void shouldReturnNoOpDnsConfigReaderWhenConfigFileNotAvailable() {
+  void shouldReturnNoOpDnsConfigReaderWhenConfigFileNotAvailable() {
     assertThat(getDnsConfigFileReader(), instanceOf(NoOpDnsConfigReader.class));
   }
 
   @Test
-  public void shouldGet() {
+  void shouldGet() {
     System.setProperty(CONFIG_FILE_ENV_VARIABLE, DNS_CONTROL_CONFIG);
     assertThat(getDnsConfigFileReader(), instanceOf(FileDnsConfigReader.class));
   }

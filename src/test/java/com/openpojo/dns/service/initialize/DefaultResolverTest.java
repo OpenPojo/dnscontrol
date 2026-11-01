@@ -20,9 +20,9 @@ package com.openpojo.dns.service.initialize;
 
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.resolve.RoutingResolver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
 
@@ -35,25 +35,25 @@ import static org.hamcrest.Matchers.sameInstance;
 /**
  * @author oshoukry
  */
-public class DefaultResolverTest {
+class DefaultResolverTest {
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     System.clearProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE);
     Lookup.refreshDefault();
 
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     System.clearProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE);
     System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
     Lookup.refreshDefault();
   }
 
   @Test
-  public void shouldNotChangeDefaultResolver() {
+  void shouldNotChangeDefaultResolver() {
     Resolver preTestResolver = Lookup.getDefaultResolver();
 
     DefaultResolver defaultResolver = new DefaultResolver();
@@ -63,7 +63,7 @@ public class DefaultResolverTest {
   }
 
   @Test
-  public void shouldRegisterRoutingResolverIfConfigured() {
+  void shouldRegisterRoutingResolverIfConfigured() {
     assertThat(Lookup.getDefaultResolver(), not(instanceOf(RoutingResolver.class)));
     System.setProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE, "dnscontrol.test.conf");
     DefaultResolver defaultResolver = new DefaultResolver();
@@ -72,7 +72,7 @@ public class DefaultResolverTest {
   }
 
   @Test
-  public void shouldInstallTheConfiguredRoutingTable() {
+  void shouldInstallTheConfiguredRoutingTable() {
     System.setProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE, "dnscontrol.test.conf");
 
     new DefaultResolver().init();

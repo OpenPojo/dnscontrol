@@ -22,21 +22,21 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author oshoukry
  */
-public class SimpleHostFileReaderTest {
+class SimpleHostFileReaderTest {
   @Test
-  public void ifFileDoesNotExistReturnEmptyConfiguration() {
+  void ifFileDoesNotExistReturnEmptyConfiguration() {
     final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader("/path/to/hostsfile");
     assertThat(simpleHostFileReader.hasConfiguration(), is(false));
 
@@ -50,7 +50,7 @@ public class SimpleHostFileReaderTest {
   }
 
   @Test
-  public void canGetHostNameMap() {
+  void canGetHostNameMap() {
     final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader("hosts.test.file");
     assertThat(simpleHostFileReader.hasConfiguration(), is(true));
     final Map<String, List<String>> configuration = simpleHostFileReader.getHostNameMap();
@@ -98,7 +98,7 @@ public class SimpleHostFileReaderTest {
   }
 
   @Test
-  public void getAddressNameMap() {
+  void getAddressNameMap() {
     final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader("hosts.test.file");
     assertThat(simpleHostFileReader.hasConfiguration(), is(true));
     final Map<String, List<String>> configuration = simpleHostFileReader.getAddressNameMap();
@@ -140,7 +140,7 @@ public class SimpleHostFileReaderTest {
 
   @Test
   @SuppressWarnings("ConstantConditions")
-  public void canGetLastUpdated() {
+  void canGetLastUpdated() {
     final String fileName = "hosts.test.file";
     File file = new File(this.getClass().getClassLoader().getResource(fileName).getFile());
     final long yesterday = getCurrentTimeNoMillis() - (1000 * 60 * 60 * 24);
@@ -158,7 +158,7 @@ public class SimpleHostFileReaderTest {
   }
 
   @Test
-  public void whenFileIsNotFoundGetLastUpdatedReturnsNull() {
+  void whenFileIsNotFoundGetLastUpdatedReturnsNull() {
     final SimpleHostFileReader simpleHostFileReader = new SimpleHostFileReader(null);
     assertThat(simpleHostFileReader.lastUpdated(), nullValue());
   }

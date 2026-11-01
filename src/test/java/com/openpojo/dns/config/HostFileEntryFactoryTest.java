@@ -18,7 +18,7 @@
 
 package com.openpojo.dns.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.openpojo.dns.config.HostFileEntryFactory.getEntry;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,14 +27,14 @@ import static org.hamcrest.Matchers.nullValue;
 /**
  * @author oshoukry
  */
-public class HostFileEntryFactoryTest {
+class HostFileEntryFactoryTest {
   @Test
-  public void shouldReturnNullIfParsingNullString() {
+  void shouldReturnNullIfParsingNullString() {
     assertThat(getEntry(null), nullValue());
   }
 
   @Test
-  public void shouldReturnNullForAWhitespaceOnlyLine() {
+  void shouldReturnNullForAWhitespaceOnlyLine() {
     assertThat(getEntry("   \t "), nullValue());
   }
 }

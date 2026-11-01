@@ -29,7 +29,7 @@ import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -38,12 +38,12 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author oshoukry
  */
-public class PojoValidationTest {
+class PojoValidationTest {
 
   private static final String TOP_LEVEL_PACKAGE = "com.openpojo.dns";
 
   @Test
-  public void testAllGetters() {
+  void testAllGetters() {
     Validator validator = ValidatorBuilder.create()
         .with(new GetterTester())
         .build();
@@ -60,7 +60,7 @@ public class PojoValidationTest {
   }
 
   @Test
-  public void testAllSetters() {
+  void testAllSetters() {
     Validator validator = ValidatorBuilder.create()
         .with(new SetterTester())
         .build();

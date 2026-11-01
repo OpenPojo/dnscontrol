@@ -18,7 +18,7 @@
 
 package com.openpojo.dns.routing.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
@@ -28,40 +28,40 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author oshoukry
  */
-public class DomainUtilsTest {
+class DomainUtilsTest {
   @Test
-  public void whenNullReturnNull() {
+  void whenNullReturnNull() {
     assertThat(toDnsDomain(null), is(DOT));
   }
 
   @Test
-  public void whenEmptyReturnEmpty() {
+  void whenEmptyReturnEmpty() {
     assertThat(toDnsDomain(""), is(DOT));
   }
 
   @Test
-  public void whenNonEmptyButNoLevelsReturnAsIs() {
+  void whenNonEmptyButNoLevelsReturnAsIs() {
     final String openpojo = "openpojo";
     assertThat(toDnsDomain(openpojo), is(".openpojo"));
   }
 
   @Test
-  public void whenDotComReturnComDot() {
+  void whenDotComReturnComDot() {
     assertThat(toDnsDomain(".com"), is(".com."));
   }
 
   @Test
-  public void whenOpenPojoDotComDotReturnDotComDotOpenPojo() {
+  void whenOpenPojoDotComDotReturnDotComDotOpenPojo() {
     assertThat(toDnsDomain("openpojo.com."), is(".com.openpojo"));
   }
 
   @Test
-  public void whenDotOpenPojoDotComDotReturnDotComDotOpenPojo() {
+  void whenDotOpenPojoDotComDotReturnDotComDotOpenPojo() {
     assertThat(toDnsDomain(".openpojo.com."), is(".com.openpojo."));
   }
 
   @Test
-  public void whenWwwDotOpenPojoDotComDotReturnDotComDotOpenPojoDotWww() {
+  void whenWwwDotOpenPojoDotComDotReturnDotComDotOpenPojoDotWww() {
     assertThat(toDnsDomain("www.openpojo.com."), is(".com.openpojo.www"));
   }
 }
