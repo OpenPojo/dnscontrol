@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_DOMAIN;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,6 +38,8 @@ import static org.hamcrest.Matchers.sameInstance;
  * @author oshoukry
  */
 class OptimizedRoutingTableTest {
+  private static final String SERVER_1_DOMAIN = "a.test.";
+  private static final String SERVER_1_NAME = "host." + SERVER_1_DOMAIN;
 
   private Resolver resolver;
   private HashMap<String, Resolver> compiledMap;

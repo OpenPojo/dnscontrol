@@ -37,7 +37,7 @@ public final class ServerAddressParser {
 
     if (value.startsWith("[")) {
       int close = value.indexOf(']');
-      if (close < 0)
+      if (close == -1)
         throw new UnknownHostException("Unterminated IPv6 address [" + entry + "]");
       host = value.substring(1, close);
       String rest = value.substring(close + 1);
@@ -48,6 +48,8 @@ public final class ServerAddressParser {
       port = parsePort(value.substring(value.indexOf(':') + 1), entry);
     }
 
+    if (host.isEmpty())
+      throw new UnknownHostException("Missing host in [" + entry + "]");
     return new InetSocketAddress(InetAddress.getByName(host), port);
   }
 

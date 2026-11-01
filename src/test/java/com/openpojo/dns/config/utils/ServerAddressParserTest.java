@@ -96,6 +96,18 @@ class ServerAddressParserTest {
     assertThat(ServerAddressParser.format(parse("10.0.0.1")), is("10.0.0.1:53"));
   }
 
+  @Test
+  void shouldAcceptTheLowestAndHighestPorts() throws UnknownHostException {
+    assertThat(parse("10.0.0.1:1").getPort(), is(1));
+    assertThat(parse("10.0.0.1:65535").getPort(), is(65535));
+  }
+
+  @Test
+  void shouldRejectAnEmptyHost() {
+    UnknownHostException thrown = assertThrows(UnknownHostException.class, () -> parse(":53"));
+    assertThat(thrown.getMessage(), containsString("Missing host in [:53]"));
+  }
+
   private static InetSocketAddress socket(String address, int port) throws UnknownHostException {
     return new InetSocketAddress(InetAddress.getByName(address), port);
   }

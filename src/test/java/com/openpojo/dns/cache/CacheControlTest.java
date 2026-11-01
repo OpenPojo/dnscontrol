@@ -18,16 +18,21 @@
 
 package com.openpojo.dns.cache;
 
+import java.net.InetAddress;
+
 import com.openpojo.dns.cache.utils.VerificationHelper;
+import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.xbill.DNS.ARecord;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
-import org.xbill.DNS.TextParseException;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.SimpleResolver;
+import org.xbill.DNS.Type;
 
 import static com.openpojo.dns.cache.CacheControl.D_CLASS_TYPES;
 import static com.openpojo.dns.cache.utils.VerificationHelper.verifyCacheIsEmpty;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static java.util.Arrays.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -43,12 +48,21 @@ class CacheControlTest {
   }
 
   @Test
-  void shouldClearCachePostPopulation() throws TextParseException {
-    verifyCacheIsEmpty();
-    new Lookup(SERVER_1_NAME, DClass.IN).run();
-    assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1)); // put an entry in cache
-    CacheControl.resetCache();
-    verifyCacheIsEmpty();
+  void shouldClearCachePostPopulation() throws Exception {
+    try (FakeDnsServer server = FakeDnsServer.start()) {
+      Name host = Name.fromString("host.a.test.");
+      server.addRecord(new ARecord(host, DClass.IN, 300, InetAddress.getByName("10.0.0.1")));
+      Lookup.setDefaultResolver(new SimpleResolver(server.address()));
+      verifyCacheIsEmpty();
+
+      new Lookup(host, Type.A).run();
+      assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1));
+
+      CacheControl.resetCache();
+      verifyCacheIsEmpty();
+    } finally {
+      Lookup.refreshDefault();
+    }
   }
 
   @Test
