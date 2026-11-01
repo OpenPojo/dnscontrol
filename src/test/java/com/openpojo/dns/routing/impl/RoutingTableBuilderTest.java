@@ -133,7 +133,8 @@ public class RoutingTableBuilderTest {
     routingTableBuilder.with(fileDnsConfigReader);
     final Map<String, List<String>> destinationMap = routingTableBuilder.getDestinationMap();
 
-    final String[] servers = ResolverConfig.getCurrentConfig().servers();
+    final String[] servers = ResolverConfig.getCurrentConfig().servers().stream()
+        .map(server -> server.getAddress().getHostAddress()).toArray(String[]::new);
     assertThat(destinationMap.get(toDnsDomain("system.openpojo.com")), contains(servers));
   }
 

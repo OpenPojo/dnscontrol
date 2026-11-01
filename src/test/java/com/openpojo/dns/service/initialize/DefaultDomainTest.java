@@ -18,6 +18,7 @@
 
 package com.openpojo.dns.service.initialize;
 
+import java.util.List;
 import com.openpojo.dns.exception.DomainException;
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +38,7 @@ public class DefaultDomainTest {
 
   private DefaultDomain defaultDomain;
   private String originalDomainValue;
-  private Name[] preTestSearchPath;
+  private List<Name> preTestSearchPath;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -65,9 +66,9 @@ public class DefaultDomainTest {
     System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, someDomain);
     defaultDomain.init();
 
-    Name[] defaultSearchPath = Lookup.getDefaultSearchPath();
-    assertThat(defaultSearchPath.length, is(1));
-    assertThat(defaultSearchPath[0].toString(), is(someDomain));
+    List<Name> defaultSearchPath = Lookup.getDefaultSearchPath();
+    assertThat(defaultSearchPath.size(), is(1));
+    assertThat(defaultSearchPath.get(0).toString(), is(someDomain));
   }
 
   @Test

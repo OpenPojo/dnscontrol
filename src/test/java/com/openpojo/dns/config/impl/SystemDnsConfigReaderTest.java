@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -53,19 +55,17 @@ public class SystemDnsConfigReaderTest {
 
   @Test
   public void shouldReturnEmptyConfigurationIfSystemServersIsNull() throws NoSuchFieldException, IllegalAccessException {
-    final String[] value = null;
-    setServersField(value);
+    setServersField(null);
     assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
   }
 
   @Test
   public void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() throws NoSuchFieldException, IllegalAccessException {
-    final String[] value = new String[0];
-    setServersField(value);
+    setServersField(Collections.<InetSocketAddress>emptyList());
     assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
   }
 
-  private void setServersField(String[] value) throws NoSuchFieldException, IllegalAccessException {
+  private void setServersField(List<InetSocketAddress> value) throws NoSuchFieldException, IllegalAccessException {
     Field serversField = ResolverConfig.class.getDeclaredField("servers");
     serversField.setAccessible(true);
     serversField.set(ResolverConfig.getCurrentConfig(), value);
