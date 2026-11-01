@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2018 Osman Shoukry
+ * Copyright (c) 2018-2026 Osman Shoukry
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,57 +18,77 @@
 
 package com.openpojo.dns.resolve;
 
-import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.openpojo.dns.DnsControl;
 import com.openpojo.dns.cache.CacheControl;
-import com.openpojo.dns.constants.TestConstants;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.OptimizedRoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
-import com.openpojo.dns.testdouble.spy.ResolverSpy;
-import com.openpojo.dns.testdouble.spy.ResolverSpyFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.xbill.DNS.*;
+import com.openpojo.dns.testing.FakeDnsServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.xbill.DNS.ARecord;
+import org.xbill.DNS.DClass;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Message;
+import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
+import org.xbill.DNS.Resolver;
+import org.xbill.DNS.Section;
+import org.xbill.DNS.SimpleResolver;
+import org.xbill.DNS.Type;
 
 import static com.openpojo.dns.cache.utils.VerificationHelper.verifyCacheIsEmpty;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_DOMAIN;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_BYTES;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
-import static java.net.InetAddress.getByAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
-/**
- * @author oshoukry
- */
-public class RoutingResolverTest {
+class RoutingResolverTest {
+  private static final String ROUTED_DOMAIN = "a.test.";
+  private static final Name ROUTED_HOST = name("host." + ROUTED_DOMAIN);
+  private static final Name OTHER_HOST = name("host.other.test.");
 
-  private List<String> implementedMethods = Arrays.asList("setRoutingTable", "getRoutingTable", "send");
-  private ResolverSpy spyResolver;
+  private final List<String> implementedMethods = Arrays.asList("setRoutingTable", "getRoutingTable", "send");
 
-  @Before
-  public void setUp() throws Exception {
-    spyResolver = ResolverSpyFactory.create(new ExtendedResolver());
+  private FakeDnsServer defaultServer;
+  private FakeDnsServer routedServer;
+  private InetAddress routedAddress;
+  private InetAddress defaultAddress;
+
+  @BeforeEach
+  void startServers() throws Exception {
+    defaultServer = FakeDnsServer.start();
+    routedServer = FakeDnsServer.start();
+    routedAddress = InetAddress.getByName("10.1.0.1");
+    defaultAddress = InetAddress.getByName("10.2.0.1");
+    routedServer.addRecord(new ARecord(ROUTED_HOST, DClass.IN, 300, routedAddress));
+    defaultServer.addRecord(new ARecord(ROUTED_HOST, DClass.IN, 300, defaultAddress));
+    defaultServer.addRecord(new ARecord(OTHER_HOST, DClass.IN, 300, defaultAddress));
     Lookup.refreshDefault();
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void stopServers() {
     Lookup.refreshDefault();
+    routedServer.close();
+    defaultServer.close();
   }
 
   @Test
-  public void testRoutingTableSetAndGet() {
-    RoutingResolver routingResolver = new RoutingResolver(spyResolver);
+  void shouldHoldTheRoutingTableItIsGiven() throws Exception {
+    RoutingResolver routingResolver = new RoutingResolver(resolverFor(defaultServer));
     assertThat(routingResolver.getRoutingTable(), nullValue());
 
     RoutingTable routingTable = RoutingTableBuilder.create().build();
@@ -78,88 +98,93 @@ public class RoutingResolverTest {
   }
 
   @Test
-  public void shouldResolveQeury() throws IOException {
-    RoutingResolver routingResolver = new RoutingResolver(spyResolver);
-    Record record = Record.newRecord(new Name(TestConstants.SERVER_1_NAME), Type.A, DClass.IN);
-    Message query = Message.newQuery(record);
-    final Message response = routingResolver.send(query);
-    assertThat(response, notNullValue());
-    final Record[] answerSection = response.getSectionArray(Section.ANSWER);
-    assertThat(answerSection, notNullValue());
-    assertThat(answerSection.length, is(1));
-    final Record singleRecord = answerSection[0];
-    assertThat(singleRecord, instanceOf(ARecord.class));
-    assertThat(((ARecord) singleRecord).getAddress(), is(getByAddress(SERVER_1_IPv4_BYTES)));
+  void shouldUseTheDefaultResolverWhenNoRoutingTableIsSet() throws Exception {
+    RoutingResolver routingResolver = new RoutingResolver(resolverFor(defaultServer));
+
+    Message response = routingResolver.send(queryFor(ROUTED_HOST));
+
+    assertThat(answeredAddress(response), is(defaultAddress));
+    assertThat(defaultServer.queries(), contains(question(ROUTED_HOST)));
+    assertThat(routedServer.queries(), empty());
   }
 
   @Test
-  public void shouldSendQueryToDomainResolver() throws IOException {
-    RoutingResolver routingResolver = new RoutingResolver(new SimpleResolver());
-    HashMap<String, Resolver> compiledMap = new HashMap<>();
+  void shouldSendQueriesForARoutedDomainToThatDomainsResolver() throws Exception {
+    RoutingResolver routingResolver = new RoutingResolver(resolverFor(defaultServer));
+    routingResolver.setRoutingTable(tableRouting(ROUTED_DOMAIN, routedServer, defaultServer));
 
-    compiledMap.put(toDnsDomain(DOT + SERVER_1_DOMAIN), spyResolver);
-    compiledMap.put(DOT, new SimpleResolver());
+    Message response = routingResolver.send(queryFor(ROUTED_HOST));
 
-    OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
-    routingResolver.setRoutingTable(table);
-
-    assertThat(table.getResolverFor(DOT), notNullValue());
-    assertThat(table.getResolverFor(SERVER_1_NAME), sameInstance((Resolver) spyResolver));
-
-    Record record = Record.newRecord(new Name(TestConstants.SERVER_1_NAME), Type.A, DClass.IN);
-    Message query = Message.newQuery(record);
-    final Message response = routingResolver.send(query);
-    assertThat(response, notNullValue());
-    final Record[] answerSection = response.getSectionArray(Section.ANSWER);
-    assertThat(answerSection, notNullValue());
-    assertThat(answerSection.length, is(1));
-    final Record singleRecord = answerSection[0];
-    assertThat(singleRecord, instanceOf(ARecord.class));
-    assertThat(((ARecord) singleRecord).getAddress(), is(getByAddress(SERVER_1_IPv4_BYTES)));
-    final List<String> calls = spyResolver.getCalls();
-    assertThat(calls.size(), is(1));
-    assertThat(calls.get(0), startsWith("send([;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: "));
-    assertThat(calls.get(0), endsWith(
-        "\n"
-            + ";; flags: rd ; qd: 1 an: 0 au: 0 ad: 0 \n"
-            + ";; QUESTIONS:\n"
-            + ";;\t" + SERVER_1_NAME + ", type = A, class = IN\n"
-            + "\n"
-            + ";; ANSWERS:\n"
-            + "\n"
-            + ";; AUTHORITY RECORDS:\n"
-            + "\n"
-            + ";; ADDITIONAL RECORDS:\n"
-            + "\n"
-            + ";; Message size: 0 bytes])"));
+    assertThat(answeredAddress(response), is(routedAddress));
+    assertThat(routedServer.queries(), contains(question(ROUTED_HOST)));
+    assertThat(defaultServer.queries(), empty());
   }
 
   @Test
-  public void whenCacheIsClearCallsFlowToResolver() throws TextParseException {
-    HashMap<String, Resolver> compiledMap = new HashMap<>();
+  void shouldSendQueriesOutsideRoutedDomainsToTheDefaultRoute() throws Exception {
+    RoutingResolver routingResolver = new RoutingResolver(resolverFor(defaultServer));
+    routingResolver.setRoutingTable(tableRouting(ROUTED_DOMAIN, routedServer, defaultServer));
 
-    compiledMap.put(toDnsDomain(DOT + SERVER_1_DOMAIN), spyResolver);
+    Message response = routingResolver.send(queryFor(OTHER_HOST));
 
-    OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
-    DnsControl.getInstance().setRoutingTable(table);
+    assertThat(answeredAddress(response), is(defaultAddress));
+    assertThat(defaultServer.queries(), contains(question(OTHER_HOST)));
+    assertThat(routedServer.queries(), empty());
+  }
+
+  @Test
+  void shouldAnswerFromCacheUntilTheCacheIsReset() throws Exception {
+    DnsControl.getInstance().setRoutingTable(tableRouting(ROUTED_DOMAIN, routedServer, defaultServer));
     DnsControl.getInstance().registerRoutingResolver();
-
     verifyCacheIsEmpty();
 
-    new Lookup(SERVER_1_NAME, Type.A).run(); // 1st call
-    new Lookup(SERVER_1_NAME, Type.A).run(); // from cache
-    assertThat(spyResolver.getCalls().size(), is(1));
+    new Lookup(ROUTED_HOST, Type.A).run();
+    new Lookup(ROUTED_HOST, Type.A).run();
+    assertThat(routedServer.queries().size(), is(1));
 
     CacheControl.resetCache();
     verifyCacheIsEmpty();
 
-    new Lookup(SERVER_1_NAME, Type.A).run(); // 2nd call
-    assertThat(spyResolver.getCalls().size(), is(2));
+    new Lookup(ROUTED_HOST, Type.A).run();
+    assertThat(routedServer.queries().size(), is(2));
   }
 
-
   @Test
-  public void shouldThrowUnImplementedOnAllMethods() {
+  void shouldThrowUnImplementedOnAllMethods() {
     NotSupportedMethodsValidator.validateMethodsNotImplemented(RoutingResolver.class, implementedMethods);
+  }
+
+  private static RoutingTable tableRouting(String domain, FakeDnsServer domainServer, FakeDnsServer defaultServer) {
+    Map<String, Resolver> compiledMap = new HashMap<>();
+    compiledMap.put(toDnsDomain(DOT + domain), resolverFor(domainServer));
+    compiledMap.put(DOT, resolverFor(defaultServer));
+    return new OptimizedRoutingTable(compiledMap);
+  }
+
+  private static Resolver resolverFor(FakeDnsServer server) {
+    return new SimpleResolver(server.address());
+  }
+
+  private static Message queryFor(Name host) {
+    return Message.newQuery(question(host));
+  }
+
+  private static Record question(Name host) {
+    return Record.newRecord(host, Type.A, DClass.IN);
+  }
+
+  private static InetAddress answeredAddress(Message response) {
+    Record[] answers = response.getSectionArray(Section.ANSWER);
+    assertThat(answers.length, is(1));
+    assertThat(answers[0], instanceOf(ARecord.class));
+    return ((ARecord) answers[0]).getAddress();
+  }
+
+  private static Name name(String value) {
+    try {
+      return Name.fromString(value);
+    } catch (Exception e) {
+      throw new IllegalArgumentException(value, e);
+    }
   }
 }
