@@ -23,9 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.openpojo.dns.exception.ResolveException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.xbill.DNS.Flags;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
@@ -34,6 +33,8 @@ import org.xbill.DNS.Section;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.random.RandomFactory.getRandomValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,14 +42,11 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author oshoukry
  */
-public class NoOpResolverTest {
+class NoOpResolverTest {
   private List<String> implementedMethods = Collections.singletonList("send");
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
-  public void whenSendCalledReturnEmptyMessage() throws IOException {
+  void whenSendCalledReturnEmptyMessage() throws IOException {
     NoOpResolver noOpResolver = new NoOpResolver();
     Message query = Message.newQuery(Record.newRecord(new Name(anyHost()), anyType(), anyDClass()));
 
@@ -67,13 +65,23 @@ public class NoOpResolverTest {
   }
 
   @Test
-  public void shouldThrowProperExceptionForAnyFailures() throws IOException {
-    thrown.expect(ResolveException.class);
-    thrown.expectMessage("Failed to resolve for query [null]");
-    thrown.expectCause(isA(NullPointerException.class));
+  void shouldThrowProperExceptionForAnyFailures() throws IOException {
+        NoOpResolver noOpResolver = new NoOpResolver();
 
+    ResolveException thrown = assertThrows(ResolveException.class, () -> noOpResolver.send(null));
+    assertThat(thrown.getMessage(), containsString("Failed to resolve for query [null]"));
+    assertThat(thrown.getCause(), isA(NullPointerException.class));
+  }
+
+  @Test
+  void shouldFlagTheAnswerAsAResponseWithRecursionAvailable() throws IOException {
     NoOpResolver noOpResolver = new NoOpResolver();
-    noOpResolver.send(null);
+    Message query = Message.newQuery(Record.newRecord(new Name(anyHost()), anyType(), anyDClass()));
+
+    Message response = noOpResolver.send(query);
+
+    assertThat(response.getHeader().getFlag(Flags.QR), is(true));
+    assertThat(response.getHeader().getFlag(Flags.RA), is(true));
   }
 
   private void verifyEmptySection(Message answer, int section) {
@@ -99,7 +107,7 @@ public class NoOpResolverTest {
   }
 
   @Test
-  public void shouldThrowUnImplementedOnAllMethods() {
+  void shouldThrowUnImplementedOnAllMethods() {
     NotSupportedMethodsValidator.validateMethodsNotImplemented(NoOpResolver.class, implementedMethods);
   }
 }

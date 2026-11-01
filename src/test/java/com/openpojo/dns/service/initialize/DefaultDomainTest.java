@@ -20,39 +20,36 @@ package com.openpojo.dns.service.initialize;
 
 import java.util.List;
 import com.openpojo.dns.exception.DomainException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
 
 /**
  * @author oshoukry
  */
-public class DefaultDomainTest {
+class DefaultDomainTest {
 
   private DefaultDomain defaultDomain;
   private String originalDomainValue;
   private List<Name> preTestSearchPath;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     defaultDomain = new DefaultDomain();
     originalDomainValue = System.getProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
     System.clearProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN);
     preTestSearchPath = Lookup.getDefaultSearchPath();
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     if (originalDomainValue != null)
       System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, originalDomainValue);
     else
@@ -61,7 +58,7 @@ public class DefaultDomainTest {
   }
 
   @Test
-  public void shouldSetupDefaultDomainOnLookup() {
+  void shouldSetupDefaultDomainOnLookup() {
     String someDomain = "somedomain.com.";
     System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, someDomain);
     defaultDomain.init();
@@ -72,11 +69,10 @@ public class DefaultDomainTest {
   }
 
   @Test
-  public void shouldThrowTextParsingException() {
-    thrown.expect(DomainException.class);
-    thrown.expectMessage("Failed to setup Default Domain using domain []");
+  void shouldThrowTextParsingException() {
+        System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, "");
 
-    System.setProperty(Initializer.SUN_NET_SPI_NAMESERVICE_DOMAIN, "");
-    defaultDomain.init();
+    DomainException thrown = assertThrows(DomainException.class, () -> defaultDomain.init());
+    assertThat(thrown.getMessage(), containsString("Failed to setup Default Domain using domain []"));
   }
 }

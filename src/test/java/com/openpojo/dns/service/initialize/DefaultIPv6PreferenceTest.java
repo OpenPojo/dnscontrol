@@ -18,9 +18,9 @@
 
 package com.openpojo.dns.service.initialize;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,19 +28,19 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author oshoukry
  */
-public class DefaultIPv6PreferenceTest {
+class DefaultIPv6PreferenceTest {
   private DefaultIPv6Preference defaultIPv6Preference;
   private String preTestIPV6PropertyValue;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     defaultIPv6Preference = new DefaultIPv6Preference();
     preTestIPV6PropertyValue = System.getProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES);
     System.clearProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES);
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     if (preTestIPV6PropertyValue != null)
       System.setProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES, preTestIPV6PropertyValue);
     else
@@ -48,25 +48,25 @@ public class DefaultIPv6PreferenceTest {
   }
 
   @Test
-  public void initialValueShouldBeFalse() {
+  void initialValueShouldBeFalse() {
     assertThat(defaultIPv6Preference.get(), is(false));
   }
 
   @Test
-  public void postInitValueShouldBeFalse() {
+  void postInitValueShouldBeFalse() {
     defaultIPv6Preference.init();
     assertThat(defaultIPv6Preference.get(), is(false));
   }
 
   @Test
-  public void shouldParseEnvironmentVariable() {
+  void shouldParseEnvironmentVariable() {
     System.setProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES, "true");
     defaultIPv6Preference.init();
     assertThat(defaultIPv6Preference.get(), is(true));
   }
 
   @Test
-  public void shouldNotUpdateValueIfInitNotCalled() {
+  void shouldNotUpdateValueIfInitNotCalled() {
     defaultIPv6Preference.init();
     System.setProperty(Initializer.JAVA_NET_PREFER_IPV6_ADDRESSES, "true");
     assertThat(defaultIPv6Preference.get(), is(false));

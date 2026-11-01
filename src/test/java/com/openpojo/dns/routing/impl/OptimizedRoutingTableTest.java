@@ -21,8 +21,8 @@ package com.openpojo.dns.routing.impl;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 
@@ -39,25 +39,25 @@ import static org.hamcrest.Matchers.sameInstance;
 /**
  * @author oshoukry
  */
-public class OptimizedRoutingTableTest {
+class OptimizedRoutingTableTest {
 
   private Resolver resolver;
   private HashMap<String, Resolver> compiledMap;
 
-  @Before
-  public void setup() throws UnknownHostException {
+  @BeforeEach
+  void setup() throws UnknownHostException {
     resolver = new SimpleResolver();
     compiledMap = new HashMap<>();
   }
 
   @Test
-  public void whenEmptyReturnNull() {
+  void whenEmptyReturnNull() {
     OptimizedRoutingTable table = new OptimizedRoutingTable(null);
     assertThat(table.getResolverFor(DOT), nullValue());
   }
 
   @Test
-  public void whenMatchingHostReturnResolver() {
+  void whenMatchingHostReturnResolver() {
     compiledMap.put(toDnsDomain(SERVER_1_NAME), resolver);
 
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
@@ -66,7 +66,7 @@ public class OptimizedRoutingTableTest {
   }
 
   @Test
-  public void whenNoMatchingHostAndDefaultRouteReturnDefault() {
+  void whenNoMatchingHostAndDefaultRouteReturnDefault() {
     compiledMap.put(DOT, resolver);
 
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
@@ -75,7 +75,7 @@ public class OptimizedRoutingTableTest {
   }
 
   @Test
-  public void whenNoMatchingHostAndDomainMatchReturnDomainResolver() throws UnknownHostException {
+  void whenNoMatchingHostAndDomainMatchReturnDomainResolver() throws UnknownHostException {
     compiledMap.put(toDnsDomain(DOT + SERVER_1_DOMAIN), resolver);
     compiledMap.put(DOT, new SimpleResolver());
 
@@ -85,7 +85,7 @@ public class OptimizedRoutingTableTest {
   }
 
   @Test
-  public void shouldBeCaseInsensitive() {
+  void shouldBeCaseInsensitive() {
     compiledMap.put(toDnsDomain(SERVER_1_NAME.toLowerCase()), resolver);
     OptimizedRoutingTable table = new OptimizedRoutingTable(compiledMap);
 

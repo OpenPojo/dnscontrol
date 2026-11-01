@@ -23,9 +23,9 @@ import java.util.Map;
 
 import com.openpojo.dns.constants.TestConstants;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.openpojo.dns.config.DnsConfigReader.ENV_NAME_SERVERS_KEY;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
@@ -33,33 +33,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-
 /**
  * @author oshoukry
  */
-public class EnvironmentDnsConfigReaderTest {
+class EnvironmentDnsConfigReaderTest {
 
   private EnvironmentDnsConfigReader reader;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     System.clearProperty(ENV_NAME_SERVERS_KEY);
     reader = new EnvironmentDnsConfigReader();
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     System.clearProperty(ENV_NAME_SERVERS_KEY);
   }
 
   @Test
-  public void shouldReturnEmptyConfigIfNoEnvironmentServersDefined() {
+  void shouldReturnEmptyConfigIfNoEnvironmentServersDefined() {
     assertThat(reader.getConfiguration(), notNullValue());
     assertThat(reader.hasConfiguration(), is(false));
   }
 
   @Test
-  public void shouldReturnListOfServersTiedToDOT() {
+  void shouldReturnListOfServersTiedToDOT() {
     String servers = TestConstants.SERVER_1_IPv4_STRING + "," + TestConstants.SERVER_2_IPv4_STRING;
     System.setProperty(ENV_NAME_SERVERS_KEY, servers);
     assertThat(reader.hasConfiguration(), is(true));
@@ -72,7 +71,7 @@ public class EnvironmentDnsConfigReaderTest {
   }
 
   @Test
-  public void toStringIsJustTheClassName() {
+  void toStringIsJustTheClassName() {
     assertThat(reader.toString(), is(reader.getClass().getName()));
   }
 }

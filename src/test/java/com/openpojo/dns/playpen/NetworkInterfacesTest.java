@@ -24,16 +24,16 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author oshoukry
  */
-@Ignore
-public class NetworkInterfacesTest {
+@Disabled
+class NetworkInterfacesTest {
   @Test
-  public void printAllHostNamesOnNetworkInterfaces() throws SocketException, UnknownHostException {
+  void printAllHostNamesOnNetworkInterfaces() throws SocketException, UnknownHostException {
     final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
     while (networkInterfaces.hasMoreElements()) {
       NetworkInterface networkInterface = networkInterfaces.nextElement();

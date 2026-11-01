@@ -26,8 +26,8 @@ import com.openpojo.reflection.PojoClass;
 import com.openpojo.reflection.PojoMethod;
 import com.openpojo.reflection.PojoParameter;
 import com.openpojo.reflection.exception.ReflectionException;
-import org.junit.Assert;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static com.openpojo.random.RandomFactory.getRandomValue;
 import static com.openpojo.reflection.impl.PojoClassFactory.getPojoClass;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,7 +44,7 @@ public class NotSupportedMethodsValidator {
       if (!method.isSynthetic() && !method.isConstructor() && !implementedMethods.contains(method.getName()))
         try {
           method.invoke(instance, getRandomParameters(method));
-          Assert.fail("Failed to throw expected exception on method [" + method.getName() + "]");
+          fail("Failed to throw expected exception on method [" + method.getName() + "]");
         } catch (ReflectionException re) {
           RoutingException rre = (RoutingException) re.getCause().getCause();
           assertThat(rre.getMessage(), is("Operation not supported"));

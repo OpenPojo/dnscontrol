@@ -24,9 +24,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
@@ -38,29 +38,29 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * @author oshoukry
  */
-public class SystemDnsConfigReaderTest {
+class SystemDnsConfigReaderTest {
 
   private SystemDnsConfigReader systemDnsConfigReader;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     ResolverConfig.refresh();
     systemDnsConfigReader = new SystemDnsConfigReader();
   }
 
-  @After
-  public void teardown() {
+  @AfterEach
+  void teardown() {
     ResolverConfig.refresh();
   }
 
   @Test
-  public void shouldReturnEmptyConfigurationIfSystemServersIsNull() throws NoSuchFieldException, IllegalAccessException {
+  void shouldReturnEmptyConfigurationIfSystemServersIsNull() throws NoSuchFieldException, IllegalAccessException {
     setServersField(null);
     assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
   }
 
   @Test
-  public void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() throws NoSuchFieldException, IllegalAccessException {
+  void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() throws NoSuchFieldException, IllegalAccessException {
     setServersField(Collections.<InetSocketAddress>emptyList());
     assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
   }
@@ -72,7 +72,7 @@ public class SystemDnsConfigReaderTest {
   }
 
   @Test
-  public void canReadSystemDNSEntries() {
+  void canReadSystemDNSEntries() {
     final Map<String, List<String>> configuration = systemDnsConfigReader.getConfiguration();
     assertThat(configuration, notNullValue());
     assertThat(configuration.size(), is(1));

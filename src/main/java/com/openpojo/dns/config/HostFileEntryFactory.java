@@ -42,7 +42,7 @@ public class HostFileEntryFactory {
   }
 
   private static boolean isValidConfigLine(String line) {
-    return line != null && line.trim().length() > 0 && !line.trim().startsWith("#");
+    return line != null && !line.isBlank() && !line.trim().startsWith("#");
   }
 
   private HostFileEntryFactory() {

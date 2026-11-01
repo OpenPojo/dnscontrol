@@ -95,9 +95,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- Runs the remaining JUnit 4 tests until M7 finishes the migration. -->
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -223,6 +222,7 @@
             <param>XML</param>
           </outputFormats>
           <timestampedReports>false</timestampedReports>
+          <mutationThreshold>95</mutationThreshold>
           <threads>4</threads>
         </configuration>
       </plugin>

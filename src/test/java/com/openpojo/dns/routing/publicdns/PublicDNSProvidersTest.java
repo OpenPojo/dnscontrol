@@ -19,12 +19,12 @@
 package com.openpojo.dns.routing.publicdns;
 
 import com.openpojo.dns.exception.ConfigurationException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -32,42 +32,38 @@ import static org.hamcrest.Matchers.nullValue;
 /**
  * @author oshoukry
  */
-public class PublicDNSProvidersTest {
+class PublicDNSProvidersTest {
   private PublicDNSProviders publicDNSProviders;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     publicDNSProviders = new PublicDNSProviders();
   }
 
   @Test
-  public void shouldBeAbleToRetrieveGoogle() {
+  void shouldBeAbleToRetrieveGoogle() {
     String entries = publicDNSProviders.get("google");
     assertThat(entries, notNullValue());
     assertThat(entries, is("8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"));
   }
 
   @Test
-  public void shouldBeAbleToRetrieveOpenDNS() {
+  void shouldBeAbleToRetrieveOpenDNS() {
     String entries = publicDNSProviders.get("opendns");
     assertThat(entries, notNullValue());
     assertThat(entries, is("208.67.220.220,208.67.222.222,2620:0:ccc::2,2620:0:ccd::2"));
   }
 
   @Test
-  public void shouldReturnNullIfProviderIsUnknown() {
+  void shouldReturnNullIfProviderIsUnknown() {
     assertThat(publicDNSProviders.get("UnknownProvider"), nullValue());
   }
 
   @Test
-  public void shouldThrowConfigExceptionIfConfigFileLoadThrowsError() {
-    final String invalidConfigFile = "InvalidConfigFile";
-    thrown.expectMessage("Failed to load configuration file [" + invalidConfigFile + "]");
-    thrown.expect(ConfigurationException.class);
+  void shouldThrowConfigExceptionIfConfigFileLoadThrowsError() {
+        final String invalidConfigFile = "InvalidConfigFile";
 
-    new PublicDNSProviders(invalidConfigFile);
+    ConfigurationException thrown = assertThrows(ConfigurationException.class, () -> new PublicDNSProviders(invalidConfigFile));
+    assertThat(thrown.getMessage(), containsString("Failed to load configuration file [" + invalidConfigFile + "]"));
   }
 }

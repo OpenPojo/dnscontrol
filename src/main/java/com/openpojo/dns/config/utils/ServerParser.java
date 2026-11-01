@@ -34,7 +34,7 @@ public class ServerParser {
     if (value == null || value.length() == 0)
       return Collections.emptyList();
 
-    if (value.indexOf(CONFIG_VALUES_SEPARATOR) > 0)
+    if (value.contains(CONFIG_VALUES_SEPARATOR))
       return getServersAsList(value.split(CONFIG_VALUES_SEPARATOR));
 
     return singletonList(value);
@@ -42,15 +42,10 @@ public class ServerParser {
 
   public static List<String> getServersAsList(String... serverArray) {
     List<String> servers = new ArrayList<>();
-
-    if (serverArray == null) {
-      return servers;
-    }
-
-    for (String server : serverArray) {
-      if (!isBlank(server))
-        servers.add(server);
-    }
+    if (serverArray != null)
+      for (String server : serverArray)
+        if (!isBlank(server))
+          servers.add(server);
     return servers;
   }
 

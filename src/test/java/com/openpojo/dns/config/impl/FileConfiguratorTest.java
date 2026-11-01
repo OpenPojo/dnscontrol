@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.openpojo.dns.exception.ConfigurationFileNotFoundException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static com.openpojo.dns.constants.TestConstants.DNS_CONTROL_CONFIG;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -37,23 +37,18 @@ import static org.hamcrest.Matchers.nullValue;
 /**
  * @author oshoukry
  */
-public class FileConfiguratorTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+class FileConfiguratorTest {
 
   @Test
-  public void whenInvalidFileShouldThrowFileNotFoundException() {
-    final String someDummyFile = "someDummyFile";
+  void whenInvalidFileShouldThrowFileNotFoundException() {
+        final String someDummyFile = "someDummyFile";
 
-    thrown.expect(ConfigurationFileNotFoundException.class);
-    thrown.expectMessage("Configuration file [" + someDummyFile + "] not found");
-
-    new FileDnsConfigReader(someDummyFile);
+    ConfigurationFileNotFoundException thrown = assertThrows(ConfigurationFileNotFoundException.class, () -> new FileDnsConfigReader(someDummyFile));
+    assertThat(thrown.getMessage(), containsString("Configuration file [" + someDummyFile + "] not found"));
   }
 
   @Test
-  public void canLoadFile() {
+  void canLoadFile() {
     FileDnsConfigReader fileDnsConfigReader = new FileDnsConfigReader(DNS_CONTROL_CONFIG);
     final Map<String, List<String>> dnsConfiguration = fileDnsConfigReader.getConfiguration();
 
@@ -80,7 +75,7 @@ public class FileConfiguratorTest {
   }
 
   @Test
-  public void canLoadFromSystemFile() {
+  void canLoadFromSystemFile() {
     FileDnsConfigReader fileDnsConfigReader = new FileDnsConfigReader("./src/test/files/dnscontrol.another.conf");
     final Map<String, List<String>> configuration = fileDnsConfigReader.getConfiguration();
     assertThat(configuration.size(), is(1));

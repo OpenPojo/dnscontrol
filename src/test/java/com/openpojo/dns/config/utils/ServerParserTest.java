@@ -21,18 +21,19 @@ package com.openpojo.dns.config.utils;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author oshoukry
  */
-public class ServerParserTest {
+class ServerParserTest {
   @Test
-  public void shouldReturnEmptyListWhenNull() {
+  void shouldReturnEmptyListWhenNull() {
     final List<String> serversAsList = ServerParser.getServersAsList((String[]) null);
     assertThat(serversAsList, notNullValue());
     assertThat(serversAsList.size(), is(0));
@@ -40,14 +41,14 @@ public class ServerParserTest {
 
   @SuppressWarnings("RedundantArrayCreation")
   @Test
-  public void shouldReturnEmptyListWhenEmptyArrayPassed() {
+  void shouldReturnEmptyListWhenEmptyArrayPassed() {
     final List<String> serversAsList = ServerParser.getServersAsList(new String[0]);
     assertThat(serversAsList, notNullValue());
     assertThat(serversAsList.size(), is(0));
   }
 
   @Test
-  public void shouldReturnArrayForOnlyNonEmptyEntries() {
+  void shouldReturnArrayForOnlyNonEmptyEntries() {
     String[] entries = { "1", "2", "", "3", null, "4" };
     List<String> expected = Arrays.asList("1", "2", "3", "4");
     final List<String> serversAsList = ServerParser.getServersAsList(entries);
@@ -56,9 +57,14 @@ public class ServerParserTest {
   }
 
   @Test
-  public void shouldReturnEmptyCollectionIfStringIsNull() {
+  void shouldReturnEmptyCollectionIfStringIsNull() {
     final List<String> actual = ServerParser.splitServers(null);
     assertThat(actual, notNullValue());
     assertThat(actual.size(), is(0));
+  }
+
+  @Test
+  void shouldSplitAListThatStartsWithASeparator() {
+    assertThat(ServerParser.splitServers(",10.0.0.1"), contains("10.0.0.1"));
   }
 }
