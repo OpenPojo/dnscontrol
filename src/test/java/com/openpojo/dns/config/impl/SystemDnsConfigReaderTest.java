@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.config.impl;
 
+import java.util.Arrays;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.lang.reflect.Field;
@@ -30,7 +32,9 @@ import org.junit.jupiter.api.Test;
 import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
+import static com.openpojo.dns.config.utils.ServerAddressParser.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -72,7 +76,7 @@ class SystemDnsConfigReaderTest {
   }
 
   @Test
-  void canReadSystemDNSEntries() {
+  void canReadSystemDNSEntries() throws Exception {
     final Map<String, List<String>> configuration = systemDnsConfigReader.getConfiguration();
     assertThat(configuration, notNullValue());
     assertThat(configuration.size(), is(1));
@@ -81,21 +85,15 @@ class SystemDnsConfigReaderTest {
     assertThat(defaultRoute.size(), greaterThan(0));
     for (String server : defaultRoute) {
       assertThat(server, notNullValue());
-      assertThat("Found entry [" + server + "] which isn't an IPAddress", validateIPAddress(server), is(true));
+      assertThat("Found entry [" + server + "] which isn't a server address", parse(server).getPort(), is(53));
     }
   }
 
-  private boolean validateIPAddress(String ipAddress) {
-    String[] tokens = ipAddress.split("\\.");
-    if (tokens.length != 4) {
-      return false;
-    }
-    for (String str : tokens) {
-      int i = Integer.parseInt(str);
-      if ((i < 0) || (i > 255)) {
-        return false;
-      }
-    }
-    return true;
+
+  @Test
+  void shouldKeepThePortOfEachSystemServer() throws Exception {
+    setServersField(Arrays.asList(new InetSocketAddress(InetAddress.getByName("::1"), 5353), new InetSocketAddress(InetAddress.getByName("10.0.0.1"), 53)));
+
+    assertThat(systemDnsConfigReader.getConfiguration().get(DOT), contains("[0:0:0:0:0:0:0:1]:5353", "10.0.0.1:53"));
   }
 }

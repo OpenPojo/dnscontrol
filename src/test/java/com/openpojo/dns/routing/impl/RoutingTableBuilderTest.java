@@ -18,6 +18,13 @@
 
 package com.openpojo.dns.routing.impl;
 
+import com.openpojo.dns.config.utils.ServerAddressParser;
+import org.xbill.DNS.Type;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.Message;
+import org.xbill.DNS.DClass;
+import com.openpojo.dns.testing.FakeDnsServer;
 import com.openpojo.dns.config.impl.NoOpDnsConfigReader;
 import java.util.Arrays;
 import java.net.UnknownHostException;
@@ -132,7 +139,7 @@ class RoutingTableBuilderTest {
     final Map<String, List<String>> destinationMap = routingTableBuilder.getDestinationMap();
 
     final String[] servers = ResolverConfig.getCurrentConfig().servers().stream()
-        .map(server -> server.getAddress().getHostAddress()).toArray(String[]::new);
+        .map(ServerAddressParser::format).toArray(String[]::new);
     assertThat(destinationMap.get(toDnsDomain("system.openpojo.com")), contains(servers));
   }
 
@@ -147,5 +154,17 @@ class RoutingTableBuilderTest {
     RoutingTableBuilder builder = RoutingTableBuilder.create();
     builder.with("host.test", Arrays.asList("", "10.0.0.1"));
     assertThat(builder.getDestinationMap().get(toDnsDomain("host.test")), contains("10.0.0.1"));
+  }
+
+  @Test
+  void shouldRouteToAServerGivenAsHostAndPort() throws Exception {
+    try (FakeDnsServer server = FakeDnsServer.start()) {
+      RoutingTable table = RoutingTableBuilder.create().with(".a.test", singletonList(server.hostAndPort())).build();
+      Record question = Record.newRecord(Name.fromString("x.a.test."), Type.A, DClass.IN);
+
+      table.getResolverFor("x.a.test.").send(Message.newQuery(question));
+
+      assertThat(server.queries(), contains(question));
+    }
   }
 }

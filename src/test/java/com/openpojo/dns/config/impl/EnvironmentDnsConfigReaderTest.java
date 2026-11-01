@@ -21,7 +21,6 @@ package com.openpojo.dns.config.impl;
 import java.util.List;
 import java.util.Map;
 
-import com.openpojo.dns.constants.TestConstants;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +58,7 @@ class EnvironmentDnsConfigReaderTest {
 
   @Test
   void shouldReturnListOfServersTiedToDOT() {
-    String servers = TestConstants.SERVER_1_IPv4_STRING + "," + TestConstants.SERVER_2_IPv4_STRING;
+    String servers = "10.1.1.1,10.2.2.2";
     System.setProperty(ENV_NAME_SERVERS_KEY, servers);
     assertThat(reader.hasConfiguration(), is(true));
     Map<String, List<String>> configuration = reader.getConfiguration();

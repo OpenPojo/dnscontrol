@@ -31,12 +31,12 @@ import com.openpojo.dns.config.impl.SystemDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.NoOpResolver;
 import com.openpojo.dns.routing.RoutingTable;
-import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Resolver;
 
 import static com.openpojo.dns.config.DnsConfigReader.CONFIG_SERVER_SYSTEM;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.routing.utils.DomainUtils.toDnsDomain;
+import static com.openpojo.dns.resolve.ResolverFactory.extendedResolverFor;
 
 /**
  * @author oshoukry
@@ -93,7 +93,7 @@ public class RoutingTableBuilder {
       Map<String, Resolver> optimizedRoutingEntries = new HashMap<>();
       for (Map.Entry<String, List<String>> entry : destinationMap.entrySet()) {
         final List<String> dnsServerList = entry.getValue();
-        Resolver resolver = hasDnsServers(dnsServerList) ? new ExtendedResolver(getDnsServerArray(dnsServerList)) : new NoOpResolver();
+        Resolver resolver = hasDnsServers(dnsServerList) ? extendedResolverFor(dnsServerList) : new NoOpResolver();
         LOGGER.info("building routing table with route ["
             + entry.getKey() + "=" + entry.getValue()
             + "]... Resolver set to [" + resolver + "]");
@@ -105,10 +105,6 @@ public class RoutingTableBuilder {
     } catch (UnknownHostException e) {
       throw RouteSetupException.getInstance("Failed to create dns routing map ", e);
     }
-  }
-
-  private String[] getDnsServerArray(List<String> dnsServerList) {
-    return dnsServerList.toArray(new String[0]);
   }
 
   private boolean hasDnsServers(List<String> dnsServerList) {

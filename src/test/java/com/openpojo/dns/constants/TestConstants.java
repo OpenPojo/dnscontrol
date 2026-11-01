@@ -30,18 +30,6 @@ import java.net.UnknownHostException;
 public class TestConstants {
   public static final String UNKNOWN_SERVER = "unknown.host.openpojo.com.";
 
-  public static final String SERVER_1_DOMAIN = "root-servers.net.";
-  public static final String SERVER_1_NAME = "a." + SERVER_1_DOMAIN;
-
-  public static final String SERVER_1_IPv4_STRING = "198.41.0.4";
-  public static final byte[] SERVER_1_IPv4_BYTES = getAddressBytes(SERVER_1_IPv4_STRING);
-
-  public static final String SERVER_1_IPv6_STRING = "2001:503:ba3e::2:30";
-  public static final byte[] SERVER_1_IPv6_BYTES = getAddressBytes(SERVER_1_IPv6_STRING);
-
-  public static final String SERVER_2_NAME = "egypt.gov.eg.";
-  public static final String SERVER_2_IPv4_STRING = "81.21.103.81";
-  public static final byte[] SERVER_2_IPv4_BYTES = getAddressBytes(SERVER_2_IPv4_STRING);
 
   public static final String LOCAL_HOST = "localhost";
   public static final String LOCAL_HOST_IPv4 = "127.0.0.1";

@@ -18,7 +18,7 @@
 
 package com.openpojo.dns;
 
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.openpojo.dns.cache.CacheControl;
@@ -27,6 +27,7 @@ import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.impl.EnvironmentDnsConfigReader;
 import com.openpojo.dns.exception.RouteSetupException;
 import com.openpojo.dns.resolve.RoutingResolver;
+import com.openpojo.dns.testing.FakeDnsServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,6 @@ import org.xbill.DNS.*;
 import org.xbill.DNS.Record;
 
 import static com.openpojo.dns.DnsControl.recreateInstance;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_IPv4_STRING;
-import static com.openpojo.dns.constants.TestConstants.SERVER_1_NAME;
 import static com.openpojo.dns.constants.TestConstants.UNKNOWN_SERVER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -93,19 +92,21 @@ class DnsControlTest {
   }
 
   @Test
-  void canResolveSomeEntry() throws TextParseException, UnknownHostException {
-    dnsControl.registerRoutingResolver();
-    final Name rootServer = new Name(SERVER_1_NAME);
-    final String expectedIP = SERVER_1_IPv4_STRING;
+  void canResolveSomeEntry() throws Exception {
+    try (FakeDnsServer server = FakeDnsServer.start()) {
+      Name host = Name.fromString("host.other.test.");
+      InetAddress address = InetAddress.getByName("10.9.9.9");
+      server.addRecord(new ARecord(host, DClass.IN, 300, address));
+      DnsControl control = pointDefaultRouteAt(server);
+      control.registerRoutingResolver();
 
-    Record[] beforeConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
-    assertThat(beforeConfigRecords.length, is(1));
-    assertThat(((ARecord) beforeConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+      assertThat(((ARecord) new Lookup(host, Type.A).run()[0]).getAddress(), is(address));
 
-    dnsControl.registerRoutingResolver();
-    Record[] afterConfigRecords = new Lookup(rootServer, Type.A).run(); // lookup IPAddress 4.
-    assertThat(beforeConfigRecords.length, is(1));
-    assertThat(((ARecord) afterConfigRecords[0]).getAddress(), is(Inet4Address.getByName(expectedIP)));
+      control.registerRoutingResolver();
+      assertThat(((ARecord) new Lookup(host, Type.A).run()[0]).getAddress(), is(address));
+    } finally {
+      restoreSystemDefaultRoute();
+    }
   }
 
   @Test
@@ -118,14 +119,22 @@ class DnsControlTest {
   }
 
   @Test
-  void shouldClearCacheWheneverRoutingTableChanges() throws TextParseException {
-    dnsControl.registerRoutingResolver();
-    VerificationHelper.verifyCacheIsEmpty();
+  void shouldClearCacheWheneverRoutingTableChanges() throws Exception {
+    try (FakeDnsServer server = FakeDnsServer.start()) {
+      Name host = Name.fromString("host.other.test.");
+      server.addRecord(new ARecord(host, DClass.IN, 300, InetAddress.getByName("10.9.9.9")));
+      DnsControl control = pointDefaultRouteAt(server);
+      control.registerRoutingResolver();
+      VerificationHelper.verifyCacheIsEmpty();
 
-    new Lookup(SERVER_1_NAME, DClass.IN).run();
-    assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1));
-    dnsControl.setRoutingTable(null);
-    VerificationHelper.verifyCacheIsEmpty();
+      new Lookup(host, Type.A).run();
+      assertThat(Lookup.getDefaultCache(DClass.IN).getSize(), is(1));
+
+      control.setRoutingTable(null);
+      VerificationHelper.verifyCacheIsEmpty();
+    } finally {
+      restoreSystemDefaultRoute();
+    }
   }
 
   @Test
@@ -144,5 +153,29 @@ class DnsControlTest {
     DnsControl differentInstance = DnsControl.recreateInstance();
     assertThat(differentInstance, not(sameInstance(instance)));
     assertThat(differentInstance, sameInstance(DnsControl.getInstance()));
+  }
+
+  @Test
+  void shouldSendUnroutedQueriesToTheConfiguredDefaultServers() throws Exception {
+    try (FakeDnsServer defaultServer = FakeDnsServer.start()) {
+      pointDefaultRouteAt(defaultServer).registerRoutingResolver();
+      Record question = Record.newRecord(Name.fromString("host.other.test."), Type.A, DClass.IN);
+
+      new Lookup(question.getName(), Type.A).run();
+
+      assertThat(defaultServer.queries(), contains(question));
+    } finally {
+      restoreSystemDefaultRoute();
+    }
+  }
+
+  private static DnsControl pointDefaultRouteAt(FakeDnsServer server) {
+    System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, server.hostAndPort());
+    return recreateInstance();
+  }
+
+  private static void restoreSystemDefaultRoute() {
+    System.clearProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY);
+    recreateInstance();
   }
 }

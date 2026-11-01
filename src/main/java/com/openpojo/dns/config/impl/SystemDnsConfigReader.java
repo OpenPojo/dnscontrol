@@ -25,6 +25,8 @@ import java.util.Map;
 
 import com.openpojo.dns.config.DnsConfigReader;
 
+import com.openpojo.dns.config.utils.ServerAddressParser;
+
 import static com.openpojo.dns.config.utils.ServerParser.getServersAsList;
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.xbill.DNS.ResolverConfig.getCurrentConfig;
@@ -46,14 +48,11 @@ public class SystemDnsConfigReader implements DnsConfigReader {
     return systemServers().length > 0;
   }
 
-  /**
-   * dnsjava 3.x reports the system servers as socket addresses. Keep the historical address-string form
-   * (port 53 implied) that the routing table builder expects.
-   */
+  /** The system resolvers as {@code host:port} entries, so a non-standard port survives into the routing table. */
   private static String[] systemServers() {
     final List<InetSocketAddress> servers = getCurrentConfig().servers();
     if (servers == null)
       return new String[0];
-    return servers.stream().map(server -> server.getAddress().getHostAddress()).toArray(String[]::new);
+    return servers.stream().map(ServerAddressParser::format).toArray(String[]::new);
   }
 }
