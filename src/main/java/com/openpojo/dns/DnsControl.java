@@ -42,8 +42,6 @@ import static com.openpojo.dns.routing.RoutingTable.DOT;
  * @author oshoukry
  */
 public class DnsControl {
-  public static final String SERVICE_TYPE = "dns";
-  public static final String SERVICE_PROVIDER = "dnscontrol";
 
   private final RoutingResolver routingResolver;
   private final Resolver defaultResolver;

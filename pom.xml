@@ -144,18 +144,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <!-- Legacy JVM hook and the name-service layer it fed (sun.net.spi.nameservice, reflection into InetAddress).
-               Superseded by dnsjava 3.x Lookup; deleted in M5. -->
-          <excludes>
-            <exclude>com/openpojo/dns/service/java/**</exclude>
-            <exclude>com/openpojo/dns/service/lookup/**</exclude>
-          </excludes>
-          <testExcludes>
-            <testExclude>com/openpojo/dns/service/java/**</testExclude>
-            <testExclude>com/openpojo/dns/service/lookup/**</testExclude>
-          </testExcludes>
-        </configuration>
       </plugin>
 
       <plugin>
