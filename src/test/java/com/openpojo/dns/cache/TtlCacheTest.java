@@ -53,9 +53,8 @@ class TtlCacheTest {
   void routeTheTestDomainToAFakeServer() throws Exception {
     Lookup.refreshDefault();
     server = FakeDnsServer.start();
-    DnsControl.recreateInstance().setRoutingTable(RoutingTableBuilder.create()
-        .with(".a.test", List.of(server.hostAndPort()))
-        .build());
+    DnsControl.recreateInstance();
+    routeTheTestDomainTo(server);
     Lookup.setDefaultCache(ClockedCache.create(clock, DClass.IN), DClass.IN);
   }
 
@@ -94,6 +93,25 @@ class TtlCacheTest {
     clock.advance(Duration.ofMillis(200));
     lookup(missing);
     assertThat(server.queries(), hasSize(2));
+  }
+
+  @Test
+  void shouldForgetCachedAnswersWhenTheRoutingTableChanges() throws Exception {
+    server.addRecord(new ARecord(HOST, DClass.IN, 300, InetAddress.getByName("10.0.0.1")));
+    lookup(HOST);
+
+    try (FakeDnsServer newRoute = FakeDnsServer.start()) {
+      newRoute.addRecord(new ARecord(HOST, DClass.IN, 300, InetAddress.getByName("10.0.0.2")));
+      routeTheTestDomainTo(newRoute);
+
+      lookup(HOST);
+
+      assertThat(newRoute.queries(), hasSize(1));
+    }
+  }
+
+  private static void routeTheTestDomainTo(FakeDnsServer target) {
+    DnsControl.getInstance().setRoutingTable(RoutingTableBuilder.create().with(".a.test", List.of(target.hostAndPort())).build());
   }
 
   private static void lookup(Name name) {
