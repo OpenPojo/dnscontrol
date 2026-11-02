@@ -94,7 +94,7 @@ public class DnsControl {
       setRoutingTable(builder.build());
     registerRoutingResolver();
     installHostsFile();
-    JdkAddressCache.warnIfAtDefault();
+    JdkAddressCache.forThisJvm().warnIfAtDefault();
     installed = true;
   }
 

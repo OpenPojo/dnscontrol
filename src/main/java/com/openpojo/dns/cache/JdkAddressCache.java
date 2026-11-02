@@ -18,6 +18,8 @@
 
 package com.openpojo.dns.cache;
 
+import java.security.Security;
+import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 /**
@@ -26,13 +28,25 @@ import java.util.logging.Logger;
 public final class JdkAddressCache {
   private static final Logger LOGGER = Logger.getLogger(JdkAddressCache.class.getName());
 
-  public static void warnIfAtDefault() {
-    if ("0".equals(System.getProperty("sun.net.inetaddr.ttl")))
+  private final UnaryOperator<String> securityProperties;
+  private final UnaryOperator<String> systemProperties;
+
+  /** The cache as configured for this JVM, through java.security and system properties. */
+  public static JdkAddressCache forThisJvm() {
+    return new JdkAddressCache(Security::getProperty, System::getProperty);
+  }
+
+  JdkAddressCache(UnaryOperator<String> securityProperties, UnaryOperator<String> systemProperties) {
+    this.securityProperties = securityProperties;
+    this.systemProperties = systemProperties;
+  }
+
+  public void warnIfAtDefault() {
+    if ("0".equals(securityProperties.apply("networkaddress.cache.ttl"))
+        || "0".equals(systemProperties.apply("sun.net.inetaddr.ttl")))
       return;
     LOGGER.warning("The JDK caches every host name for 30 s by default, above DNSControl, so DNS record TTLs are not"
         + " honoured. Set -Dsun.net.inetaddr.ttl=0 (or networkaddress.cache.ttl=0 in java.security) to let DNSControl's"
         + " TTL-respecting cache decide.");
   }
-
-  private JdkAddressCache() { }
 }
