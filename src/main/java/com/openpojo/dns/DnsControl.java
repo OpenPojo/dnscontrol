@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.openpojo.dns.cache.JdkAddressCache;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.exception.RouteSetupException;
@@ -93,6 +94,7 @@ public class DnsControl {
       setRoutingTable(builder.build());
     registerRoutingResolver();
     installHostsFile();
+    JdkAddressCache.forThisJvm().warnIfAtDefault();
     installed = true;
   }
 

@@ -32,6 +32,7 @@ import org.xbill.DNS.Message;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Section;
+import org.xbill.DNS.Type;
 
 /**
  * In-process UDP DNS server for tests. Answers from the records it has been given and records every question it
@@ -80,6 +81,7 @@ public final class FakeDnsServer implements AutoCloseable {
     return host + ":" + socket.getLocalPort();
   }
 
+  /** An SOA record is also sent in the authority section of every NXDOMAIN answer, so resolvers can cache it negatively. */
   public void addRecord(Record record) {
     records.add(record);
   }
@@ -118,8 +120,12 @@ public final class FakeDnsServer implements AutoCloseable {
     for (Record record : records)
       if (record.getName().equals(question.getName()) && record.getType() == question.getType())
         response.addRecord(record, Section.ANSWER);
-    if (response.getSectionArray(Section.ANSWER).length == 0)
+    if (response.getSectionArray(Section.ANSWER).length == 0) {
       response.getHeader().setRcode(Rcode.NXDOMAIN);
+      for (Record record : records)
+        if (record.getType() == Type.SOA)
+          response.addRecord(record, Section.AUTHORITY);
+    }
     return response;
   }
 }

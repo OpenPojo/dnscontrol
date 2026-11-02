@@ -30,11 +30,13 @@ import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.ReverseMap;
+import org.xbill.DNS.SOARecord;
 import org.xbill.DNS.Section;
 import org.xbill.DNS.SimpleResolver;
 import org.xbill.DNS.Type;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
@@ -67,6 +69,21 @@ class FakeDnsServerTest {
       assertThat(response.getHeader().getRcode(), is(Rcode.NXDOMAIN));
       assertThat(response.getSectionArray(Section.ANSWER).length, is(0));
       assertThat(server.queries(), contains(Record.newRecord(name, Type.A, DClass.IN)));
+    }
+  }
+
+  @Test
+  void shouldPutTheZoneSoaInTheAuthoritySectionOfAnNxdomainAnswer() throws Exception {
+    Name zone = Name.fromString("a.test.");
+    SOARecord soa = new SOARecord(zone, DClass.IN, 60, Name.fromString("ns.a.test."), Name.fromString("admin.a.test."),
+        1, 3600, 600, 86400, 2);
+    try (FakeDnsServer server = FakeDnsServer.start()) {
+      server.addRecord(soa);
+
+      Message response = query(server, Name.fromString("missing.a.test."), Type.A);
+
+      assertThat(response.getHeader().getRcode(), is(Rcode.NXDOMAIN));
+      assertThat(response.getSectionArray(Section.AUTHORITY), arrayContaining((Record) soa));
     }
   }
 
