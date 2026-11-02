@@ -255,6 +255,48 @@
               <goal>report</goal>
             </goals>
           </execution>
+          <execution>
+            <!-- Coverage floor, a few points under the M7 numbers (bundle 97.9% lines / 95.1% branches, every package
+                 but the provider at 100% lines). The provider's get() and name() run only in ResolverProviderIT's
+                 spawned JVM, the same reason PIT excludes it, so it counts toward the bundle but has no package floor. -->
+            <id>check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.95</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.90</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+                <rule>
+                  <element>PACKAGE</element>
+                  <excludes>
+                    <exclude>com.openpojo.dns.service.java.spi</exclude>
+                  </excludes>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.95</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
