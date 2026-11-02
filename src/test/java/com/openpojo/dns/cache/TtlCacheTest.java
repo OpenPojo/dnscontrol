@@ -34,6 +34,7 @@ import org.xbill.DNS.ClockedCache;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
+import org.xbill.DNS.SOARecord;
 import org.xbill.DNS.Type;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -76,6 +77,22 @@ class TtlCacheTest {
 
     clock.advance(Duration.ofMillis(200));
     lookup(HOST);
+    assertThat(server.queries(), hasSize(2));
+  }
+
+  @Test
+  void shouldRememberANonexistentNameForTheSoaMinimum() throws Exception {
+    server.addRecord(new SOARecord(name("a.test."), DClass.IN, 60, name("ns.a.test."), name("admin.a.test."),
+        1, 3600, 600, 86400, 2));
+    Name missing = name("missing.a.test.");
+
+    lookup(missing);
+    clock.advance(Duration.ofMillis(1900));
+    lookup(missing);
+    assertThat(server.queries(), hasSize(1));
+
+    clock.advance(Duration.ofMillis(200));
+    lookup(missing);
     assertThat(server.queries(), hasSize(2));
   }
 
