@@ -1,0 +1,87 @@
+name: Release
+
+# A tag v<version> builds, signs and publishes <version> to Maven Central through the Central Publisher Portal.
+# The version comes from the tag; the pom on master stays at the next -SNAPSHOT.
+# Run it by hand (workflow_dispatch) with "publish" unchecked for a dry run: the signed bundle is kept as a workflow
+# artifact and nothing is uploaded.
+#
+# Repository secrets:
+#   CENTRAL_USERNAME, CENTRAL_PASSWORD  a user token from https://central.sonatype.com/account
+#   GPG_PRIVATE_KEY                     armored secret key (gpg --armor --export-secret-keys <key id>)
+#   GPG_PASSPHRASE                      its passphrase
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to build, e.g. 1.0.0
+        required: true
+      publish:
+        description: Upload to Maven Central (leave unchecked for a dry run)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            version="${GITHUB_REF_NAME#v}"
+            publish=true
+          else
+            version="$INPUT_VERSION"
+            publish="$INPUT_PUBLISH"
+          fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]] || [[ "$version" == *SNAPSHOT ]]; then
+            echo "::error::'$version' is not a release version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$publish" = true ]; then echo "skip-upload=false"; else echo "skip-upload=true"; fi >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: corretto
+          java-version: 21
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Set version ${{ steps.version.outputs.version }}
+        run: >-
+          ./mvnw -B -ntp org.codehaus.mojo:versions-maven-plugin:2.23.0:set
+          -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Build, test, sign and publish
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: ./mvnw -B -ntp -Prelease -DskipUpload=${{ steps.version.outputs.skip-upload }} deploy
+
+      - name: Keep the signed bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: central-bundle-${{ steps.version.outputs.version }}
+          path: target/central-publishing/central-bundle.zip
+          if-no-files-found: error
