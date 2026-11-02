@@ -28,6 +28,11 @@ import java.util.logging.Logger;
 public final class JdkAddressCache {
   private static final Logger LOGGER = Logger.getLogger(JdkAddressCache.class.getName());
 
+  /** The java.security property for how long the JDK caches a host name, in seconds; it wins over the system property. */
+  public static final String NETWORKADDRESS_CACHE_TTL = "networkaddress.cache.ttl";
+  /** The system property for the same, used when java.security does not set one. */
+  public static final String SUN_NET_INETADDR_TTL = "sun.net.inetaddr.ttl";
+
   private final UnaryOperator<String> securityProperties;
   private final UnaryOperator<String> systemProperties;
 
@@ -41,12 +46,15 @@ public final class JdkAddressCache {
     this.systemProperties = systemProperties;
   }
 
+  /** Logs one warning when nothing configures the JDK cache, so it holds every name for its 30 s default. */
   public void warnIfAtDefault() {
-    if ("0".equals(securityProperties.apply("networkaddress.cache.ttl"))
-        || systemProperties.apply("sun.net.inetaddr.ttl") != null)
-      return;
-    LOGGER.warning("The JDK caches every host name for 30 s by default, above DNSControl, so DNS record TTLs are not"
-        + " honoured. Set -Dsun.net.inetaddr.ttl=0 (or networkaddress.cache.ttl=0 in java.security) to let DNSControl's"
-        + " TTL-respecting cache decide.");
+    if (isAtDefault())
+      LOGGER.warning("The JDK caches every host name for 30 s by default, above DNSControl, so DNS record TTLs are not"
+          + " honoured. Set -Dsun.net.inetaddr.ttl=0 (or networkaddress.cache.ttl=0 in java.security) to let DNSControl's"
+          + " TTL-respecting cache decide.");
+  }
+
+  private boolean isAtDefault() {
+    return securityProperties.apply(NETWORKADDRESS_CACHE_TTL) == null && systemProperties.apply(SUN_NET_INETADDR_TTL) == null;
   }
 }

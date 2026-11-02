@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import static com.openpojo.dns.cache.JdkAddressCache.NETWORKADDRESS_CACHE_TTL;
+import static com.openpojo.dns.cache.JdkAddressCache.SUN_NET_INETADDR_TTL;
 import static com.openpojo.dns.testing.CapturedLogs.capturingLogsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -31,14 +33,21 @@ class JdkAddressCacheTest {
 
   @Test
   void shouldNotWarnWhenTheJdkCacheIsTurnedOffInJavaSecurity() {
-    JdkAddressCache jdkCache = new JdkAddressCache(Map.of("networkaddress.cache.ttl", "0")::get, NOTHING_SET::get);
+    JdkAddressCache jdkCache = new JdkAddressCache(Map.of(NETWORKADDRESS_CACHE_TTL, "0")::get, NOTHING_SET::get);
 
     assertThat(capturingLogsOf(JdkAddressCache.class, jdkCache::warnIfAtDefault), empty());
   }
 
   @Test
   void shouldNotWarnWhenTheOperatorChoseATtlWithTheSystemProperty() {
-    JdkAddressCache jdkCache = new JdkAddressCache(NOTHING_SET::get, Map.of("sun.net.inetaddr.ttl", "60")::get);
+    JdkAddressCache jdkCache = new JdkAddressCache(NOTHING_SET::get, Map.of(SUN_NET_INETADDR_TTL, "60")::get);
+
+    assertThat(capturingLogsOf(JdkAddressCache.class, jdkCache::warnIfAtDefault), empty());
+  }
+
+  @Test
+  void shouldNotWarnWhenTheOperatorChoseATtlInJavaSecurity() {
+    JdkAddressCache jdkCache = new JdkAddressCache(Map.of(NETWORKADDRESS_CACHE_TTL, "60")::get, NOTHING_SET::get);
 
     assertThat(capturingLogsOf(JdkAddressCache.class, jdkCache::warnIfAtDefault), empty());
   }

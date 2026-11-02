@@ -45,6 +45,7 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.Type;
 import org.xbill.DNS.hosts.HostsFileParser;
 
+import static com.openpojo.dns.cache.JdkAddressCache.SUN_NET_INETADDR_TTL;
 import static com.openpojo.dns.testing.CapturedLogs.capturingLogsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -64,7 +65,6 @@ import static org.hamcrest.Matchers.sameInstance;
  */
 class DnsControlInstallTest {
   private static final String JDK_NET_HOSTS_FILE = "jdk.net.hosts.file";
-  private static final String SUN_NET_INETADDR_TTL = "sun.net.inetaddr.ttl";
   private FakeDnsServer domainServer;
 
   @BeforeEach
