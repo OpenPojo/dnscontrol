@@ -142,7 +142,10 @@ class DnsControlTest {
         System.setProperty(DnsConfigReader.ENV_NAME_SERVERS_KEY, UNKNOWN_SERVER);
 
     RouteSetupException thrown = assertThrows(RouteSetupException.class, () -> recreateInstance());
-    assertThat(thrown.getMessage(), containsString("Unknown host defined in configuration reader [" + EnvironmentDnsConfigReader.class.getName() + "] " + UNKNOWN_SERVER));
+    assertThat(thrown.getMessage(), startsWith("Unknown host defined in configuration reader [" + EnvironmentDnsConfigReader.class.getName() + "] "));
+    // The rest is the JDK's own UnknownHostException text: worded per OS ("No such host is known (...)" on Windows),
+    // and just the name when the JDK's negative cache answers. Every form names the host.
+    assertThat(thrown.getMessage(), containsString(UNKNOWN_SERVER));
     assertThat(thrown.getCause(), isA(java.net.UnknownHostException.class));
   }
 
