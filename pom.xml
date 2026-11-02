@@ -42,6 +42,8 @@
     <maven.compiler.release>21</maven.compiler.release>
     <!-- Filled by the JaCoCo agent; referenced late-bound by surefire and failsafe below. -->
     <argLine></argLine>
+    <!-- Extra test JVM flags; the strict-jvm-access profile fills it on JDKs that know the flags. -->
+    <test.jvm.access.flags></test.jvm.access.flags>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -155,7 +157,7 @@
         <configuration>
           <!-- The provider is on this JVM's class path; keep it from auto-activating on the first lookup so the
                tests stay hermetic. ResolverProviderIT spawns a JVM without this flag to prove the real path. -->
-          <argLine>@{argLine} -Ddnscontrol.autoinstall=false</argLine>
+          <argLine>@{argLine} ${test.jvm.access.flags} -Ddnscontrol.autoinstall=false</argLine>
         </configuration>
       </plugin>
 
@@ -166,7 +168,7 @@
         <configuration>
           <!-- The integration test spawns a JVM with java.class.path; a manifest-only jar would hide the real entries. -->
           <useManifestOnlyJar>false</useManifestOnlyJar>
-          <argLine>@{argLine} -Ddnscontrol.autoinstall=false</argLine>
+          <argLine>@{argLine} ${test.jvm.access.flags} -Ddnscontrol.autoinstall=false</argLine>
         </configuration>
         <executions>
           <execution>
@@ -259,6 +261,18 @@
   </build>
 
   <profiles>
+    <profile>
+      <!-- Proves neither DNSControl nor its test dependencies need sun.misc.Unsafe memory access (JEP 471) or
+           native access (JEP 472): the tests fail instead of warning. The flags exist from JDK 24, and JDK 21
+           refuses to start with them, so the profile switches itself on there. -->
+      <id>strict-jvm-access</id>
+      <activation>
+        <jdk>[24,)</jdk>
+      </activation>
+      <properties>
+        <test.jvm.access.flags>--sun-misc-unsafe-memory-access=deny --illegal-native-access=deny</test.jvm.access.flags>
+      </properties>
+    </profile>
     <profile>
       <!-- Signs and publishes to Maven Central through the Sonatype Central Portal. Credentials come from the
            "central" server entry in settings.xml. Wired into the tag-driven release workflow in M8. -->
