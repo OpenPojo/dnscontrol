@@ -43,7 +43,7 @@ public final class JdkAddressCache {
 
   public void warnIfAtDefault() {
     if ("0".equals(securityProperties.apply("networkaddress.cache.ttl"))
-        || "0".equals(systemProperties.apply("sun.net.inetaddr.ttl")))
+        || systemProperties.apply("sun.net.inetaddr.ttl") != null)
       return;
     LOGGER.warning("The JDK caches every host name for 30 s by default, above DNSControl, so DNS record TTLs are not"
         + " honoured. Set -Dsun.net.inetaddr.ttl=0 (or networkaddress.cache.ttl=0 in java.security) to let DNSControl's"

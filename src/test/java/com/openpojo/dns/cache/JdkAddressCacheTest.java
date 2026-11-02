@@ -35,4 +35,11 @@ class JdkAddressCacheTest {
 
     assertThat(capturingLogsOf(JdkAddressCache.class, jdkCache::warnIfAtDefault), empty());
   }
+
+  @Test
+  void shouldNotWarnWhenTheOperatorChoseATtlWithTheSystemProperty() {
+    JdkAddressCache jdkCache = new JdkAddressCache(NOTHING_SET::get, Map.of("sun.net.inetaddr.ttl", "60")::get);
+
+    assertThat(capturingLogsOf(JdkAddressCache.class, jdkCache::warnIfAtDefault), empty());
+  }
 }
