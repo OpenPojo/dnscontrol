@@ -19,6 +19,7 @@
 package com.openpojo.dns;
 
 import java.net.InetAddress;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -60,6 +61,7 @@ class HostsFileReloadConcurrencyTest {
   private static final int REWRITES = 3_000;
   private static final String OLD_ADDRESS = "10.0.0.1";
   private static final String NEW_ADDRESS = "10.0.0.2";
+  private static final int MOVE_ATTEMPTS = 5_000;
 
   private FakeDnsServer domainServer;
   private Path hosts;
@@ -110,14 +112,18 @@ class HostsFileReloadConcurrencyTest {
         } while (rewriting.get());
       }));
 
-    started.await();
-    for (int rewrite = 1; rewrite <= REWRITES; rewrite++) {
-      replaceHostsFileWith((rewrite % 2 == 1 ? NEW_ADDRESS : OLD_ADDRESS) + " racing.a.test", rewrite);
+    try {
+      started.await();
+      for (int rewrite = 1; rewrite <= REWRITES; rewrite++) {
+        replaceHostsFileWith((rewrite % 2 == 1 ? NEW_ADDRESS : OLD_ADDRESS) + " racing.a.test", rewrite);
+      }
+    } finally {
+      // Even when a rewrite fails, stop the lookup threads; left running they would query the next test's servers.
+      rewriting.set(false);
+      for (Future<?> lookup : lookups)
+        lookup.get();
+      pool.shutdown();
     }
-    rewriting.set(false);
-    for (Future<?> lookup : lookups)
-      lookup.get();
-    pool.shutdown();
 
     assertThat(failures, empty());
     assertThat(answers, containsInAnyOrder(OLD_ADDRESS, NEW_ADDRESS));
@@ -128,7 +134,21 @@ class HostsFileReloadConcurrencyTest {
     Path next = Files.createTempFile(hosts.getParent(), "hosts", ".next");
     Files.writeString(next, line + "\n");
     Files.setLastModifiedTime(next, FileTime.from(Instant.now().plusSeconds(rewrite)));
-    Files.move(next, hosts, ATOMIC_MOVE, REPLACE_EXISTING);
+    moveIntoPlace(next);
+  }
+
+  /** Windows refuses to replace a file while a reload has it open; writers there retry, and so does this one. */
+  private void moveIntoPlace(Path next) throws Exception {
+    for (int attempt = 1; ; attempt++) {
+      try {
+        Files.move(next, hosts, ATOMIC_MOVE, REPLACE_EXISTING);
+        return;
+      } catch (AccessDeniedException heldOpenByAReload) {
+        if (attempt == MOVE_ATTEMPTS)
+          throw heldOpenByAReload;
+        Thread.sleep(1);
+      }
+    }
   }
 
   private static String addressOf(Record[] answers) {

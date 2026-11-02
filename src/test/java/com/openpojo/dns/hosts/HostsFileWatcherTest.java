@@ -41,6 +41,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class HostsFileWatcherTest {
   private static final Duration NOT_DURING_THE_TEST = Duration.ofHours(1);
@@ -92,6 +93,8 @@ class HostsFileWatcherTest {
 
   @Test
   void shouldAnswerNothingFromAnUnreadableFileInsteadOfFailing() throws Exception {
+    assumeTrue(hosts.getFileSystem().supportedFileAttributeViews().contains("posix"),
+        "a file is made unreadable through POSIX permissions, which Windows file systems do not have");
     Files.setPosixFilePermissions(hosts, PosixFilePermissions.fromString("---------"));
 
     watcher = HostsFileWatcher.watch(hosts, NOT_DURING_THE_TEST);
