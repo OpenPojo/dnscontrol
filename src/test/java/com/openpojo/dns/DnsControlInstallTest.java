@@ -121,9 +121,8 @@ class DnsControlInstallTest {
 
     Files.writeString(hosts, "10.0.0.6 server50.a.test\n");
     Files.setLastModifiedTime(hosts, FileTime.from(Instant.now().plusSeconds(5)));
-    Record[] answers = new Lookup("server50.a.test.", Type.A).run();
 
-    assertThat(((ARecord) answers[0]).getAddress(), is(InetAddress.getByName("10.0.0.6")));
+    assertThat(addressWithinTwoSeconds("server50.a.test.", InetAddress.getByName("10.0.0.6")), is(InetAddress.getByName("10.0.0.6")));
   }
 
   @Test
@@ -190,6 +189,21 @@ class DnsControlInstallTest {
   }
 
   @Test
+  void uninstallShouldStopWatchingTheHostsFile() throws Exception {
+    HostsFileParser parserBefore = Lookup.getDefaultHostsFileParser();
+    Path hosts = hostsFileWith("10.0.0.5 server50.a.test");
+    System.setProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL, "0");
+    DnsControl.install();
+
+    DnsControl.uninstall();
+    Files.writeString(hosts, "10.0.0.6 server50.a.test\n");
+    Files.setLastModifiedTime(hosts, FileTime.from(Instant.now().plusSeconds(5)));
+    Thread.sleep(100);
+
+    assertThat(Lookup.getDefaultHostsFileParser(), sameInstance(parserBefore));
+  }
+
+  @Test
   void shouldInstallNothingWhenDisabled() throws Exception {
     Resolver resolverBefore = Lookup.getDefaultResolver();
     HostsFileParser parserBefore = Lookup.getDefaultHostsFileParser();
@@ -229,6 +243,22 @@ class DnsControlInstallTest {
     DnsControl.uninstall();
 
     assertThat(Lookup.getDefaultResolver(), sameInstance(resolverBefore));
+  }
+
+  /** Hosts-file changes are picked up by a background check, so wait for the expected answer instead of racing it. */
+  private static InetAddress addressWithinTwoSeconds(String name, InetAddress expected) throws Exception {
+    Instant deadline = Instant.now().plusSeconds(2);
+    InetAddress address = addressOf(name);
+    while (!expected.equals(address) && Instant.now().isBefore(deadline)) {
+      Thread.sleep(5);
+      address = addressOf(name);
+    }
+    return address;
+  }
+
+  private static InetAddress addressOf(String name) throws Exception {
+    Record[] answers = new Lookup(name, Type.A).run();
+    return answers == null ? null : ((ARecord) answers[0]).getAddress();
   }
 
   private static Path hostsFileWith(String line) throws Exception {

@@ -22,14 +22,10 @@ import java.util.Arrays;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.xbill.DNS.ResolverConfig;
 
 import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static com.openpojo.dns.config.utils.ServerAddressParser.parse;
@@ -44,40 +40,19 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 class SystemDnsConfigReaderTest {
 
-  private SystemDnsConfigReader systemDnsConfigReader;
-
-  @BeforeEach
-  void setup() {
-    ResolverConfig.refresh();
-    systemDnsConfigReader = new SystemDnsConfigReader();
-  }
-
-  @AfterEach
-  void teardown() {
-    ResolverConfig.refresh();
+  @Test
+  void shouldReturnEmptyConfigurationIfSystemServersIsNull() {
+    assertThat(new SystemDnsConfigReader(() -> null).hasConfiguration(), is(false));
   }
 
   @Test
-  void shouldReturnEmptyConfigurationIfSystemServersIsNull() throws NoSuchFieldException, IllegalAccessException {
-    setServersField(null);
-    assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
-  }
-
-  @Test
-  void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() throws NoSuchFieldException, IllegalAccessException {
-    setServersField(Collections.<InetSocketAddress>emptyList());
-    assertThat(systemDnsConfigReader.hasConfiguration(), is(false));
-  }
-
-  private void setServersField(List<InetSocketAddress> value) throws NoSuchFieldException, IllegalAccessException {
-    Field serversField = ResolverConfig.class.getDeclaredField("servers");
-    serversField.setAccessible(true);
-    serversField.set(ResolverConfig.getCurrentConfig(), value);
+  void shouldReturnEmptyConfigurationIfSystemServersIsEmptyArray() {
+    assertThat(new SystemDnsConfigReader(Collections::emptyList).hasConfiguration(), is(false));
   }
 
   @Test
   void canReadSystemDNSEntries() throws Exception {
-    final Map<String, List<String>> configuration = systemDnsConfigReader.getConfiguration();
+    final Map<String, List<String>> configuration = new SystemDnsConfigReader().getConfiguration();
     assertThat(configuration, notNullValue());
     assertThat(configuration.size(), is(1));
     final List<String> defaultRoute = configuration.get(DOT);
@@ -89,11 +64,10 @@ class SystemDnsConfigReaderTest {
     }
   }
 
-
   @Test
   void shouldKeepThePortOfEachSystemServer() throws Exception {
-    setServersField(Arrays.asList(new InetSocketAddress(InetAddress.getByName("::1"), 5353), new InetSocketAddress(InetAddress.getByName("10.0.0.1"), 53)));
+    List<InetSocketAddress> servers = Arrays.asList(new InetSocketAddress(InetAddress.getByName("::1"), 5353), new InetSocketAddress(InetAddress.getByName("10.0.0.1"), 53));
 
-    assertThat(systemDnsConfigReader.getConfiguration().get(DOT), contains("[0:0:0:0:0:0:0:1]:5353", "10.0.0.1:53"));
+    assertThat(new SystemDnsConfigReader(() -> servers).getConfiguration().get(DOT), contains("[0:0:0:0:0:0:0:1]:5353", "10.0.0.1:53"));
   }
 }

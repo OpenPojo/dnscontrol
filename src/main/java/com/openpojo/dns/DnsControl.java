@@ -20,12 +20,14 @@ package com.openpojo.dns;
 
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.openpojo.dns.cache.JdkAddressCache;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.config.DnsConfigReaderFactory;
 import com.openpojo.dns.exception.RouteSetupException;
+import com.openpojo.dns.hosts.HostsFileWatcher;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
 import com.openpojo.dns.routing.impl.RoutingTableBuilder;
@@ -49,6 +51,7 @@ public class DnsControl {
   private boolean installed;
   private Resolver resolverBeforeInstall;
   private HostsFileParser hostsFileParserBeforeInstall;
+  private HostsFileWatcher hostsFileWatcher;
 
   public static DnsControl getInstance() {
     return Instance.INSTANCE.get();
@@ -93,7 +96,7 @@ public class DnsControl {
     if (!builder.getDestinationMap().isEmpty())
       setRoutingTable(builder.build());
     registerRoutingResolver();
-    installHostsFile();
+    hostsFileWatcher = installHostsFile();
     JdkAddressCache.forThisJvm().warnIfAtDefault();
     installed = true;
   }
@@ -101,6 +104,8 @@ public class DnsControl {
   private synchronized void uninstallFromDnsjava() {
     if (!installed)
       return;
+    if (hostsFileWatcher != null)
+      hostsFileWatcher.close();
     Lookup.setDefaultResolver(resolverBeforeInstall);
     Lookup.setDefaultHostsFileParser(hostsFileParserBeforeInstall);
     installed = false;
@@ -114,13 +119,14 @@ public class DnsControl {
   /** DNSControl's default for that knob, so an edited hosts file is seen within a second instead of five minutes. */
   public static final String DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS = "1000";
 
-  private static void installHostsFile() {
+  private static HostsFileWatcher installHostsFile() {
     String hostsFile = System.getProperty(JDK_NET_HOSTS_FILE);
     if (hostsFile == null)
-      return;
+      return null;
     if (System.getProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL) == null)
       System.setProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL, DEFAULT_HOSTS_FILE_CHECK_INTERVAL_MS);
-    Lookup.setDefaultHostsFileParser(new HostsFileParser(Path.of(hostsFile), true));
+    Duration checkInterval = Duration.ofMillis(Long.parseLong(System.getProperty(DNSJAVA_HOSTS_FILE_CHECK_INTERVAL)));
+    return HostsFileWatcher.watch(Path.of(hostsFile), checkInterval);
   }
 
   public void setRoutingTable(RoutingTable routingTable) {

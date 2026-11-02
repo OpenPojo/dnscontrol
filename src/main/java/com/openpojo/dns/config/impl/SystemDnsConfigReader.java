@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.openpojo.dns.config.DnsConfigReader;
 
@@ -32,6 +33,17 @@ import static com.openpojo.dns.routing.RoutingTable.DOT;
 import static org.xbill.DNS.ResolverConfig.getCurrentConfig;
 
 public class SystemDnsConfigReader implements DnsConfigReader {
+
+  private final Supplier<List<InetSocketAddress>> systemServers;
+
+  public SystemDnsConfigReader() {
+    this(() -> getCurrentConfig().servers());
+  }
+
+  /** dnsjava never reports an empty server list (it falls back to localhost), so tests reach that path through here. */
+  SystemDnsConfigReader(Supplier<List<InetSocketAddress>> systemServers) {
+    this.systemServers = systemServers;
+  }
 
   @Override
   public Map<String, List<String>> getConfiguration() {
@@ -49,8 +61,8 @@ public class SystemDnsConfigReader implements DnsConfigReader {
   }
 
   /** The system resolvers as {@code host:port} entries, so a non-standard port survives into the routing table. */
-  private static String[] systemServers() {
-    final List<InetSocketAddress> servers = getCurrentConfig().servers();
+  private String[] systemServers() {
+    final List<InetSocketAddress> servers = systemServers.get();
     if (servers == null)
       return new String[0];
     return servers.stream().map(ServerAddressParser::format).toArray(String[]::new);
