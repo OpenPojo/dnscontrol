@@ -1,4 +1,4 @@
-## DNSControl [![Build Status](https://travis-ci.org/OpenPojo/dnscontrol.svg?branch=master)](https://travis-ci.org/OpenPojo/dnscontrol) [![Coverage Status](https://coveralls.io/repos/github/OpenPojo/dnscontrol/badge.svg?branch=master)](https://coveralls.io/github/OpenPojo/dnscontrol?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.openpojo/dnscontrol/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.openpojo/dnscontrol)
+## DNSControl [![CI](https://github.com/OpenPojo/dnscontrol/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/OpenPojo/dnscontrol/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/OpenPojo/dnscontrol/badge.svg?branch=master)](https://coveralls.io/github/OpenPojo/dnscontrol?branch=master) [![Maven Central](https://img.shields.io/maven-central/v/com.openpojo/dnscontrol)](https://central.sonatype.com/artifact/com.openpojo/dnscontrol)
 ### Simplified control over DNS routing in JAVA
 When you need more control on which DNS servers to use in Java for certain hosts or domains.
 
