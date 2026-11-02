@@ -62,7 +62,7 @@
     <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
     <pitest-maven.version>1.30.1</pitest-maven.version>
     <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
   </properties>
@@ -317,7 +317,8 @@
     </profile>
     <profile>
       <!-- Signs and publishes to Maven Central through the Sonatype Central Portal. Credentials come from the
-           "central" server entry in settings.xml. Wired into the tag-driven release workflow in M8. -->
+           "central" server entry in settings.xml. Run by .github/workflows/release.yml on a v* tag; add
+           -DskipUpload=true for a dry run that stops at target/central-publishing/central-bundle.zip. -->
       <id>release</id>
       <build>
         <plugins>
@@ -369,6 +370,8 @@
             <configuration>
               <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
+              <!-- Fail the release job if the portal rejects the bundle instead of stopping at upload. -->
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>

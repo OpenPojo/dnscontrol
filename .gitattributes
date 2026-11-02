@@ -1,0 +1,5 @@
+* text=auto
+# The wrapper script must keep LF on a Windows checkout, or bash cannot run it.
+mvnw text eol=lf
+# Committed with CRLF as the wrapper generates it; leave the bytes alone.
+*.cmd -text

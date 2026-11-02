@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: JDK ${{ matrix.java }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        java: [21, 25, 27]
+        include:
+          # The quality leg: mutation testing, release-profile packaging (sources + javadoc) and the coverage upload.
+          - os: ubuntu-latest
+            java: 21
+            quality: true
+          # dnsjava's ResolverConfig reads the system DNS servers differently on each OS.
+          - os: macos-latest
+            java: 21
+          - os: windows-latest
+            java: 21
+    # The strict-jvm-access profile (deny sun.misc.Unsafe memory access and native access) switches itself on from
+    # JDK 24, so the 25 and 27 legs run the suite with those flags; JDK 21 refuses to start with them.
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: corretto
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Build, unit and integration tests, coverage gate
+        shell: bash
+        run: ./mvnw -B -ntp verify
+
+      - name: Mutation testing
+        if: matrix.quality
+        shell: bash
+        run: ./mvnw -B -ntp pitest:mutationCoverage
+
+      - name: Release packaging (sources and javadoc jars, unsigned)
+        if: matrix.quality
+        shell: bash
+        run: ./mvnw -B -ntp -Prelease -Dgpg.skip -DskipTests -Djacoco.skip package
+
+      - name: Upload coverage to Coveralls
+        if: matrix.quality
+        uses: coverallsapp/github-action@v2
+        with:
+          file: target/site/jacoco/jacoco.xml
+          # The JaCoCo check in the build is the gate; a Coveralls outage must not fail CI.
+          fail-on-error: false
+
+      - name: Keep test and mutation reports
+        if: failure() || matrix.quality
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-jdk${{ matrix.java }}-${{ matrix.os }}
+          path: |
+            target/surefire-reports
+            target/failsafe-reports
+            target/site/jacoco
+            target/pit-reports
+          if-no-files-found: ignore
+          retention-days: 14
