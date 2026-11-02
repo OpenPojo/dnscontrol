@@ -64,6 +64,7 @@ import static org.hamcrest.Matchers.sameInstance;
  */
 class DnsControlInstallTest {
   private static final String JDK_NET_HOSTS_FILE = "jdk.net.hosts.file";
+  private static final String SUN_NET_INETADDR_TTL = "sun.net.inetaddr.ttl";
   private FakeDnsServer domainServer;
 
   @BeforeEach
@@ -81,6 +82,7 @@ class DnsControlInstallTest {
   void restoreDnsjavaDefaults() {
     System.clearProperty(DnsConfigReader.CONFIG_FILE_ENV_VARIABLE);
     System.clearProperty(JDK_NET_HOSTS_FILE);
+    System.clearProperty(SUN_NET_INETADDR_TTL);
     System.clearProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL);
     System.clearProperty(DnsControl.ENABLED);
     System.clearProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN);
@@ -151,6 +153,13 @@ class DnsControlInstallTest {
     assertThat(records.get(0).getLevel(), is(Level.WARNING));
     assertThat(records.get(0).getMessage(), allOf(containsString("30 s"), containsString("networkaddress.cache.ttl"),
         containsString("sun.net.inetaddr.ttl")));
+  }
+
+  @Test
+  void shouldNotWarnWhenTheJdkCacheIsTurnedOffWithTheSystemProperty() {
+    System.setProperty(SUN_NET_INETADDR_TTL, "0");
+
+    assertThat(capturingLogsOf(JdkAddressCache.class, DnsControl::install), empty());
   }
 
   @Test
