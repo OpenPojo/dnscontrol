@@ -18,12 +18,9 @@
 
 package com.openpojo.dns.service.initialize;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 import com.openpojo.dns.exception.DomainException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 
+import static com.openpojo.dns.testing.CapturedLogs.capturingLogsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -118,22 +116,5 @@ class DefaultDomainTest {
     System.setProperty(Initializer.DNSCONTROL_SEARCH_DOMAIN, "new.test.");
 
     assertThat(capturingLogsOf(DefaultDomain.class, () -> defaultDomain.init()), empty());
-  }
-
-  private static List<LogRecord> capturingLogsOf(Class<?> source, Runnable action) {
-    List<LogRecord> records = new ArrayList<>();
-    Logger logger = Logger.getLogger(source.getName());
-    Handler handler = new Handler() {
-      @Override public void publish(LogRecord record) { records.add(record); }
-      @Override public void flush() { }
-      @Override public void close() { }
-    };
-    logger.addHandler(handler);
-    try {
-      action.run();
-    } finally {
-      logger.removeHandler(handler);
-    }
-    return records;
   }
 }
