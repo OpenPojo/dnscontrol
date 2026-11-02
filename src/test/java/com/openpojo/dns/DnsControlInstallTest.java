@@ -23,7 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
+import com.openpojo.dns.cache.JdkAddressCache;
 import com.openpojo.dns.config.DnsConfigReader;
 import com.openpojo.dns.resolve.RoutingResolver;
 import com.openpojo.dns.routing.RoutingTable;
@@ -41,9 +45,13 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.Type;
 import org.xbill.DNS.hosts.HostsFileParser;
 
+import static com.openpojo.dns.testing.CapturedLogs.capturingLogsOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
@@ -133,6 +141,16 @@ class DnsControlInstallTest {
     DnsControl.install();
 
     assertThat(System.getProperty(DnsControl.DNSJAVA_HOSTS_FILE_CHECK_INTERVAL), is("12345"));
+  }
+
+  @Test
+  void shouldWarnAboutTheJdksOwnThirtySecondCacheWhenNothingConfiguresIt() {
+    List<LogRecord> records = capturingLogsOf(JdkAddressCache.class, DnsControl::install);
+
+    assertThat(records, hasSize(1));
+    assertThat(records.get(0).getLevel(), is(Level.WARNING));
+    assertThat(records.get(0).getMessage(), allOf(containsString("30 s"), containsString("networkaddress.cache.ttl"),
+        containsString("sun.net.inetaddr.ttl")));
   }
 
   @Test
